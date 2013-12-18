@@ -13,3 +13,10 @@ results
 
 npm-debug.log
 node_modules
+
+
+# Go home Webstorm!
+.idea/
+
+# Stevie Jobs!!!
+.DS_Store
