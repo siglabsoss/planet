@@ -3,7 +3,8 @@
   "dependencies": {
     "basePackages": {
       "leaflet": {},
-      "iron-router": {}
+      "iron-router": {},
+      "sugar": {}
     },
     "packages": {
       "leaflet": {
@@ -15,6 +16,11 @@
         "git": "https://github.com/EventedMind/iron-router.git",
         "tag": "v0.6.1",
         "commit": "4e1ee0581d68bff422a915dacb0bd30eae10fe08"
+      },
+      "sugar": {
+        "git": "https://github.com/bevanhunt/meteor-sugar.git",
+        "tag": "v0.0.9",
+        "commit": "751a4465e0a7d7e4e800e794ca1e6a449e15e63d"
       }
     }
   }
