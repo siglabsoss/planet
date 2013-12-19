@@ -26,3 +26,17 @@
         <input type="submit">
     </form>
 </template>
+
+<template name="debugLog">
+    <ul>
+    {{#each logs}}
+        <li>{{>debugLogItem}}</li>
+    {{/each}}
+    </ul>
+</template>
+
+
+<template name="debugLogItem">
+<!-- The member variable of the log entry is called 'l' -->
+    {{l}}
+</template>
