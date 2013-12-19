@@ -7,7 +7,22 @@
 
 
 
-<template name="logged-out">
+<template name="loggedOut">
     <h1>Please Login</h1>
-    user,pass
+    user,pass<br>
+    <h2><a href="{{pathFor 'dashboard'}}">Skip this</a></h2>
+    {{>debugPost}}
+</template>
+
+
+<template name="webHookOk">
+    ok
+</template>
+
+
+<template name="debugPost">
+    <form action="http://localhost:3000/webhook" method="post">
+        <input type="text" name="lol">
+        <input type="submit">
+    </form>
 </template>
