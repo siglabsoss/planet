@@ -1,3 +1,13 @@
 <template name="dashboard">
     <h1>Dahsboard view</h1>
+    {{>main_map}}
+</template>
+
+
+<template name="main_map">
+    {{#constant}}
+    <div id="main_map_container" class="map_container">
+        <div id="map" class="map"></div>
+    </div>
+    {{/constant}}
 </template>
