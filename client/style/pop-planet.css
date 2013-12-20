@@ -1,1 +1,9 @@
 /* CSS declarations go here */
+
+
+.sortable-placeholder{
+    border: dashed 1px #666;
+    background-color:#cccccc;
+    height:40px;
+
+}

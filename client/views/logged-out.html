@@ -5,7 +5,7 @@
     <input type="button" value="Click" />
 </template>
 
-
+<!--------------- Below here are various templates that are lumped together --------------->
 
 <template name="loggedOut">
     <h1>Please Login</h1>
@@ -39,4 +39,29 @@
 <template name="debugLogItem">
 <!-- The member variable of the log entry is called 'l' -->
     {{l}}
+</template>
+
+<template name="groups">
+
+
+<ul id="sortable-groups">
+    <li id="item_2"><span>Home</span></li>
+    <li id="item_4"><span>Products</span>
+    <ul >
+        <li id="id2""item_4"><span>Category 1</span>
+    <ul>
+        <li id="id2""item_6"><span>product 1 of Category 1</span></li>
+        <li id="id2""item_7"><span>product 2 of Category 1</span></li>
+    </ul>
+    </li>
+    <li id="id2""item_5"><span>Category 2</span></li>
+    </ul>
+    </li>
+    <li id="id2""item_3"><span>About us</span></li>
+</ul>
+
+</template>
+
+<template name="groupItem">
+
 </template>
