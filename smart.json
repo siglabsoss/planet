@@ -2,6 +2,7 @@
   "packages": {
     "leaflet": {},
     "iron-router": {},
-    "sugar": {}
+    "sugar": {},
+    "jquery-ui": {}
   }
 }

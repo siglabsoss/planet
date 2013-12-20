@@ -10,3 +10,4 @@ preserve-inputs
 leaflet
 iron-router
 sugar
+jquery-ui

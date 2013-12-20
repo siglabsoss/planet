@@ -4,7 +4,8 @@
     "basePackages": {
       "leaflet": {},
       "iron-router": {},
-      "sugar": {}
+      "sugar": {},
+      "jquery-ui": {}
     },
     "packages": {
       "leaflet": {
@@ -21,6 +22,11 @@
         "git": "https://github.com/bevanhunt/meteor-sugar.git",
         "tag": "v0.0.9",
         "commit": "751a4465e0a7d7e4e800e794ca1e6a449e15e63d"
+      },
+      "jquery-ui": {
+        "git": "https://github.com/TimHeckel/meteor-jquery-ui.git",
+        "tag": "v1.9.2",
+        "commit": "c437d45edcf1367df8d5ffa8bad2867758030bd2"
       }
     }
   }
