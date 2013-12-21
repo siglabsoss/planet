@@ -23,6 +23,10 @@
     /*-webkit-box-shadow:		1px -1px 8px #444;*/
 /*}*/
 
+body {
+    margin-top:40px;
+}
+
 a, a:visited {
     color: #4183C4;
     text-decoration: none;
@@ -183,4 +187,18 @@ input {
 
 .notice {
     color: #c33;
+}
+
+.red-background {
+    background-color: #f00;
+}
+
+.grey-background {
+    background-color: #ccc;
+}
+
+
+
+.navbar.pop-navbar {
+    min-height: 40px;
 }
