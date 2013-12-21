@@ -45,11 +45,24 @@
 <!--See http://mjsarfatti.com/sandbox/nestedSortable/ for working html example-->
 <template name="groups">
 
+    {{#constant}}
     <ol class="sortable">
         {{#each groups}}
         {{>group}}
         {{/each}}
     </ol>
+    {{/constant}}
+    {{groupsDebug}}
+</template>
+
+<template name="groupsReactive">
+
+    <ol class="sortable">
+        {{#each groups}}
+        {{>group}}
+        {{/each}}
+    </ol>
+
     {{groupsDebug}}
 </template>
 
@@ -75,7 +88,7 @@
 <!--</ol>-->
 
 <template name="group">
-    <li id="{{domId}}"><div><span class="disclose"><span></span></span>{{name}}</div>
+    <li id="mongo_{{_id}}"><div><span class="disclose"><span></span></span>{{name}}</div>
     {{#if children}}
     <ol>
     {{#each children}}

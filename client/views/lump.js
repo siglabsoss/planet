@@ -13,9 +13,14 @@ groupOrderChanged = function(newParentId, nodeId)
 
 
     console.log(namedParentId + " is now parent of " + nodeId);
+
+    var nodeIdTruncated = nodeId.substring(6); // these id's in the dom are prefixed by 'mongo_' so remove the first 6 chars
+    var parentIdTruncated = newParentId?newParentId.substring(6):null;
+
+    Groups.update(nodeIdTruncated, {$set:{parent:parentIdTruncated}});
 }
 
-Template.groups.rendered = function() {
+Template.groupsReactive.rendered = Template.groups.rendered = function() {
 
     $('ol.sortable').nestedSortable({
         forcePlaceholderSize: true,
@@ -44,6 +49,8 @@ Template.groups.rendered = function() {
 // returns true for success, false for failure
 function attachChild(output, child)
 {
+    var ret = true;
+    var childrenEntered = false; // set to true once we recurse into children
     for(var i in output)
     {
         if( output[i]._id == child.parent )
@@ -53,10 +60,11 @@ function attachChild(output, child)
         }
         if( output[i].children.length != 0 )
         {
-            return attachChild(output[i].children, child);
+            childrenEntered = true;
+            ret = ret && attachChild(output[i].children, child);
         }
     }
-    return false;
+    return ret && childrenEntered; // if we haven't looked at any children, ret will be incorrectly set to false which the && prevents
 }
 
 // recursive function to crawl the nested groups with a DFS and assign unique id's for the dom
@@ -102,6 +110,7 @@ function buildHeirarchy(g)
 
     var fullyOrdered;
 
+//    debugger;
     // running attachChild for every node is not guaranteed to work the first time
     do
     {
@@ -140,13 +149,18 @@ function buildHeirarchy(g)
 
 
 
-Template.groups.groups = function()
+Template.groupsReactive.groups = Template.groups.groups = function()
 {
     var flat = Groups.find().fetch().reverse();
     return buildHeirarchy(flat);
 }
 
-Template.groups.groupsDebug = function()
+Template.groupsReactive.groupsDebug = Template.groups.groupsDebug = function()
 {
     return JSON.stringify(Template.groups.groups());
+}
+
+Template.groupsReactive.domID = Template.groups.domID = function()
+{
+    return _id;
 }
