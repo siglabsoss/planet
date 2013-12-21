@@ -5,7 +5,9 @@
       "leaflet": {},
       "iron-router": {},
       "sugar": {},
-      "jquery-ui": {}
+      "jquery-ui": {},
+      "bootstrap-3": {},
+      "font-awesome": {}
     },
     "packages": {
       "leaflet": {
@@ -27,6 +29,16 @@
         "git": "https://github.com/TimHeckel/meteor-jquery-ui.git",
         "tag": "v1.9.2",
         "commit": "c437d45edcf1367df8d5ffa8bad2867758030bd2"
+      },
+      "bootstrap-3": {
+        "git": "https://github.com/mangasocial/meteor-bootstrap-3.git",
+        "tag": "v0.3.7",
+        "commit": "5dd0d142c870647b910be80bc777b96f0dd45e5e"
+      },
+      "font-awesome": {
+        "git": "https://github.com/nate-strauser/meteor-font-awesome.git",
+        "tag": "v4.0.3",
+        "commit": "61e9361384347547ae144f8228faa4deffda23db"
       }
     }
   }

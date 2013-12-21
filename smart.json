@@ -3,6 +3,8 @@
     "leaflet": {},
     "iron-router": {},
     "sugar": {},
-    "jquery-ui": {}
+    "jquery-ui": {},
+    "bootstrap-3": {},
+    "font-awesome": {}
   }
 }
