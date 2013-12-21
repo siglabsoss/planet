@@ -11,8 +11,7 @@ window.resize = function(t) {
 };
 
 
-
-Template.main_map.rendered = function() {
+Template.mainMap.rendered = function() {
     var query,
         _this = this;
     key = "d4b5ecf084be4fd5b333f2bc34c1df12";
@@ -25,7 +24,7 @@ Template.main_map.rendered = function() {
     L.Icon.Default.imagePath = 'packages/leaflet/images';
     window.map = L.map('map', {
         doubleClickZoom: false
-    }).setView([37.471075, -122.203932], 13);
+    }).setView([37.471075, -121.600932], 10);
     L.tileLayer("http://{s}.tile.cloudmade.com/" + key + "/" + mapStyle + "/256/{z}/{x}/{y}.png", {
         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>'
     }).addTo(window.map);
