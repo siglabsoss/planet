@@ -188,7 +188,15 @@
 
 
 					this._trigger("change", event, this._uiHash());
-                    console.log("change " + this.direction);
+
+                    // this block seems to handle drag in-s and dragouts
+                    var changeParent2 = null;
+                    if( ! $(this.currentItem[0].parentNode).hasClass('sortable') )
+                    {
+                        changeParent2 = this.currentItem[0].parentNode.id;
+                    }
+                    this.options.changeCallback( changeParent2, this.currentItem[0].id );
+
 					break;
 				}
 			}
