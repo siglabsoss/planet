@@ -19,6 +19,7 @@
 			doNotClear: false,
 			expandOnHover: 700,
 			isAllowed: function(placeholder, placeholderParent, originalItem) { return true; },
+            changeCallback: function(newParentId, nodeId) {},
 			isTree: false,
 			listType: 'ol',
 			maxLevels: 0,
@@ -174,6 +175,9 @@
 						this.hovering && window.clearTimeout(this.hovering);
 						this.hovering = null;
 						this._rearrange(event, item);
+
+                        console.log(itemElement.id + " moved " + this.direction);
+//                        console.log(itemElement.id + " is new parent of: " + this.currentItem[0].id);
 					} else {
 						break;
 					}
@@ -181,7 +185,10 @@
 					// Clear emtpy ul's/ol's
 					this._clearEmpty(itemElement);
 
+
+
 					this._trigger("change", event, this._uiHash());
+                    console.log("change " + this.direction);
 					break;
 				}
 			}
@@ -229,10 +236,21 @@
 					!o.rtl && (this.positionAbs.left < parentItem.offset().left))) {
 
 				parentItem.after(this.placeholder[0]);
+
+                // logic to decide if our parent is null in the case that we are dragging up and we've hit the top of the list
+                var changeParent = null;
+                if( ! $(this.placeholder[0].parentNode).hasClass('sortable') )
+                {
+                    changeParent = this.placeholder[0].parentNode.parentNode.id;
+                }
+                this.options.changeCallback( changeParent, this.currentItem[0].id );
+
+
 				if (o.isTree && parentItem.children(o.listItem).children('li:visible:not(.ui-sortable-helper)').length < 1) {
 					parentItem.removeClass(this.options.branchClass + ' ' + this.options.expandedClass)
 							  .addClass(this.options.leafClass);
 				}
+
 				this._clearEmpty(parentItem[0]);
 				this._trigger("change", event, this._uiHash());
 			}
@@ -253,10 +271,12 @@
 		        // mjs - if this item is being moved from the top, add it to the top of the list.
 		        if (previousTopOffset && (previousTopOffset <= previousItem.offset().top)) {
 		        	previousItem.children(o.listType).prepend(this.placeholder);
+                    this.options.changeCallback(previousItem[0].id, this.currentItem[0].id);
 		        }
 		        // mjs - otherwise, add it to the bottom of the list.
 		        else {
 					previousItem.children(o.listType)[0].appendChild(this.placeholder[0]);
+                    this.options.changeCallback( previousItem[0].id, this.currentItem[0].id );
 				}
 
 				this._trigger("change", event, this._uiHash());

@@ -3,6 +3,18 @@
 //    console.log("dragis");
 //}
 
+groupOrderChanged = function(newParentId, nodeId)
+{
+    var namedParentId = newParentId;
+
+    // print null
+    if( newParentId == null )
+        namedParentId = null;
+
+
+    console.log(namedParentId + " is now parent of " + nodeId);
+}
+
 Template.groups.rendered = function() {
 
     $('ol.sortable').nestedSortable({
@@ -17,7 +29,7 @@ Template.groups.rendered = function() {
         tolerance: 'pointer',
         toleranceElement: '> div',
         maxLevels: 5,
-
+        changeCallback: groupOrderChanged,
         isTree: true,
         expandOnHover: 700,
         startCollapsed: false
