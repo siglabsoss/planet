@@ -85,18 +85,13 @@ function buildHeirarchy(g)
 
 
 
+Template.groups.groups = function()
+{
+    var flat = Groups.find().fetch();
+    return buildHeirarchy(flat);
+}
+
 Template.groups.groupsDebug = function()
 {
-    g = Groups.find().fetch();
-
-//    g.reverse();
-
-
-
-    return JSON.stringify(buildHeirarchy(g));
-
-
-    return [JSON.stringify(g)];
-
-
+    return JSON.stringify(Template.groups.groups());
 }
