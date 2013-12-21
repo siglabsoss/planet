@@ -5,13 +5,27 @@
 
 Template.groups.rendered = function() {
 
-    $('#sortable-groups').sortable({
-        'items':'li',
-        'placeholder':'sortable-placeholder',
-        'nested':'ul',
-        'maxlevels':3,
-        'maxItems':[5,3,2]
+    $('ol.sortable').nestedSortable({
+        forcePlaceholderSize: true,
+        handle: 'div',
+        helper:	'clone',
+        items: 'li',
+        opacity: .6,
+        placeholder: 'placeholder',
+        revert: 250,
+        tabSize: 25,
+        tolerance: 'pointer',
+        toleranceElement: '> div',
+        maxLevels: 5,
+
+        isTree: true,
+        expandOnHover: 700,
+        startCollapsed: false
     });
+
+    $('.disclose').on('click', function() {
+        $(this).closest('li').toggleClass('mjs-nestedSortable-collapsed').toggleClass('mjs-nestedSortable-expanded');
+    })
 
 }
 
@@ -31,6 +45,28 @@ function attachChild(output, child)
         }
     }
     return false;
+}
+
+// recursive function to crawl the nested groups with a DFS and assign unique id's for the dom
+function numberChildUnique(output, number)
+{
+    // default value if not provided
+    number = typeof number !== 'undefined' ? number : 1;
+
+    var prefix = "list_";
+
+    for(var i in output)
+    {
+        output[i].domId = prefix + number;
+        number++;
+
+        if( output[i].children.length != 0 )
+        {
+            number = numberChildUnique(output[i].children, number);
+        }
+    }
+
+    return number;
 }
 
 function buildHeirarchy(g)
@@ -79,6 +115,8 @@ function buildHeirarchy(g)
     }
     while (!fullyOrdered);
 
+    numberChildUnique(output);
+
 
     return output;
 }
@@ -87,7 +125,7 @@ function buildHeirarchy(g)
 
 Template.groups.groups = function()
 {
-    var flat = Groups.find().fetch();
+    var flat = Groups.find().fetch().reverse();
     return buildHeirarchy(flat);
 }
 
