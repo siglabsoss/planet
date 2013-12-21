@@ -83,6 +83,7 @@ function numberChildUnique(output, number)
 
 function buildHeirarchy(g)
 {
+    var worstCaseIterations = g.length + 1;
     var output = [];
     for (var i in g) {
         g[i].children = [];
@@ -104,9 +105,13 @@ function buildHeirarchy(g)
     // running attachChild for every node is not guaranteed to work the first time
     do
     {
+        if( !worstCaseIterations-- )
+        {
+            console.log("Something went wrong when searching for parent nodes");
+            break;
+        }
         // start out assuming things are ok
         fullyOrdered = true;
-
         for (var i in g) {
             var node = g[i];
 
@@ -127,7 +132,7 @@ function buildHeirarchy(g)
     }
     while (!fullyOrdered);
 
-    numberChildUnique(output);
+//    numberChildUnique(output);
 
 
     return output;
