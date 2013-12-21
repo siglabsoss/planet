@@ -59,7 +59,16 @@
     </li>
     <li id="id2""item_3"><span>About us</span></li>
 </ul>
+    <hr><hr>
 
+    {{#each groups}}
+    <ul>{{>group}}</ul>
+    {{/each}}
+    {{groupsDebug}}
+</template>
+
+<template name="group">
+    {{name}}
 </template>
 
 <template name="groupItem">
