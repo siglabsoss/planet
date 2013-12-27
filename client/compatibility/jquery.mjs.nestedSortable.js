@@ -191,9 +191,12 @@
 
                     // this block seems to handle drag in-s and dragouts
                     var changeParent2 = null;
-                    if( ! $(this.currentItem[0].parentNode).hasClass('sortable') )
+                    if( ! $(itemElement.parentNode).hasClass('sortable') )
                     {
-                        changeParent2 = this.currentItem[0].parentNode.id;
+                        if( itemElement.parentNode.tagName === "OL")
+                            changeParent2 = itemElement.parentNode.parentNode.id;
+                        else
+                            changeParent2 = itemElement.parentNode.id;
                     }
                     this.options.changeCallback( changeParent2, this.currentItem[0].id );
 
@@ -279,13 +282,17 @@
 		        // mjs - if this item is being moved from the top, add it to the top of the list.
 		        if (previousTopOffset && (previousTopOffset <= previousItem.offset().top)) {
 		        	previousItem.children(o.listType).prepend(this.placeholder);
-                    this.options.changeCallback(previousItem[0].id, this.currentItem[0].id);
 		        }
 		        // mjs - otherwise, add it to the bottom of the list.
 		        else {
 					previousItem.children(o.listType)[0].appendChild(this.placeholder[0]);
-                    this.options.changeCallback( previousItem[0].id, this.currentItem[0].id );
 				}
+
+                // the previous call to _isAllowed will set this value to zero if the drag is allowed
+                if( !this.beyondMaxLevels )
+                {
+                    this.options.changeCallback(previousItem[0].id, this.currentItem[0].id);
+                }
 
 				this._trigger("change", event, this._uiHash());
 			}

@@ -48,7 +48,13 @@
     {{#constant}}
     <ol class="sortable">
         {{#each groups}}
-        {{>group}}
+
+        {{#if rowTypeIsGroup}}
+            {{>group}}
+        {{else}}
+            {{>device}}
+        {{/if}}
+
         {{/each}}
     </ol>
     {{/constant}}
@@ -59,7 +65,13 @@
 
     <ol class="sortable">
         {{#each groups}}
+
+        {{#if rowTypeIsGroup}}
         {{>group}}
+        {{else}}
+        {{>device}}
+        {{/if}}
+
         {{/each}}
     </ol>
 
@@ -88,13 +100,20 @@
 <!--</ol>-->
 
 <template name="group">
-    <li id="mongo_{{_id}}"><div><span class="disclose"><span></span></span>{{name}}</div>
+    <li id="grouplist_{{_id}}"><div><span class="disclose"><span></span></span>{{name}}</div>
     {{#if children}}
     <ol>
     {{#each children}}
-        {{>group}}
+        {{#if rowTypeIsGroup}}
+            {{>group}}
+        {{else}}
+            {{>device}}
+        {{/if}}
     {{/each}}
     </ol>
     {{/if}}
 </template>
 
+<template name="device">
+    <li id="devicelist_{{_id}}" class="list-device"><div class="">Device {{serial}} ({{_id}})</div>
+</template>

@@ -1,7 +1,12 @@
-//function dragIsAllowed(item, parent)
-//{
-//    console.log("dragis");
-//}
+function dragIsAllowed(placeholder, placeholderParent, originalItem)
+{
+    // device is not allowed to be a parent in any case
+    if( placeholderParent && placeholderParent[0].id.substring(0,10) === "devicelist")
+        return false;
+
+
+    return true;
+}
 
 groupOrderChanged = function(newParentId, nodeId)
 {
@@ -12,12 +17,44 @@ groupOrderChanged = function(newParentId, nodeId)
         namedParentId = null;
 
 
+    var parentIdTruncated = null;
+    if( newParentId )
+    {
+        if( newParentId.substring(0, 10) === 'grouplist_' )
+            parentIdTruncated = newParentId.substring(10);
+
+        if( newParentId.substring(0, 11) === 'devicelist_' )
+            parentIdTruncated = newParentId.substring(11);
+    }
+
+
     console.log(namedParentId + " is now parent of " + nodeId);
 
-    var nodeIdTruncated = nodeId.substring(6); // these id's in the dom are prefixed by 'mongo_' so remove the first 6 chars
-    var parentIdTruncated = newParentId?newParentId.substring(6):null;
 
-    Groups.update(nodeIdTruncated, {$set:{parent:parentIdTruncated}});
+    // grouplist_
+    // devicelist_
+
+    if( nodeId.substring(0, 10) === "grouplist_" )
+    {
+        // the thing that moved was a group
+        var nodeIdTruncated = nodeId.substring(10); // these id's in the dom are prefixed by 'mongo_' so remove the first n chars
+
+        Groups.update(nodeIdTruncated, {$set:{parent:parentIdTruncated}});
+    }
+
+    if( nodeId.substring(0, 11) === 'devicelist_' )
+    {
+        // the thing that moved was a device
+
+        var nodeIdTruncated = nodeId.substring(11);
+
+        Devices.update(nodeIdTruncated, {$set:{parent:parentIdTruncated}});
+
+    }
+
+//    console.log(nodeId + " ---- " + nodeIdTruncated);
+
+
 }
 
 Template.groupsReactive.rendered = Template.groups.rendered = function() {
@@ -35,6 +72,7 @@ Template.groupsReactive.rendered = Template.groups.rendered = function() {
         toleranceElement: '> div',
         maxLevels: 5,
         changeCallback: groupOrderChanged,
+        isAllowed: dragIsAllowed,
         isTree: true,
         expandOnHover: 700,
         startCollapsed: false
@@ -87,6 +125,32 @@ function numberChildUnique(output, number)
     }
 
     return number;
+}
+
+function mergeDevicesGroups(devices,groups)
+{
+//    debugger;
+    var output = [];
+    for(var i in devices)
+    {
+        if(!devices[i].parent)
+        {
+            devices[i].parent = null;
+        }
+
+        devices[i].type = 'd';
+
+        output.push(devices[i]);
+    }
+
+    for(var i in groups)
+    {
+        groups[i].type = 'g';
+
+        output.push(groups[i]);
+    }
+
+    return output;
 }
 
 function buildHeirarchy(g)
@@ -148,11 +212,23 @@ function buildHeirarchy(g)
 }
 
 
+Template.groupsReactive.rowTypeIsGroup = Template.group.rowTypeIsGroup = Template.groups.rowTypeIsGroup = function(t)
+{
+    if( this.type === 'g' )
+        return true;
+    return false;
+}
+
 
 Template.groupsReactive.groups = Template.groups.groups = function()
 {
-    var flat = Groups.find().fetch().reverse();
-    return buildHeirarchy(flat);
+    var flatGroups = Groups.find().fetch().reverse();
+
+    var devices = Devices.find().fetch();
+
+    var merged = mergeDevicesGroups(devices, flatGroups);
+
+    return buildHeirarchy(merged);
 }
 
 Template.groupsReactive.groupsDebug = Template.groups.groupsDebug = function()
