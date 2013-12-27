@@ -11,6 +11,35 @@ window.resize = function(t) {
 };
 
 
+
+// this array has "file scope" because it is var
+var clientMapMarkers = [];
+
+if (Meteor.isClient) {
+
+}
+
+function insertClientMapMarker(marker, doc)
+{
+//    console.log(doc);
+
+    // save an associative array indexed by the mongo id
+    clientMapMarkers[doc._id] = marker;
+
+
+//    console.log(clientMapMarkers);
+}
+
+function updateClientMapMarker(id, fields)
+{
+    // pull the object from the array and update its lat lon
+    clientMapMarkers[id._id].setLatLng(L.latLng([id.lat, id.lon]));
+
+//    console.log(clientMapMarkers);
+}
+
+
+
 Template.mainMap.rendered = function() {
     var query,
         _this = this;
@@ -29,21 +58,49 @@ Template.mainMap.rendered = function() {
         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>'
     }).addTo(window.map);
     window.map.on('dblclick', function(e) {
-        return Markers.insert({
-            latlng: e.latlng
-        });
+//        return Markers.insert({
+//            latlng: e.latlng
+//        });
+        console.log("double clicked at " + e.latlng.lat + ", " + e.latlng.lng);
     });
-//    query = Markers.find({});
-//    return query.observe({
-//        added: function(mark) {
-//            var marker;
-//            return marker = L.marker(mark.latlng).addTo(window.map).on('click', function(e) {
+
+//    var marker = L.marker([32, -122]).addTo(window.map);
+
+
+
+    query = Devices.find({});
+    query.observe({
+        added: function(mark) {
+            var marker;
+            var pos = [mark.lat, mark.lon];
+//            debugger;
+//            var other = L.marker(pos);
+//            var o = {lat:}
+//            debugger;
+//            return {};
+
+//            console.log(clientMapMarkers);
+
+            marker = L.marker(pos);
+
+//            console.log(marker);
+
+            // after calling marker.addTo (or map.addLayer(marker)) the marker object gets a new member, called _leaflet_id
+            marker.addTo(window.map).on('click', function(e) {
 //                return Markers.remove({
 //                    latlng: this._latlng
 //                });
-//            });
-//        },
-//        removed: function(mark) {
+                console.log("clicked on " + pos[0] + "," + pos[1]);
+            });
+
+
+
+            insertClientMapMarker(marker, mark);
+
+//            console.log(marker);
+        },
+        changed: updateClientMapMarker,
+        removed: function(mark) {
 //            var key, layers, val, _results;
 //            layers = window.map._layers;
 //            _results = [];
@@ -60,6 +117,6 @@ Template.mainMap.rendered = function() {
 //                }
 //            }
 //            return _results;
-//        }
-//    });
+        }
+    });
 };
