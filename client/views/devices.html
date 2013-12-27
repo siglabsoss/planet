@@ -1,0 +1,23 @@
+<template name="devicePropertiesTR">
+    <tr>
+    {{#each this}}
+    <td>{{>devicePropertiesTD}}</td>
+    {{/each}}
+    </tr>
+</template>
+
+<template name="devicePropertiesTD">
+    {{this}}
+</template>
+
+
+
+<template name="devicePropertiesList">
+<table id="devicePropertiesList">
+
+    {{#each tableBody}}
+    {{>devicePropertiesTR}}
+    {{/each}}
+
+</table>
+</template>
