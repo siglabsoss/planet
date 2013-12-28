@@ -214,3 +214,15 @@ input {
 .navbar.pop-navbar {
     min-height: 40px;
 }
+
+.font-red {
+    color: #f00;
+}
+
+.font-green {
+    color: #46e656;
+}
+
+.font-strike {
+    text-decoration:line-through;
+}

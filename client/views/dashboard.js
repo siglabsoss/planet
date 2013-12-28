@@ -39,8 +39,30 @@ function updateClientMapMarker(id, fields)
 }
 
 
+// called in rendered
+function bindDashboardElements()
+{
+    $('.showFenceDrop').on('click', function(e){
 
-Template.mainMap.rendered = function() {
+//        debugger;
+
+        var newValue = ! Settings.findOne(settingsDocId()).view.showFences;
+
+        Settings.update(settingsDocId(), {$set:{view:{showFences:newValue}}})
+    });
+}
+
+Template.dashboard.rendered = function() {
+
+    // do general stuff
+
+    // (re) Bind all our dom elements
+    bindDashboardElements();
+}
+
+
+function mainMapRunOnce()
+{
     var query,
         _this = this;
     key = "d4b5ecf084be4fd5b333f2bc34c1df12";
@@ -211,4 +233,34 @@ Template.mainMap.rendered = function() {
 //            return _results;
         }
     });
+}
+
+var callMainMapRunOnce = (function(thisVar) {
+    // Code inside {} will be executed once only
+
+    // parts use "this", so we need to use javascript's native call() so we can set the value of "this" for mainMapRunOnce
+    mainMapRunOnce.call(thisVar);
+}).once();
+
+Template.mainMap.rendered = function() {
+
+    // The main leaflet map is surrounded by a #constant block
+    // meteor respects this, however it still calls rendered to let is know that all parts not in #constant were rendered
+    // We need to do leaflet map stuff one time.
+
+    // This function uses sugarjs runonce capability.
+    // Things are complicated by the fact that the leaflet needs "this" to be preserved
+    callMainMapRunOnce(this);
 };
+
+
+Template.dashboard.showFenceSetting = function()
+{
+    var o = Settings.findOne({userId:fakeUserId()});
+
+    // default value
+    if( ! (o && o.view) )
+        return true;
+
+    return o.view.showFences;
+}

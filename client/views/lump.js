@@ -245,3 +245,14 @@ fakeUserId = function()
 {
     return "2zjj2CjuCa3mbx6zW";
 }
+
+settingsDocId = function()
+{
+
+    var s = Settings.findOne({userId:fakeUserId()});
+
+    if(!s)
+        return null;
+
+    return s._id;
+}
