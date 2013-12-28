@@ -42,13 +42,24 @@ function updateClientMapMarker(id, fields)
 // called in rendered
 function bindDashboardElements()
 {
+    // unbinding is required, without which:
+    //   the first click toggles as expected
+    //   the second click toggles twice (I think because the jQuery has attached to both forms of the DOM element or something)
+    $('.showFenceDrop').off('click');
+    
     $('.showFenceDrop').on('click', function(e){
-
-//        debugger;
 
         var newValue = ! Settings.findOne(settingsDocId()).view.showFences;
 
-        Settings.update(settingsDocId(), {$set:{view:{showFences:newValue}}})
+        Settings.update(settingsDocId(), {$set:{view:{showFences:newValue}}});
+
+        var message = "Fences Shown";
+        if( !newValue )
+            message = "Fences Hidden";
+
+        console.log(message);
+
+        flashAlertMessage(message, {hideAfter:600});
     });
 }
 
@@ -276,7 +287,7 @@ Template.flashAlert.rawHtml = function()
     // See: http://stackoverflow.com/questions/7676356/can-twitter-bootstrap-alerts-fade-in-as-well-as-out
     setTimeout(function(){
         $('#myFlashAlert').removeClass('fadein');
-        setTimeout(function(){Session.set("flashAlertMessageObject", null);},1000); // remove session var after fade has completed or template rerender will instantly remove
+        setTimeout(function(){Session.set("flashAlertMessageObject", null);},100); // remove session var after fade has completed or template rerender will instantly remove
     }, m.options.hideAfter);
 
     return "<div id='myFlashAlert' class='alert alert-" + m.options.type + " fade fadein floatingAlert'>"+ m.message+"</div>";
