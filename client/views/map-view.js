@@ -45,8 +45,21 @@ function insertFenceFromLeafletEvent(e)
 
     var doc = {layerType:type, layer:{options:{}}};
 
-    // copy the things we need
-    doc.layer._latlngs = layer._latlngs;
+    // Below here we copy the things we need into the db
+
+
+    if( type === "rectangle" || type === "polygon" )
+    {
+        doc.layer._latlngs = layer._latlngs;
+    }
+
+    if( type === "circle")
+    {
+        doc.layer._latlng = layer._latlng;
+        doc.layer._mRadius = layer._mRadius;
+    }
+
+    // style stuff
     doc.layer.options.color = layer.options.color;
     doc.layer.options.fill = layer.options.fill;
     doc.layer.options.fillColor = layer.options.fillColor;
@@ -61,38 +74,91 @@ function insertFenceFromLeafletEvent(e)
     Fences.insert(doc);
 }
 
-//applies all properties except for latlngs to a layer object
-function applyLayerPropertiesFromDoc(layer, document)
+// applies all properties except for latlngs to a layer object
+function applyLayerStylePropertiesFromDoc(layer, document)
 {
     layer.setStyle(document.layer.options);
 }
 
-function buildLeafletLayerFromDoc(document)
+// returns a point list for shapes
+// circles are a special case which return something like [[50.5, 30.5], 200]
+function getLayerShapeForDoc(document)
 {
     var pointList = [];
 
-    for( var i in document.layer._latlngs )
+    if(document.layerType === "rectangle" || document.layerType === "polygon")
     {
-        var p = document.layer._latlngs[i];
+        for( var i in document.layer._latlngs )
+        {
+            var p = document.layer._latlngs[i];
 
-        var pointObject = new L.LatLng(p.lat, p.lng);
+            var pointObject = new L.LatLng(p.lat, p.lng);
 
-        pointList.push(pointObject);
+            pointList.push(pointObject);
+        }
     }
+
+    if(document.layerType === "circle")
+    {
+        var pointObject = new L.LatLng(document.layer._latlng.lat, document.layer._latlng.lng);
+
+        // push a LatLng object
+        pointList.push(pointObject);
+
+        // push a raw double (This is unconventional)
+        pointList.push(document.layer._mRadius);
+    }
+
+    return pointList;
+}
+
+// applies bounds properties to circle rectangle and polygon types
+function applyLayerBoundsFromDoc(layer, document)
+{
+    var bounds = getLayerShapeForDoc(document);
+
+    if(document.layerType === "circle" )
+    {
+        layer.setLatLng(bounds[0]);
+        layer.setRadius(bounds[1]);
+    }
+
+    if(document.layerType === "rectangle")
+    {
+        layer.setBounds(bounds);
+    }
+
+    if(document.layerType === "polygon")
+    {
+        layer.setLatLngs(bounds);
+    }
+}
+
+function buildLeafletLayerFromDoc(document)
+{
+    var pointList = getLayerShapeForDoc(document);
+
+    var o = null;
 
     if( document.layerType === "rectangle" )
     {
-        var o = new L.Rectangle(pointList);
-
-        applyLayerPropertiesFromDoc(o, document);
-
-
-
-
-//        debugger;
-        return o;
-
+        o = new L.Rectangle(pointList);
     }
+
+    if( document.layerType === "polygon" )
+    {
+        o = new L.Polygon(pointList);
+    }
+
+    if( document.layerType === "circle" )
+    {
+        o = new L.Circle(pointList[0], pointList[1]);
+    }
+
+    applyLayerStylePropertiesFromDoc(o, document);
+
+    return o;
+
 
 //    var pointA = new L.LatLng(28.635308, 77.22496);
 //    var pointB = new L.LatLng(28.984461, 77.70641);
@@ -123,7 +189,6 @@ function installMapViewAutorun()
 
             query.observe({
                 added: function(document) {
-//                    console.log('fence added');
                     var layer = buildLeafletLayerFromDoc(document);
 
                     clientFences[document._id] = layer;
@@ -131,12 +196,11 @@ function installMapViewAutorun()
                     drawnItemsLayerGroup.addLayer(clientFences[document._id]);
                 },
                 changed: function(newDocument, oldDocument){
-                    console.log('change');
-
                     var layer = drawnItemsLayerGroup.getLayer(clientFences[newDocument._id]._leaflet_id);
 
-                    applyLayerPropertiesFromDoc(layer, newDocument);
+                    applyLayerStylePropertiesFromDoc(layer, newDocument);
 
+                    applyLayerBoundsFromDoc(layer, newDocument);
                 },
                 removed: function(oldDocument) {
                     // remove the layer from the map
