@@ -279,9 +279,7 @@ function mainMapRunOnce()
     var drawControl = new L.Control.Draw({
         position: 'topleft',
         draw: {
-            polyline: {
-                metric: false
-            },
+            polyline: false,
             polygon: {
                 allowIntersection: false,
                 showArea: true,
@@ -290,7 +288,7 @@ function mainMapRunOnce()
                     timeout: 1000
                 },
                 shapeOptions: {
-                    color: '#bada55'
+                    color: '#44dd44'
                 }
             },
             circle: {
