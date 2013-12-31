@@ -61,6 +61,12 @@ function insertFenceFromLeafletEvent(e)
     Fences.insert(doc);
 }
 
+//applies all properties except for latlngs to a layer object
+function applyLayerPropertiesFromDoc(layer, document)
+{
+    layer.setStyle(document.layer.options);
+}
+
 function buildLeafletLayerFromDoc(document)
 {
     var pointList = [];
@@ -77,6 +83,13 @@ function buildLeafletLayerFromDoc(document)
     if( document.layerType === "rectangle" )
     {
         var o = new L.Rectangle(pointList);
+
+        applyLayerPropertiesFromDoc(o, document);
+
+
+
+
+//        debugger;
         return o;
 
     }
@@ -119,9 +132,18 @@ function installMapViewAutorun()
                 },
                 changed: function(newDocument, oldDocument){
                     console.log('change');
+
+                    var layer = drawnItemsLayerGroup.getLayer(clientFences[newDocument._id]._leaflet_id);
+
+                    applyLayerPropertiesFromDoc(layer, newDocument);
+
                 },
                 removed: function(oldDocument) {
-                    console.log('removed');
+                    // remove the layer from the map
+                    drawnItemsLayerGroup.removeLayer(clientFences[oldDocument._id]._leaflet_id);
+
+                    // delete our record of the layer
+                    delete(clientFences[i]);
                 }
             });
         }
@@ -231,7 +253,8 @@ function mainMapRunOnce()
 
         insertFenceFromLeafletEvent(e);
 
-        drawnItemsLayerGroup.addLayer(layer);
+        // don't add it now because our Deps.autorun will do it for us
+//        drawnItemsLayerGroup.addLayer(layer);
     });
 
     window.map.on('draw:edited', function (e) {
