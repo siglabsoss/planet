@@ -33,9 +33,9 @@ Template.dashboard.rendered = function() {
 }
 
 
+//FIXME make settings more uniform
 
-
-Template.dashboard.showFenceSetting = function()
+getShowFences = function()
 {
     var o = Settings.findOne({userId:fakeUserId()});
 
@@ -44,6 +44,12 @@ Template.dashboard.showFenceSetting = function()
         return true;
 
     return o.view.showFences;
+}
+
+
+Template.dashboard.showFenceSetting = function()
+{
+    return getShowFences();
 }
 
 // Returns raw html for an alert

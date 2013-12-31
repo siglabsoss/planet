@@ -27,13 +27,125 @@ function insertClientMapMarker(marker, doc)
 //    console.log(clientMapMarkers);
 }
 
-function updateClientMapMarker(id, fields)
+function updateClientMapMarker(newDocument, oldDocument)
 {
     // pull the object from the array and update its lat lon
-    clientMapMarkers[id._id].setLatLng(L.latLng([id.lat, id.lon]));
+    clientMapMarkers[newDocument._id].setLatLng(L.latLng([newDocument.lat, newDocument.lon]));
 
 //    console.log(clientMapMarkers);
 }
+
+
+
+
+function insertFenceFromLeafletEvent(e)
+{
+    var type = e.layerType,
+        layer = e.layer;
+
+    var doc = {layerType:type, layer:{options:{}}};
+
+    // copy the things we need
+    doc.layer._latlngs = layer._latlngs;
+    doc.layer.options.color = layer.options.color;
+    doc.layer.options.fill = layer.options.fill;
+    doc.layer.options.fillColor = layer.options.fillColor;
+    doc.layer.options.fillOpacity = layer.options.fillOpacity;
+    doc.layer.options.opacity = layer.options.opacity;
+    doc.layer.options.stroke = layer.options.stroke;
+    doc.layer.options.weight = layer.options.weight;
+
+
+    doc.userId = fakeUserId();
+
+    Fences.insert(doc);
+}
+
+function buildLeafletLayerFromDoc(document)
+{
+    var pointList = [];
+
+    for( var i in document.layer._latlngs )
+    {
+        var p = document.layer._latlngs[i];
+
+        var pointObject = new L.LatLng(p.lat, p.lng);
+
+        pointList.push(pointObject);
+    }
+
+    if( document.layerType === "rectangle" )
+    {
+        var o = new L.Rectangle(pointList);
+        return o;
+
+    }
+
+//    var pointA = new L.LatLng(28.635308, 77.22496);
+//    var pointB = new L.LatLng(28.984461, 77.70641);
+//    var pointList = [pointA, pointB];
+//
+//    var firstpolyline = new L.Polyline(pointList {
+//    color: 'red',
+//        weight: 3,
+//        opacity: 0.5
+//    smoothFactor: 1
+//
+//});
+}
+
+
+
+// this array has "file scope" because it is var
+var clientFences = [];
+
+function installMapViewAutorun()
+{
+    Deps.autorun(function() {
+
+        if( getShowFences() )
+        {
+
+            var query = Fences.find({userId:fakeUserId()});
+
+            query.observe({
+                added: function(document) {
+//                    console.log('fence added');
+                    var layer = buildLeafletLayerFromDoc(document);
+
+                    clientFences[document._id] = layer;
+
+                    drawnItemsLayerGroup.addLayer(clientFences[document._id]);
+                },
+                changed: function(newDocument, oldDocument){
+                    console.log('change');
+                },
+                removed: function(oldDocument) {
+                    console.log('removed');
+                }
+            });
+        }
+        else
+        {
+            // if the user turns fences off, this gets called but observe.remove above does not
+            if( clientFences )
+            {
+                for( var i in clientFences )
+                {
+                    // remove the layer from the map
+                    drawnItemsLayerGroup.removeLayer(clientFences[i]._leaflet_id);
+
+                    // delete our record of the layer
+                    delete(clientFences[i]);
+                }
+            }
+        }
+
+    });
+}
+
+
+var drawnItemsLayerGroup;
 
 
 function mainMapRunOnce()
@@ -72,8 +184,8 @@ function mainMapRunOnce()
 
 
 
-    var drawnItems = new L.FeatureGroup();
-    window.map.addLayer(drawnItems);
+    drawnItemsLayerGroup = new L.FeatureGroup();
+    window.map.addLayer(drawnItemsLayerGroup);
 
     // Set the title to show on the polygon button
     L.drawLocal.draw.toolbar.buttons.polygon = 'Draw a GEO fence!';
@@ -103,7 +215,7 @@ function mainMapRunOnce()
             marker: false
         },
         edit: {
-            featureGroup: drawnItems,
+            featureGroup: drawnItemsLayerGroup,
             remove: false
         }
     });
@@ -117,7 +229,9 @@ function mainMapRunOnce()
             layer.bindPopup('A popup!');
         }
 
-        drawnItems.addLayer(layer);
+        insertFenceFromLeafletEvent(e);
+
+        drawnItemsLayerGroup.addLayer(layer);
     });
 
     window.map.on('draw:edited', function (e) {
@@ -208,6 +322,10 @@ function mainMapRunOnce()
 //            return _results;
         }
     });
+
+
+    // This autorun requires that the map objects have already been created
+    installMapViewAutorun();
 }
 
 var callMainMapRunOnce = (function(thisVar) {
@@ -226,4 +344,5 @@ Template.mainMap.rendered = function() {
     // This function uses sugarjs runonce capability.
     // Things are complicated by the fact that the leaflet needs "this" to be preserved
     callMainMapRunOnce(this);
+
 };
