@@ -1,13 +1,12 @@
 {
   "packages": {
     "leaflet": {
-        "git":"https://github.com/bevanhunt/meteor-leaflet.git",
-        "ref":"450d2083cc820e69d04011eec129d93ad2484d56"
+      "git": "https://github.com/bevanhunt/meteor-leaflet.git",
+      "ref": "450d2083cc820e69d04011eec129d93ad2484d56"
     },
     "iron-router": {},
     "sugar": {},
     "jquery-ui": {},
-    "bootstrap-3": {},
     "font-awesome": {}
   }
 }
