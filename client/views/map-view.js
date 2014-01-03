@@ -143,6 +143,7 @@ function buildLeafletLayerFromDoc(document)
     if( document.layerType === "rectangle" )
     {
         o = new L.Rectangle(pointList);
+//        o.editing.enable();
     }
 
     if( document.layerType === "polygon" )
@@ -157,20 +158,11 @@ function buildLeafletLayerFromDoc(document)
 
     applyLayerStylePropertiesFromDoc(o, document);
 
+    // Wrapping this with Meteor.render() seems to only work for the first display of the popup
+    // This gets HTML from the geoFencePopup template and uses it for the popup.  We also pass the document as "this" so properties can be accessed straight from handlebars
+    o.bindPopup(Template.geoFencePopup(document));
+
     return o;
-
-
-//    var pointA = new L.LatLng(28.635308, 77.22496);
-//    var pointB = new L.LatLng(28.984461, 77.70641);
-//    var pointList = [pointA, pointB];
-//
-//    var firstpolyline = new L.Polyline(pointList {
-//    color: 'red',
-//        weight: 3,
-//        opacity: 0.5
-//    smoothFactor: 1
-//
-//});
 }
 
 
@@ -192,6 +184,8 @@ function installMapViewAutorun()
                     var layer = buildLeafletLayerFromDoc(document);
 
                     clientFences[document._id] = layer;
+
+//                    clientFences[document._id].editing.enable();
 
                     drawnItemsLayerGroup.addLayer(clientFences[document._id]);
                 },
@@ -298,10 +292,7 @@ function mainMapRunOnce()
             },
             marker: false
         },
-        edit: {
-            featureGroup: drawnItemsLayerGroup,
-            remove: false
-        }
+        edit: false
     });
     window.map.addControl(drawControl);
 
