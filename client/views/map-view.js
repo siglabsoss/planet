@@ -351,7 +351,7 @@ function mainMapRunOnce()
     query.observe({
         added: function(mark) {
             var marker;
-            var pos = [mark.lat, mark.lon];
+            var pos = [mark.lat, mark.lng];
 //            debugger;
 //            var other = L.marker(pos);
 //            var o = {lat:}

@@ -16,9 +16,9 @@ closedJSTSGeomFromPoints = function(coords){
     return poly;
 }
 
-// returns a JSTS point.  note that we use lat and LON
+// returns a JSTS point.  note that we use lat and LNG
 coordJSTS = function(center){
-    var coord = new jsts.geom.Coordinate(center.lat, center.lon);
+    var coord = new jsts.geom.Coordinate(center.lat, center.lng);
     var point = new jsts.geom.Point(coord);
 
     return point;

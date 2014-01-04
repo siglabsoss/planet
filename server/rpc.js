@@ -30,7 +30,7 @@ Meteor.startup(function () {
                     {
                         var d = deviceList[j];
 
-                        // this expects lat and LON
+                        // this expects lat and LNG
                         var point = coordJSTS(d);
 
                         if(point.within(result))//result.covers(point)
