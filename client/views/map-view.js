@@ -369,7 +369,7 @@ function mainMapRunOnce()
 //                return Markers.remove({
 //                    latlng: this._latlng
 //                });
-                console.log("clicked on " + pos[0] + "," + pos[1]);
+                console.log("clicked on " + mark._id);
             });
 
 

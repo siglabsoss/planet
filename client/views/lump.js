@@ -281,3 +281,13 @@ Template.fence.onePoint = function()
 
     return p.lat + ', ' + p.lng;
 }
+
+Template.fence.deviceCount = function()
+{
+    var devices = this.devices;
+
+    if( !devices )
+        return 0;
+    else
+        return Object.keys(devices).length;
+}

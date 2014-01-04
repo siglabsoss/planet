@@ -24,13 +24,6 @@ coordJSTS = function(center){
     return point;
 }
 
-circleJSTS = function(center, radius){
-    var coord = new jsts.geom.Coordinate(center.lat, center.lon);
-    var point = new jsts.geom.Point(coord);
-
-    return point;
-}
-
 
 debugPrintJSTSPoints = function(poly){
     console.log("points: " + poly.shell.points.length);
@@ -67,4 +60,73 @@ haversineDistanceKM = function(p1, p2)
     var d = R * c;
 
     return d;
+}
+
+
+// this should always be called async
+// this is a function that looks at an array of devices ids (or every device) and every fence and updates fence.devices property
+// pass null to search every device (could be used for server startup)
+processFences = function(deviceIds) {
+    var fenceList = Fences.find().fetch();
+
+    var deviceList = null;
+    if( !deviceIds ) {
+        deviceList = Devices.find().fetch();
+    } else {
+        deviceList = Devices.find({_id: {$in: deviceIds}}).fetch();
+    }
+
+
+    for( var i in fenceList ) {
+        var f = fenceList[i];
+
+        var type = f.layerType;
+        var fenceObject = null;
+
+        if( type === "rectangle" || type === "polygon" ) {
+            fenceObject = closedJSTSGeomFromPoints(f.layer._latlngs);
+        } // if rectangle or polygon
+
+//        if( type === "circle" )
+//        {
+//            // do nothing, we don't need to build a JSTS object
+//        }
+
+        for( var j in deviceList ) {
+            var d = deviceList[j];
+
+            var deviceInside = null;
+
+            if( type === "rectangle" || type === "polygon" ) {
+                // this expects lat and LNG
+                var pointObject = coordJSTS(d);
+
+                deviceInside = pointObject.within(fenceObject);
+            }
+
+            if( type === "circle" ) {
+                // dist is distance in meters
+                var dist = haversineDistanceKM(d, f.layer._latlng) * 1000;
+
+                // _mRadius is the radius of the circle in meters
+                deviceInside = (dist <= f.layer._mRadius);
+            }
+
+            if( deviceInside != null ) {
+                // build query based on result
+                var query = null;
+
+                if(deviceInside) {
+                    query = {$set:{}};
+                    query['$set']["devices." + d._id] = true;
+                } else {
+                    query = {$unset:{}};
+                    query['$unset']["devices." + d._id] = true;
+                }
+
+                // run query
+                Fences.update(f._id, query);
+            }
+        } // for devices
+    } // for fences
 }
