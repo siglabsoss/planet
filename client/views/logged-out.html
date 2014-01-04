@@ -15,105 +15,10 @@
 </template>
 
 
-<template name="webHookOk">
-    ok
-</template>
-
 
 <template name="debugPost">
     <form action="http://localhost:3000/webhook" method="post">
         <input type="text" name="lol">
         <input type="submit">
     </form>
-</template>
-
-<template name="debugLog">
-    <ul>
-    {{#each logs}}
-        <li>{{>debugLogItem}}</li>
-    {{/each}}
-    </ul>
-</template>
-
-
-<template name="debugLogItem">
-<!-- The member variable of the log entry is called 'l' -->
-    {{l}}
-</template>
-
-
-<!--See http://mjsarfatti.com/sandbox/nestedSortable/ for working html example-->
-<template name="groups">
-
-    {{#constant}}
-    <ol class="sortable">
-        {{#each groups}}
-
-        {{#if rowTypeIsGroup}}
-            {{>group}}
-        {{else}}
-            {{>device}}
-        {{/if}}
-
-        {{/each}}
-    </ol>
-    {{/constant}}
-    {{groupsDebug}}
-</template>
-
-<template name="groupsReactive">
-
-    <ol class="sortable">
-        {{#each groups}}
-
-        {{#if rowTypeIsGroup}}
-        {{>group}}
-        {{else}}
-        {{>device}}
-        {{/if}}
-
-        {{/each}}
-    </ol>
-
-    {{groupsDebug}}
-</template>
-
-<!--<ol class="sortable">-->
-<!--<li id="list_1"><div><span class="disclose"><span></span></span>ben</div>-->
-<!--<ol>-->
-<!--<li id="list_2"><div><span class="disclose"><span></span></span>House</div>-->
-<!--<ol>-->
-<!--<li id="list_3"><div><span class="disclose"><span></span></span>Kitchen</div>-->
-<!--</ol>-->
-<!--</ol>-->
-<!--<li id="list_4"><div><span class="disclose"><span></span></span>Joel</div>-->
-<!--<li id="list_5"><div><span class="disclose"><span></span></span>Item 3</div>-->
-<!--<ol>-->
-<!--<li id="list_6" class="mjs-nestedSortable-no-nesting"><div><span class="disclose"><span></span></span>Sub Item 3.1 (no nesting)</div>-->
-<!--<li id="list_7"><div><span class="disclose"><span></span></span>Sub Item 3.2</div>-->
-<!--<ol>-->
-<!--<li id="list_8"><div><span class="disclose"><span></span></span>Sub Item 3.2.1</div>-->
-<!--</ol>-->
-<!--</ol>-->
-<!--<li id="list_9"><div><span class="disclose"><span></span></span>Item 4</div>-->
-<!--<li id="list_10"><div><span class="disclose"><span></span></span>Item 5</div>-->
-<!--</ol>-->
-
-<template name="group">
-    <li id="grouplist_{{_id}}"><div><span class="disclose"><span></span></span>{{name}}</div>
-    {{#if children}}
-    <ol>
-    {{#each children}}
-        {{#if rowTypeIsGroup}}
-            {{>group}}
-        {{else}}
-            {{>device}}
-        {{/if}}
-    {{/each}}
-    </ol>
-    {{/if}}
-</template>
-
-<template name="device">
-    <li id="devicelist_{{_id}}" class="list-device"><div class="">Device {{serial}} ({{_id}})</div>
 </template>
