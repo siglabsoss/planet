@@ -2,6 +2,11 @@
 Meteor.startup(function () {
     Meteor.methods({
 
+        clearDebugLog: function()
+        {
+            Logs.remove({});
+        },
+
         debugProcess : function()
         {
 //            processFences(["Z9h84CmKHrSz3cdzY","ToKWvPTq8xYNNzN7P"]);

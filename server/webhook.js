@@ -16,7 +16,7 @@ hookRouteAction = function () {
 
 }
 
-
+// this parses the hook and calls any processing that needs to occur
 function parseHook(object)
 {
     if( object && object.updates )
@@ -45,9 +45,17 @@ function parseHook(object)
                 }
             );
 
-            simpleLog("Update device " + row.serial);
+//            simpleLog("Update device " + row.serial + " " + JSON.stringify(result));
 
 
         });
+
+//        var deviceIds = [];
+//        object.updates.each(function(row) {deviceIds.push(row._id)});
+//
+//        console.log(deviceIds);
+
+        // call process fences in 1 ms
+        Meteor.setTimeout(function(){processFences(false);}, 1);
     }
 }
