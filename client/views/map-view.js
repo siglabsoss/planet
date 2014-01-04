@@ -29,8 +29,8 @@ function insertClientMapMarker(marker, doc)
 
 function updateClientMapMarker(newDocument, oldDocument)
 {
-    // pull the object from the array and update its lat lon
-    clientMapMarkers[newDocument._id].setLatLng(L.latLng([newDocument.lat, newDocument.lon]));
+    // pull the object from the array and update its lat lng
+    clientMapMarkers[newDocument._id].setLatLng(L.latLng([newDocument.lat, newDocument.lng]));
 
 //    console.log(clientMapMarkers);
 }
