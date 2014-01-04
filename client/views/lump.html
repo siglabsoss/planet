@@ -110,3 +110,18 @@
 <template name="webHookOk">
     ok
 </template>
+
+
+<template name="groupsSimple">
+    <ul>
+        {{#each groups}}
+
+        {{#if rowTypeIsGroup}}
+        {{>group}}
+        {{else}}
+        {{>device}}
+        {{/if}}
+
+        {{/each}}
+    </ul>
+</template>

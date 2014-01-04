@@ -91,10 +91,16 @@ function attachChild(output, child)
     var childrenEntered = false; // set to true once we recurse into children
     for(var i in output)
     {
-        if( output[i]._id == child.parent )
+        if( child.parents.find(output[i]._id) )
         {
             output[i].children.push(child);
-            return true;
+
+            // remove the parent we just attached
+            child.parents = child.parents.exclude(output[i]._id);
+
+            // only say success if we've attached to all the parents
+            if( child.parents.length === 0 )
+                return true;
         }
         if( output[i].children.length != 0 )
         {
@@ -133,9 +139,9 @@ function mergeDevicesGroups(devices,groups)
     var output = [];
     for(var i in devices)
     {
-        if(!devices[i].parent)
+        if(!devices[i].parents)
         {
-            devices[i].parent = null;
+            devices[i].parents = [];
         }
 
         devices[i].type = 'd';
@@ -155,6 +161,7 @@ function mergeDevicesGroups(devices,groups)
 
 function buildHeirarchy(g)
 {
+
     var worstCaseIterations = g.length + 1;
     var output = [];
     for (var i in g) {
@@ -164,12 +171,17 @@ function buildHeirarchy(g)
     // add all the top level parents
     for (var i in g) {
         var node = g[i];
-        if( node.parent == null )
+        if( node.parents === null || node.parents.length === 0 )
         {
             output.push(node);
             delete(g[i]); //delete node from input because we've successfully attached it
         }
     }
+
+    // for some reason delete in javascript leaves undefined in the array, this fixes that
+    g = g.compact();
+
+//    debugger;
 
 
     var fullyOrdered;
@@ -212,7 +224,7 @@ function buildHeirarchy(g)
 }
 
 
-Template.groupsReactive.rowTypeIsGroup = Template.group.rowTypeIsGroup = Template.groups.rowTypeIsGroup = function(t)
+Template.groupsSimple.rowTypeIsGroup = Template.groupsReactive.rowTypeIsGroup = Template.group.rowTypeIsGroup = Template.groups.rowTypeIsGroup = function(t)
 {
     if( this.type === 'g' )
         return true;
@@ -220,7 +232,7 @@ Template.groupsReactive.rowTypeIsGroup = Template.group.rowTypeIsGroup = Templat
 }
 
 
-Template.groupsReactive.groups = Template.groups.groups = function()
+Template.groupsSimple.groups = Template.groupsReactive.groups = Template.groups.groups = function()
 {
     var flatGroups = Groups.find().fetch().reverse();
 
