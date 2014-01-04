@@ -18,31 +18,56 @@ Meteor.startup(function () {
 //                console.log(f.layer.options);
 
                 var type = f.layerType;
+                var fenceObject = null;
 
                 if( type === "rectangle" || type === "polygon" )
                 {
 //                    console.log(f.layer._latlngs);
 
-                    var result = closedJSTSGeomFromPoints(f.layer._latlngs);
+                    fenceObject = closedJSTSGeomFromPoints(f.layer._latlngs);
+                } // if rectangle or polygon
 
+                if( type === "circle" )
+                {
+                    // do nothing, we don't need to build a JSTS object
+                }
 
                     for( var j in deviceList )
                     {
                         var d = deviceList[j];
 
-                        // this expects lat and LNG
-                        var point = coordJSTS(d);
 
-                        if(point.within(result))//result.covers(point)
+
+                        if( type === "rectangle" || type === "polygon" )
                         {
-                            console.log(d._id + " is inside " + f._id);
+
+                            // this expects lat and LNG
+                            var pointObject = coordJSTS(d);
+
+                            if(pointObject.within(fenceObject))//result.covers(point)
+                            {
+                                console.log(d._id + " is inside " + f._id);
+                            }
+                            else
+                            {
+    //                            console.log('no');
+                            }
                         }
-                        else
+
+
+                        if( type === "circle" )
                         {
-//                            console.log('no');
+                            // dist is distance in meters
+                            var dist = haversineDistanceKM(d, f.layer._latlng) * 1000;
+
+                            // _mRadius is the radius of the circle in meters
+                            if( dist <= f.layer._mRadius )
+                            {
+                                console.log(d._id + " is inside " + f._id);
+                            }
                         }
                     } // for devices
-                } // if rectangle or polygon
+
             } // for fences
 
 
