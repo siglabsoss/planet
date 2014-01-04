@@ -256,3 +256,28 @@ settingsDocId = function()
 
     return s._id;
 }
+
+Template.fenceList.fenceList = function ()
+{
+    return Fences.find();
+}
+
+// returns first point, or center if circle
+Template.fence.onePoint = function()
+{
+    console.log(this);
+
+    var p = {lat:0,lng:0};
+
+    if( this.layerType === "rectangle" || this.layerType === "polygon" )
+    {
+        p = this.layer._latlngs.first();
+    }
+
+    if( this.layerType === "circle" )
+    {
+        p = this.layer._latlng;
+    }
+
+    return p.lat + ', ' + p.lng;
+}

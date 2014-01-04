@@ -1,0 +1,36 @@
+<template name="fenceList">
+
+    <div class="container">
+    <ol>
+        {{#each fenceList}}
+
+        {{>fence}}
+
+        {{/each}}
+    </ol>
+    </div>
+
+</template>
+
+
+<template name="fence">
+    <li>
+        <div class="row">
+            <div class="col-md-2">
+                {{layerType}}
+            </div>
+            <div class="col-md-4">
+                First Point: {{onePoint}}
+            </div>
+            <div class="col-md-2">
+                # Devices : xxx
+            </div>
+            <div class="col-md-1">
+                {{_id}}
+            </div>
+
+        </div>
+    </li>
+
+
+</template>
