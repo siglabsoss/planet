@@ -113,19 +113,12 @@ processFences = function(deviceIds) {
             }
 
             if( deviceInside != null ) {
-                // build query based on result
-                var query = null;
-
-                if(deviceInside) {
-                    query = {$set:{}};
-                    query['$set']["devices." + d._id] = true;
-                } else {
-                    query = {$unset:{}};
-                    query['$unset']["devices." + d._id] = true;
-                }
-
                 // run query
-                Fences.update(f._id, query);
+                if(deviceInside) {
+                    Fences.update(f._id, {$addToSet:{'devices': d._id}})
+                } else {
+                    Fences.update(f._id, {$pull:{'devices': d._id}})
+                }
             }
         } // for devices
     } // for fences
