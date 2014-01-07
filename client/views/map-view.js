@@ -425,3 +425,25 @@ Template.mainMap.rendered = function() {
     callMainMapRunOnce(this);
 
 };
+
+Template.geoFencePopupDevices.deviceListTruncated = function() {
+
+    if(!this.devices) {
+        return [];
+    }
+
+    // this could be saved as a setting
+    var maxLength = 5;
+
+    var deviceIds = this.devices.splice(0,maxLength);
+
+    // only return the first N devices
+    var result = Devices.find({_id: {$in: deviceIds}});
+
+    // since result is a cursor and not a fetched array, we must use count() to see how many would be returned
+    if( result.count() === 0 ) {
+        return [{serial:'',_id:'empty list'}];
+    } else {
+        return result;
+    }
+};
