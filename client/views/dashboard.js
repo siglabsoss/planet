@@ -47,10 +47,7 @@ getShowFences = function()
 }
 
 
-Template.dashboard.showFenceSetting = function()
-{
-    return getShowFences();
-}
+
 
 // Returns raw html for an alert
 // Clears a css class which causes alert to fade away after time
