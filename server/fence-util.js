@@ -60,7 +60,7 @@ haversineDistanceKM = function(p1, p2)
     var d = R * c;
 
     return d;
-}
+};
 
 
 // this should always be called async
@@ -123,13 +123,17 @@ processFences = function(deviceIds) {
             }
         } // for devices
     } // for fences
-}
+};
 
 
 
 
 
+newDeviceFenceEvent = function (fenceId, deviceId, entered) {
+    var eventObject = {type:'deviceFence', event:{fenceId:fenceId,deviceId:deviceId,entered:entered}};
+    Events.insert(eventObject);
 
+};
 
 
 
@@ -146,7 +150,7 @@ if (Meteor.isServer) {
 //                console.log('fence added');
                 // don't care
             },
-            changed: function(newDocument, oldDocument){
+            changed: function (newDocument, oldDocument) {
 
                 var leaving = oldDocument.devices.subtract(newDocument.devices);
 
@@ -158,11 +162,22 @@ if (Meteor.isServer) {
                 console.log('entering: ' + newDocument._id);
                 console.log(entering);
 
+                var eventObject = {type:'device', event:{}}
+
+
+                    leaving.each(function(d) {
+                        newDeviceFenceEvent(newDocument._id, d, false);
+                    });
+
+                entering.each(function(d) {
+                    newDeviceFenceEvent(newDocument._id, d, true);
+                });
+
 //                console.log(JSON.stringify(oldDocument));
 //                console.log(JSON.stringify(newDocument));
 
             },
-            removed: function(oldDocument) {
+            removed: function (oldDocument) {
 //                console.log('fence removed');
             }
         });

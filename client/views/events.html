@@ -1,0 +1,27 @@
+<template name="eventList">
+    <ul>
+        {{#each events}}
+        {{>event}}
+        {{/each}}
+    </ul>
+</template>
+
+<template name="event">
+    <li>
+        <div class="row">
+            <!--<div class="col-md-2">-->
+                <!--{{type}}-->
+            <!--</div>-->
+            <div class="col-md-4">
+                {{niceName}}
+            </div>
+            <!--<div class="col-md-2">-->
+                <!--# Devices : {{deviceCount}}-->
+            <!--</div>-->
+            <div class="col-md-3">
+                Event id: {{_id}} ({{type}})
+            </div>
+
+        </div>
+    </li>
+</template>
