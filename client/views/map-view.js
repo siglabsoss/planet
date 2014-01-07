@@ -71,6 +71,9 @@ function insertFenceFromLeafletEvent(e)
 
     doc.userId = fakeUserId();
 
+    // FIXME: this should be enforced server side once subscriptions are added
+    doc.devices = [];
+
     Fences.insert(doc);
 }
 
