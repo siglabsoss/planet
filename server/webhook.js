@@ -4,7 +4,7 @@ hookRouteAction = function () {
     // this is an
 
 //              console.log(JSON.stringify(this.params));
-    console.log(this.request.body);
+//    console.log(this.request.body);
 
 //    simpleLog(JSON.stringify(this.request.body));
 

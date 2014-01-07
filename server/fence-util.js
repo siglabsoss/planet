@@ -66,6 +66,7 @@ haversineDistanceKM = function(p1, p2)
 // this should always be called async
 // this is a function that looks at an array of devices ids (or every device) and every fence and updates fence.devices property
 // pass null to search every device (could be used for server startup)
+// after (or as) this function changes Fences.devices, "fenceDevicesChanged" below registers events as devices enter/leave fences
 processFences = function(deviceIds) {
     var fenceList = Fences.find().fetch();
 
@@ -122,4 +123,50 @@ processFences = function(deviceIds) {
             }
         } // for devices
     } // for fences
+}
+
+
+
+
+
+
+
+
+
+if (Meteor.isServer) {
+    Meteor.startup(function () {
+        // code to run on server at startup
+
+
+
+        var fenceDevicesChanged = Fences.find({});
+
+        fenceDevicesChanged.observe({
+            added: function(document) {
+//                console.log('fence added');
+                // don't care
+            },
+            changed: function(newDocument, oldDocument){
+
+                var leaving = oldDocument.devices.subtract(newDocument.devices);
+
+                console.log('leaving fence: ' + newDocument._id);
+                console.log(leaving);
+
+                var entering = newDocument.devices.subtract(oldDocument.devices);
+
+                console.log('entering: ' + newDocument._id);
+                console.log(entering);
+
+//                console.log(JSON.stringify(oldDocument));
+//                console.log(JSON.stringify(newDocument));
+
+            },
+            removed: function(oldDocument) {
+//                console.log('fence removed');
+            }
+        });
+
+
+    });
 }
