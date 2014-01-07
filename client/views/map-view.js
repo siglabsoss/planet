@@ -161,9 +161,33 @@ function buildLeafletLayerFromDoc(document)
 
     applyLayerStylePropertiesFromDoc(o, document);
 
-    // Wrapping this with Meteor.render() seems to only work for the first display of the popup
-    // This gets HTML from the geoFencePopup template and uses it for the popup.  We also pass the document as "this" so properties can be accessed straight from handlebars
-    o.bindPopup(Template.geoFencePopup(document));
+
+
+
+    // build a popup object with empty content
+    var popup = new L.popup().setContent("");
+
+    var popupOpened = function(event) {
+        // (re) render popup content
+        // Wrapping this with Meteor.render() seems to break clicking the same geofence twice without clicking away in-between
+        popup.setContent(Template.geoFencePopup(Fences.findOne(document._id)));
+
+        // call the normal popup open
+        event.target._openPopup(event);
+    };
+
+    // normal popup binding
+    o.bindPopup(popup);
+
+
+    // remove default click added by bindPopup
+    o.off('click', this._openPopup);
+
+    // add our own handler
+    o.on('click', popupOpened, o);
+
+    // I couldn't get this to work for the life of me
+//    o._popupHandlersAdded = true;
 
     return o;
 }
