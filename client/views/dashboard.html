@@ -1,30 +1,7 @@
-<template name="dashboard">
 
 
 
 
-
-
-<div class="row">
-    <div class="col-md-3 red-background text-left">
-        left
-    </div>
-    <div class="col-md-9 grey-background">
-        {{>flashAlert}}
-        {{>mainMap}}
-    </div>
-</div>
-
-</template>
-
-
-<template name="mainMap">
-    {{#constant}}
-    <div id="main_map_container" class="map_container">
-        <div id="map" class="map"></div>
-    </div>
-    {{/constant}}
-</template>
 
 <template name="geoFencePopupDevices">
     <table class="table table-striped table-bordered table-hover">

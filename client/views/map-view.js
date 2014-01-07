@@ -436,9 +436,10 @@ var callMainMapRunOnce = (function(thisVar) {
 
     // parts use "this", so we need to use javascript's native call() so we can set the value of "this" for mainMapRunOnce
     mainMapRunOnce.call(thisVar);
+
 }).once();
 
-Template.mainMap.rendered = function() {
+Template.mainMapAndLeft.rendered = function() {
 
     // The main leaflet map is surrounded by a #constant block
     // meteor respects this, however it still calls rendered to let is know that all parts not in #constant were rendered
@@ -471,3 +472,24 @@ Template.geoFencePopupDevices.deviceListTruncated = function() {
         return result;
     }
 };
+
+
+Deps.autorun(function(){
+
+
+
+    if( Session.get("shouldShowMainMap") ) {
+        $('.shownOnlyWithMap').removeClass('hidden');
+
+        // required if showing map after putting in hidden div
+        if( window && window.map ) {
+            window.map.invalidateSize();
+        }
+
+    } else {
+        console.log("HIDING CLASS");
+        $('.shownOnlyWithMap').addClass('hidden');
+    }
+
+});
+

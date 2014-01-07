@@ -1,0 +1,18 @@
+<template name="mainMapAndLeft">
+    <div class="row shownOnlyWithMap">
+        <div class="col-md-3 red-background text-left shownOnlyWithMap">
+            left
+        </div>
+        <div class="col-md-9 grey-background shownOnlyWithMap">
+            {{>flashAlert}}
+            {{#constant}}
+            <div id="main_map_container" class="map_container shownOnlyWithMap">
+                <div id="map" class="map"></div>
+            </div>
+            {{/constant}}
+        </div>
+    </div>
+
+</template>
+
+

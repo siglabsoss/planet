@@ -24,7 +24,7 @@ function bindDashboardElements()
     });
 }
 
-Template.dashboard.rendered = function() {
+Template.mainMapAndLeft.rendered = function() {
 
     // do general stuff
 
@@ -57,11 +57,15 @@ Template.flashAlert.rawHtml = function()
     if( !m )
         return "";
 
+    try {
     // See: http://stackoverflow.com/questions/7676356/can-twitter-bootstrap-alerts-fade-in-as-well-as-out
-    setTimeout(function(){
-        $('#myFlashAlert').removeClass('fadein');
-        setTimeout(function(){Session.set("flashAlertMessageObject", null);},100); // remove session var after fade has completed or template rerender will instantly remove
-    }, m.options.hideAfter);
+        setTimeout(function(){
+            $('#myFlashAlert').removeClass('fadein');
+            setTimeout(function(){Session.set("flashAlertMessageObject", null);},100); // remove session var after fade has completed or template rerender will instantly remove
+        }, m.options.hideAfter);
+    } catch(e) {
+        console.log(e);
+    }
 
     return "<div id='myFlashAlert' class='alert alert-" + m.options.type + " fade fadein floatingAlert'>"+ m.message+"</div>";
 }
