@@ -1,3 +1,4 @@
+"use-strict";
 
 window.resize = function(t) {
     var c, h, m, top, w;
@@ -267,13 +268,13 @@ function mainMapRunOnce()
         return window.resize(_this);
     });
     L.Icon.Default.imagePath = 'packages/leaflet/images';
-    window.map = L.map('map', {
+    window.mapObject = L.map('map', {
         doubleClickZoom: false
     }).setView([37.471075, -121.600932], 10);
     L.tileLayer("http://{s}.tile.cloudmade.com/" + key + "/" + mapStyle + "/256/{z}/{x}/{y}.png", {
         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>'
-    }).addTo(window.map);
-    window.map.on('dblclick', function(e) {
+    }).addTo(window.mapObject);
+    window.mapObject.on('dblclick', function(e) {
 //        return Markers.insert({
 //            latlng: e.latlng
 //        });
@@ -292,7 +293,7 @@ function mainMapRunOnce()
 
 
     drawnItemsLayerGroup = new L.FeatureGroup();
-    window.map.addLayer(drawnItemsLayerGroup);
+    window.mapObject.addLayer(drawnItemsLayerGroup);
 
     // Set the title to show on the polygon button
     L.drawLocal.draw.toolbar.buttons.polygon = 'Draw a GEO fence!';
@@ -321,9 +322,9 @@ function mainMapRunOnce()
         },
         edit: false
     });
-    window.map.addControl(drawControl);
+    window.mapObject.addControl(drawControl);
 
-    window.map.on('draw:created', function (e) {
+    window.mapObject.on('draw:created', function (e) {
         var type = e.layerType,
             layer = e.layer;
 
@@ -337,7 +338,7 @@ function mainMapRunOnce()
 //        drawnItemsLayerGroup.addLayer(layer);
     });
 
-    window.map.on('draw:edited', function (e) {
+    window.mapObject.on('draw:edited', function (e) {
         var layers = e.layers;
         var countOfEditedLayers = 0;
         layers.eachLayer(function(layer) {
@@ -392,7 +393,7 @@ function mainMapRunOnce()
 //            console.log(marker);
 
             // after calling marker.addTo (or map.addLayer(marker)) the marker object gets a new member, called _leaflet_id
-            marker.addTo(window.map).on('click', function(e) {
+            marker.addTo(window.mapObject).on('click', function(e) {
 //                return Markers.remove({
 //                    latlng: this._latlng
 //                });
@@ -482,8 +483,8 @@ Deps.autorun(function(){
         $('.shownOnlyWithMap').removeClass('hidden');
 
         // required if showing map after putting in hidden div
-        if( window && window.map ) {
-            window.map.invalidateSize();
+        if( window && window.mapObject ) {
+            window.mapObject.invalidateSize();
         }
 
     } else {
