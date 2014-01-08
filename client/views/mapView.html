@@ -40,12 +40,22 @@
     </tr>
 </template>
 
+        <!-- Popup width is controlled in mapView.js, grep for popup_width -->
 <template name="geoFencePopup">
     <div class="map-popup-wrapper">
-        <ul class="nav nav-tabs nav-justified" style="margin-bottom: 15px;">
+        <ul class="nav nav-tabs nav-justified" style="margin-bottom: 15px">
             <li class="active"><a href="#home" data-toggle="tab">Fence</a></li>
             <li><a href="#profile" data-toggle="tab">Devices</a></li>
-            <li class="disabled"><a>Settings</a></li>
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    Dropdown <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="#" class="">Edit Fence</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#" class="deleteFenceLink" data-id="{{_id}}">Delete Fence</a></li>
+                </ul>
+            </li>
         </ul>
         <div id="myTabContent" class="tab-content">
             <div class="tab-pane fade active in" id="home">

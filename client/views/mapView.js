@@ -166,7 +166,8 @@ function buildLeafletLayerFromDoc(document)
 
 
     // build a popup object with empty content
-    var popup = new L.popup().setContent("");
+    // popup_width
+    var popup = new L.popup({maxWidth:600,minWidth:300}).setContent("");
 
     var popupOpened = function(event) {
         // (re) render popup content
@@ -175,6 +176,9 @@ function buildLeafletLayerFromDoc(document)
 
         // call the normal popup open
         event.target._openPopup(event);
+
+        // Bind elements in the popup
+        bindPopupElements();
     };
 
     // normal popup binding
@@ -493,4 +497,21 @@ Deps.autorun(function(){
     }
 
 });
+
+function bindPopupElements()
+{
+
+    $('.deleteFenceLink').off('click');
+
+    $('.deleteFenceLink').on('click', function(e){
+        var deleteFenceId = this.getAttribute('data-id');
+
+        if (confirm('Are you sure you want to delete this fence?')) {
+            Fences.remove(deleteFenceId);
+            flashAlertMessage("Fence deleted", {hideAfter:2000});
+        } else {
+            // Do nothing!
+        }
+    });
+}
 
