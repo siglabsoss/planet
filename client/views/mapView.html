@@ -16,3 +16,51 @@
 </template>
 
 
+
+<template name="geoFencePopupDevices">
+    <table class="table table-striped table-bordered table-hover">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>...</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each deviceListTruncated}}
+        {{>geoFencePopupDeviceRow}}
+        {{/each}}
+        </tbody>
+    </table>
+</template>
+
+<template name="geoFencePopupDeviceRow">
+    <tr>
+        <td>{{serial}}</td>
+        <td>{{_id}}</td>
+    </tr>
+</template>
+
+<template name="geoFencePopup">
+    <div class="map-popup-wrapper">
+        <ul class="nav nav-tabs nav-justified" style="margin-bottom: 15px;">
+            <li class="active"><a href="#home" data-toggle="tab">Fence</a></li>
+            <li><a href="#profile" data-toggle="tab">Devices</a></li>
+            <li class="disabled"><a>Settings</a></li>
+        </ul>
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active in" id="home">
+                <p>Fence Id: {{_id}}</p>
+                <p>Color: <span class="map-popup-color" style="background-color: {{layer.options.color}}"></span></p>
+            </div>
+            <div class="tab-pane fade" id="profile">
+                {{>geoFencePopupDevices}}
+            </div>
+            <div class="tab-pane fade" id="dropdown1">
+                <p>Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic lomo retro fanny pack lo-fi farm-to-table readymade. Messenger bag gentrify pitchfork tattooed craft beer, iphone skateboard locavore carles etsy salvia banksy hoodie helvetica. DIY synth PBR banksy irony. Leggings gentrify squid 8-bit cred pitchfork.</p>
+            </div>
+            <div class="tab-pane fade" id="dropdown2">
+                <p>Trust fund seitan letterpress, keytar raw denim keffiyeh etsy art party before they sold out master cleanse gluten-free squid scenester freegan cosby sweater. Fanny pack portland seitan DIY, art party locavore wolf cliche high life echo park Austin. Cred vinyl keffiyeh DIY salvia PBR, banh mi before they sold out farm-to-table VHS viral locavore cosby sweater.</p>
+            </div>
+        </div>
+    </div>
+</template>
