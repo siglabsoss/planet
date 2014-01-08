@@ -24,7 +24,7 @@ function bindDashboardElements()
     });
 }
 
-Template.mainMapAndLeft.rendered = function() {
+Template.layout.rendered = function() {
 
     // do general stuff
 
