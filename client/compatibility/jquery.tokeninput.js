@@ -50,7 +50,8 @@ var DEFAULT_SETTINGS = {
     onResult: null,
     onAdd: null,
     onDelete: null,
-    onReady: null
+    onReady: null,
+    doSearch: null
 };
 
 // Default classes to use when theming
@@ -760,8 +761,27 @@ $.TokenList = function (input, url_or_data, settings) {
         if(cached_results) {
             populate_dropdown(query, cached_results);
         } else {
-            // Are we doing an ajax search or local data search?
-            if(settings.url) {
+            // Are we doing a function search, ajax search or local data search?
+            if($.isFunction(settings.doSearch)) {
+
+                // prepare callback
+                var resultsReady = function(results) {
+                    if($.isFunction(settings.onResult)) {
+                        results = settings.onResult.call(hidden_input, results);
+                    }
+                    cache.add(cache_key, results);
+
+                    // only populate the dropdown if the results are associated with the active search query
+                    if(input_box.val().toLowerCase() === query) {
+                        populate_dropdown(query, results);
+                    }
+                };
+
+                // Call users' function to do the search.
+                // User's function must search data using first parameter, and then call the function in the second parameter when the results are ready
+                settings.doSearch.call(hidden_input,query,resultsReady);
+
+            } else if(settings.url) {
                 var url = computeURL();
                 // Extract exisiting get params
                 var ajax_params = {};
