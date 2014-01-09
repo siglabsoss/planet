@@ -1,5 +1,10 @@
 "use-strict";
 
+// settings
+
+// popup_width
+var mapPopupOptions = {maxWidth:600,minWidth:300};
+
 window.resize = function(t) {
     var c, h, m, top, w;
     w = window.innerWidth;
@@ -36,6 +41,39 @@ function updateClientMapMarker(newDocument, oldDocument)
 //    console.log(clientMapMarkers);
 }
 
+
+function buildLeafletMarkerFromDoc(document)
+{
+    var marker;
+    var pos = [document.lat, document.lng];
+
+    marker = L.marker(pos);
+
+    var popup = new L.popup(mapPopupOptions).setContent("");
+
+    var popupOpened = function(event) {
+        // (re) render popup content
+        // Wrapping this with Meteor.render() seems to break clicking the same geofence twice without clicking away in-between
+        popup.setContent(Template.devicePopup(Devices.findOne(document._id)));
+
+        // call the normal popup open
+        event.target.openPopup();
+
+        // Bind elements in the popup
+//        bindFencePopupElements();
+    };
+
+    // normal popup binding
+    marker.bindPopup(popup);
+
+    // remove default click added by bindPopup
+    marker.off('click');
+
+    // add our own handler
+    marker.on('click', popupOpened, marker);
+
+    return marker;
+}
 
 
 
@@ -166,8 +204,7 @@ function buildLeafletLayerFromDoc(document)
 
 
     // build a popup object with empty content
-    // popup_width
-    var popup = new L.popup({maxWidth:600,minWidth:300}).setContent("");
+    var popup = new L.popup(mapPopupOptions).setContent("");
 
     var popupOpened = function(event) {
         // (re) render popup content
@@ -178,15 +215,14 @@ function buildLeafletLayerFromDoc(document)
         event.target._openPopup(event);
 
         // Bind elements in the popup
-        bindPopupElements();
+        bindFencePopupElements();
     };
 
     // normal popup binding
     o.bindPopup(popup);
 
-
     // remove default click added by bindPopup
-    o.off('click', this._openPopup);
+    o.off('click');
 
     // add our own handler
     o.on('click', popupOpened, o);
@@ -381,34 +417,16 @@ function mainMapRunOnce()
 
     query = Devices.find({});
     query.observe({
-        added: function(mark) {
-            var marker;
-            var pos = [mark.lat, mark.lng];
-//            debugger;
-//            var other = L.marker(pos);
-//            var o = {lat:}
-//            debugger;
-//            return {};
+        added: function(document) {
+            var marker = buildLeafletMarkerFromDoc(document);
 
-//            console.log(clientMapMarkers);
-
-            marker = L.marker(pos);
-
-//            console.log(marker);
 
             // after calling marker.addTo (or map.addLayer(marker)) the marker object gets a new member, called _leaflet_id
-            marker.addTo(window.mapObject).on('click', function(e) {
-//                return Markers.remove({
-//                    latlng: this._latlng
-//                });
-                console.log("clicked on " + mark._id);
-            });
+            marker.addTo(window.mapObject);
 
 
 
-            insertClientMapMarker(marker, mark);
-
-//            console.log(marker);
+            insertClientMapMarker(marker, document);
         },
         changed: updateClientMapMarker,
         removed: function(mark) {
@@ -498,7 +516,7 @@ Deps.autorun(function(){
 
 });
 
-function bindPopupElements()
+function bindFencePopupElements()
 {
 
     $('.deleteFenceLink').off('click');
