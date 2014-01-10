@@ -173,7 +173,7 @@ buildItemHeirarchy = function(g, options)
     // add all the top level parents
     for (var i in g) {
         var node = g[i];
-        if( node.parents === null || node.parents.length === 0 )
+        if( (!node.parents) || node.parents.length === 0 )
         {
             node.depth = 0;
             output.push(node);

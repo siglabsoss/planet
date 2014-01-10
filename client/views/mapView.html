@@ -117,20 +117,30 @@
 </template>
 
 
+
+
+
+
+
+
+
 <template name="leftPanelGroup">
-    <li id="leftPanelGroup-{{_id}}" class="list-group-item leftPanelGroup" style="{{style}}">{{name}}</li>
-    {{#if children}}
-        {{#each children}}
-            {{>leftPanelGroup}}
-        {{/each}}
-    {{/if}}
+    <li id="grouplist_{{_id}}"><div><span class="disclose"><span></span></span>{{name}}</div>
+        {{#if children}}
+        <ol>
+            {{#each children}}
+                {{>leftPanelGroup}}
+            {{/each}}
+        </ol>
+        {{/if}}
+
 </template>
 
 
 <template name="leftPanelGroups">
-    <ul class="list-group">
+    <ol class="sortable">
         {{#each groups}}
             {{>leftPanelGroup}}
         {{/each}}
-    </ul>
+    </ol>
 </template>
