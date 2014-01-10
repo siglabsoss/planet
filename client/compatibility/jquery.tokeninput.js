@@ -117,7 +117,10 @@ var methods = {
     },
     get: function() {
     	return this.data("tokenInputObject").getTokens();
-   	}
+   	},
+    resizeInput: function() {
+        return this.data("tokenInputObject").resizeInput();
+    }
 }
 
 // Expose the .tokenInput function to jQuery as a plugin
@@ -417,6 +420,10 @@ $.TokenList = function (input, url_or_data, settings) {
     this.getTokens = function() {
    		return saved_tokens;
    	}
+
+    this.resizeInput = function() {
+        return resize_input();
+    }
 
     //
     // Private functions

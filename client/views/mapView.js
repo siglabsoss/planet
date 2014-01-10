@@ -54,13 +54,14 @@ function buildLeafletMarkerFromDoc(document)
     var popupOpened = function(event) {
         // (re) render popup content
         // Wrapping this with Meteor.render() seems to break clicking the same geofence twice without clicking away in-between
-        popup.setContent(Template.devicePopup(Devices.findOne(document._id)));
+        var updatedDevice = Devices.findOne(document._id);
+        popup.setContent(Template.devicePopup(updatedDevice));
 
         // call the normal popup open
         event.target.openPopup();
 
         // Bind elements in the popup
-//        bindFencePopupElements();
+        bindDevicePopupElements(updatedDevice);
     };
 
     // normal popup binding
@@ -515,6 +516,55 @@ Deps.autorun(function(){
     }
 
 });
+
+function bindDevicePopupElements(document)
+{
+    // ------------ Group Search ------------
+
+    var groupSearchSelector = '#device-popup-group-input-' + document._id;
+
+    var customSearchFunction = function(text, callback){
+
+        // build regex to find text anywhere in field
+        var expression = ".*"+text+".*";
+        var rx = RegExp(expression,'i');
+
+        // search mongo
+        var groups = Groups.find({name:rx}).fetch();
+
+        // give results back to dropdown thing
+        callback(groups);
+    };
+
+    var onAdd = function(group) {
+        Devices.update(document._id, {$addToSet:{'parents': group._id}})
+    };
+    var onDelete = function(group) {
+        Devices.update(document._id, {$pull:{'parents': group._id}})
+    };
+
+    var parents = document.parents ? document.parents : [];
+
+    // get group objects for groups that this device directly belongs to
+    var belongsToGroups = Groups.find({_id: {$in: parents}}).fetch();
+
+    console.log(belongsToGroups);
+
+    $(groupSearchSelector).tokenInput("", {
+        theme: "facebook",
+        doSearch: customSearchFunction,
+        onAdd: onAdd,
+        onDelete: onDelete,
+        prePopulate: belongsToGroups,
+        hintText: "Type a group name"
+
+    });
+
+    // fix sizing when pre-populating a non empty list
+    $(groupSearchSelector).tokenInput("resizeInput");
+
+
+}
 
 function bindFencePopupElements()
 {
