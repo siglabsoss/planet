@@ -586,33 +586,10 @@ function bindFencePopupElements()
 
 Template.leftPanelGroup.rendered = function() {
 
-    var leftGroupDragAllowed = function(placeholder, placeholderParent, originalItem)
-    {
-        return false;
-    };
-
-    $('ol.sortable').nestedSortable({
-        forcePlaceholderSize: true,
-        handle: 'div',
-        helper:	'clone',
-        items: 'li',
-        opacity: .6,
-        placeholder: 'placeholder',
-        revert: 250,
-        tabSize: 25,
-        tolerance: 'pointer',
-        toleranceElement: '> div',
-        maxLevels: 5,
-        isAllowed: leftGroupDragAllowed,
-        isTree: true,
-        expandOnHover: 700,
-        startCollapsed: false
-    });
-
-
-    $('.disclose').on('click', function() {
+    // toggles groups on left
+    $('.left-disclose').on('click', function() {
         $(this).closest('li').toggleClass('mjs-nestedSortable-collapsed').toggleClass('mjs-nestedSortable-expanded');
-    })
+    });
 }
 
 
@@ -620,19 +597,6 @@ Template.leftPanelGroup.rendered = function() {
 Template.leftPanelGroups.groups = function() {
     var flatGroups = Groups.find().fetch();
 
-//    var devices = Devices.find().fetch();
-
-//    var merged = mergeDevicesGroups(devices, flatGroups);
 
     return buildItemHeirarchy(flatGroups,{depth:true});
-}
-
-Template.leftPanelGroup.style = function() {
-    var offset = 10; // pixels
-
-    var myOffset = this.depth * offset + offset;
-
-    var css = "left: " + myOffset + "px";
-
-    return css;
 }
