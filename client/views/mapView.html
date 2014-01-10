@@ -127,7 +127,12 @@
 
 
 <template name="leftPanelGroup">
-    <li id="grouplist_{{_id}}" class="mjs-nestedSortable-branch mjs-nestedSortable-expanded"><div class="list-group-item leftPanelGroup"><span class="left-disclose"><span></span></span>{{name}}</div>
+    <li id="grouplist_{{_id}}" class="mjs-nestedSortable-branch mjs-nestedSortable-expanded">
+        <div class="list-group-item leftPanelGroup">
+            <span class="left-disclose"><span></span></span>
+            {{name}}
+            <span class="badge">{{deviceCount}}</span>
+        </div>
         {{#if children}}
         <ol>
             {{#each children}}

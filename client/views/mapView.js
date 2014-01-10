@@ -586,6 +586,8 @@ function bindFencePopupElements()
 
 Template.leftPanelGroup.rendered = function() {
 
+    $('.left-disclose').off('click');
+
     // toggles groups on left
     $('.left-disclose').on('click', function() {
         $(this).closest('li').toggleClass('mjs-nestedSortable-collapsed').toggleClass('mjs-nestedSortable-expanded');
@@ -599,4 +601,9 @@ Template.leftPanelGroups.groups = function() {
 
 
     return buildItemHeirarchy(flatGroups,{depth:true});
+}
+
+
+Template.leftPanelGroup.deviceCount = function() {
+    return devicesInGroup(this._id).length;
 }
