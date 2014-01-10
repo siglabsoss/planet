@@ -209,6 +209,10 @@ input {
     background-color: #ccc;
 }
 
+.black-background {
+    background-color: #000;
+}
+
 
 
 .navbar.pop-navbar {
@@ -257,4 +261,12 @@ input {
     width: 15px;
     height: 15px;
     display: block;
+}
+
+#map {
+    margin-top: 1px;
+}
+
+#mapBootstrapContainer {
+    padding: 1px;
 }

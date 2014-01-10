@@ -10,7 +10,8 @@ window.resize = function(t) {
     w = window.innerWidth;
     h = window.innerHeight;
     top = t.find('#map').offsetTop;
-    c = w - 40;
+    var leftPanelWidth = $('#leftMapPanel').width();
+    c = w - leftPanelWidth - 15;
     m = (h - top) - 65;
     t.find('#main_map_container').style.width = "" + c + "px";
     return t.find('#map').style.height = "" + m + "px";
@@ -313,7 +314,7 @@ function mainMapRunOnce()
         doubleClickZoom: false
     }).setView([37.471075, -121.600932], 10);
     L.tileLayer("http://{s}.tile.cloudmade.com/" + key + "/" + mapStyle + "/256/{z}/{x}/{y}.png", {
-        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>'
+        attribution: ''
     }).addTo(window.mapObject);
     window.mapObject.on('dblclick', function(e) {
 //        return Markers.insert({

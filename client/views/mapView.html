@@ -1,9 +1,9 @@
 <template name="mainMapAndLeft">
     <div class="row shownOnlyWithMap">
-        <div class="col-md-3 red-background text-left shownOnlyWithMap">
+        <div class="col-md-3 red-background text-left shownOnlyWithMap" id="leftMapPanel">
             left
         </div>
-        <div class="col-md-9 grey-background shownOnlyWithMap">
+        <div class="col-md-9 black-background shownOnlyWithMap" id="mapBootstrapContainer">
             {{>flashAlert}}
             {{#constant}}
             <div id="main_map_container" class="map_container shownOnlyWithMap">
