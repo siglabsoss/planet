@@ -11,7 +11,7 @@ window.resize = function(t) {
     h = window.innerHeight;
     top = t.find('#map').offsetTop;
     var leftPanelWidth = $('#leftMapPanel').width();
-    c = w - leftPanelWidth - 15;
+    c = w - leftPanelWidth - 1;
     m = (h - top) - 65;
     t.find('#main_map_container').style.width = "" + c + "px";
     return t.find('#map').style.height = "" + m + "px";
@@ -584,3 +584,26 @@ function bindFencePopupElements()
     });
 }
 
+
+
+Template.leftPanelGroups.groups = function()
+{
+    var flatGroups = Groups.find().fetch();
+
+//    var devices = Devices.find().fetch();
+
+//    var merged = mergeDevicesGroups(devices, flatGroups);
+
+    return buildItemHeirarchy(flatGroups,{depth:true});
+}
+
+Template.leftPanelGroup.style = function()
+{
+    var offset = 10; // pixels
+
+    var myOffset = this.depth * offset + offset;
+
+    var css = "left: " + myOffset + "px";
+
+    return css;
+}

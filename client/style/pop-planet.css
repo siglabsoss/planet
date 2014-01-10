@@ -270,3 +270,16 @@ input {
 #mapBootstrapContainer {
     padding: 1px;
 }
+
+.leftPanelHeading {
+    padding: 10px;
+}
+
+#leftMapPanel {
+    padding-right: 0px;
+}
+
+.leftPanelGroup {
+    max-width: 200px;
+    margin-bottom: 2px;
+}

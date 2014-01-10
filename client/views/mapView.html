@@ -1,7 +1,10 @@
 <template name="mainMapAndLeft">
     <div class="row shownOnlyWithMap">
-        <div class="col-md-3 red-background text-left shownOnlyWithMap" id="leftMapPanel">
-            left
+        <div class="col-md-3 text-left shownOnlyWithMap" id="leftMapPanel">
+            <div class="leftPanelHeading">
+                <h2>Groups</h2>
+            </div>
+            {{>leftPanelGroups}}
         </div>
         <div class="col-md-9 black-background shownOnlyWithMap" id="mapBootstrapContainer">
             {{>flashAlert}}
@@ -111,4 +114,23 @@
             </div>
         </div>
     </div>
+</template>
+
+
+<template name="leftPanelGroup">
+    <li id="leftPanelGroup-{{_id}}" class="list-group-item leftPanelGroup" style="{{style}}">{{name}}</li>
+    {{#if children}}
+        {{#each children}}
+            {{>leftPanelGroup}}
+        {{/each}}
+    {{/if}}
+</template>
+
+
+<template name="leftPanelGroups">
+    <ul class="list-group">
+        {{#each groups}}
+            {{>leftPanelGroup}}
+        {{/each}}
+    </ul>
 </template>

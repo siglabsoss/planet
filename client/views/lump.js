@@ -85,7 +85,7 @@ Template.groupsReactive.rendered = Template.groups.rendered = function() {
 }
 
 // returns true for success, false for failure
-function attachChild(output, child)
+function attachChild(output, child, depth)
 {
     var ret = true;
     var childrenEntered = false; // set to true once we recurse into children
@@ -93,6 +93,8 @@ function attachChild(output, child)
     {
         if( child.parents.find(output[i]._id) )
         {
+            child.depth = depth;
+
             output[i].children.push(child);
 
             // remove the parent we just attached
@@ -105,7 +107,7 @@ function attachChild(output, child)
         if( output[i].children.length != 0 )
         {
             childrenEntered = true;
-            ret = ret && attachChild(output[i].children, child);
+            ret = ret && attachChild(output[i].children, child, depth + 1);
         }
     }
     return ret && childrenEntered; // if we haven't looked at any children, ret will be incorrectly set to false which the && prevents
@@ -159,7 +161,7 @@ function mergeDevicesGroups(devices,groups)
     return output;
 }
 
-function buildHeirarchy(g)
+buildItemHeirarchy = function(g, options)
 {
 
     var worstCaseIterations = g.length + 1;
@@ -173,6 +175,7 @@ function buildHeirarchy(g)
         var node = g[i];
         if( node.parents === null || node.parents.length === 0 )
         {
+            node.depth = 0;
             output.push(node);
             delete(g[i]); //delete node from input because we've successfully attached it
         }
@@ -201,7 +204,7 @@ function buildHeirarchy(g)
             var node = g[i];
 
             // try to attach the child.  If we are attaching a child to a parent that hasn't been attached yet, we loop through again
-            var success = attachChild(output, node);
+            var success = attachChild(output, node, 1);
 
             // if a single pass fails, set this flag which will make the while go again
             if( !success )
@@ -240,7 +243,7 @@ Template.groupsSimple.groups = Template.groupsReactive.groups = Template.groups.
 
     var merged = mergeDevicesGroups(devices, flatGroups);
 
-    return buildHeirarchy(merged);
+    return buildItemHeirarchy(merged);
 }
 
 Template.groupsReactive.groupsDebug = Template.groups.groupsDebug = function()
