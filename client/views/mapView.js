@@ -598,6 +598,38 @@ Template.leftPanelGroup.rendered = function() {
 }
 
 
+Template.leftPanelGroups.rendered = function() {
+
+    var eyeballLeftOffset = 8;
+
+    $(".groupListEyeball").each(function() {
+        $this = $(this);
+        var id = $this.attr('data-id');
+
+        // the eyeball's left position is glued to the left side of the pane
+        var pos = $this.offset();
+        pos.left = eyeballLeftOffset;
+
+        // the top position is glued to the same offset as the li for this group
+        pos.top = $("#groupList_" + id).offset().top;
+
+        $this.offset(pos);
+    });
+
+    // handles click and toggles eyeballs on/off
+    $('.groupListEyeball').off('click').on('click', function() {
+        $eye = $(this).find('.actual-eyeball-class');
+
+        if( $eye.hasClass('fa-eye') ) {
+            $(this).find('.actual-eyeball-class').removeClass('fa-eye').addClass('fa-eye-slash');
+        } else {
+            $(this).find('.actual-eyeball-class').removeClass('fa-eye-slash').addClass('fa-eye');
+        }
+
+    });
+
+
+}
 
 Template.leftPanelGroups.groups = function() {
     var flatGroups = Groups.find().fetch();

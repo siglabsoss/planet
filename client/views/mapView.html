@@ -1,12 +1,12 @@
 <template name="mainMapAndLeft">
     <div class="row shownOnlyWithMap">
         <div class="col-md-3 text-left shownOnlyWithMap" id="leftMapPanel">
-            <div class="well">
+
                 <div class="leftPanelHeading">
                     <h2>Groups</h2>
                 </div>
                 {{>leftPanelGroups}}
-            </div>
+
         </div>
         <div class="col-md-9 black-background shownOnlyWithMap" id="mapBootstrapContainer">
             {{>flashAlert}}
@@ -127,7 +127,14 @@
 
 
 <template name="leftPanelGroup">
-    <li id="grouplist_{{_id}}" class="mjs-nestedSortable-branch mjs-nestedSortable-expanded">
+    <span style="position: relative"><span id="groupListEyeball_{{_id}}" class="groupListEyeball" data-id="{{_id}}">
+        <span class="fa-stack fa-lg">
+            <i class="fa fa-square fa-stack-2x grey-text"></i>
+            <i class="fa fa-eye fa-stack-1x actual-eyeball-class"></i>
+        </span>
+    </span></span>
+    <li id="groupList_{{_id}}" class="mjs-nestedSortable-branch mjs-nestedSortable-expanded">
+
         <div class="list-group-item leftPanelGroup">
             <span class="left-disclose"><span></span></span>
             {{name}}
@@ -146,11 +153,11 @@
 
 
 <template name="leftPanelGroups">
-
-    <ol class="sortable list-group">
-        {{#each groups}}
-            {{>leftPanelGroup}}
-        {{/each}}
-    </ol>
-
+    <div class="well">
+        <ol class="sortable list-group leftPanelGroupList">
+            {{#each groups}}
+                {{>leftPanelGroup}}
+            {{/each}}
+        </ol>
+    </div>
 </template>

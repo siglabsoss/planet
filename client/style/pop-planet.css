@@ -45,6 +45,10 @@ body {
     background-color: #000;
 }
 
+.grey-text {
+    color: #ccc;
+}
+
 
 
 .navbar.pop-navbar {
@@ -114,4 +118,16 @@ body {
 .leftPanelGroup {
     max-width: 200px;
     margin-bottom: 2px;
+}
+
+.groupListEyeball {
+    position:absolute;
+    z-index: 10;
+    /*left: -16px;  this is dynamtically updated by css in template.rendreed*/
+    top: 6px;
+}
+
+ol.leftPanelGroupList {
+    padding-left: 26px;
+    cursor: pointer;
 }
