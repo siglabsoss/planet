@@ -116,6 +116,9 @@ function insertFenceFromLeafletEvent(e)
     doc.devices = [];
 
     Fences.insert(doc);
+
+    // Tell server to calculate which devices are under all fences (and therefore this new one too)
+    Meteor.call("serverSideProcessFences",false);
 }
 
 // applies all properties except for latlngs to a layer object

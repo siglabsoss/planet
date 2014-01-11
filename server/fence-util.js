@@ -63,6 +63,10 @@ haversineDistanceKM = function(p1, p2)
 };
 
 
+asyncProcessFences = function(deviceIds) {
+    Meteor.setTimeout(function(){processFences(deviceIds);}, 1);
+}
+
 // this should always be called async
 // this is a function that looks at an array of devices ids (or every device) and every fence and updates fence.devices property
 // pass null to search every device (could be used for server startup)

@@ -22,6 +22,10 @@ Meteor.startup(function () {
 //        console.log(clientTime);
 
             return time;
+        },
+
+        serverSideProcessFences : function(deviceIds) {
+            asyncProcessFences(deviceIds);
         }
 
 

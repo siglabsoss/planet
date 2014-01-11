@@ -56,6 +56,6 @@ function parseHook(object)
 //        console.log(deviceIds);
 
         // call process fences in 1 ms
-        Meteor.setTimeout(function(){processFences(false);}, 1);
+        asyncProcessFences(false);
     }
 }
