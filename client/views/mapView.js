@@ -642,3 +642,8 @@ Template.leftPanelGroups.groups = function() {
 Template.leftPanelGroup.deviceCount = function() {
     return devicesInGroup(this._id).length;
 }
+
+Template.devicePopup.deviceFenceEvents = function () {
+    console.log('here');
+    return Events.find({type:"deviceFence","event.deviceId":this._id}).count();
+}
