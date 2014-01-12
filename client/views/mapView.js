@@ -521,12 +521,14 @@ Deps.autorun(function(){
 
 });
 
+// Called right after a device popup is rendered and also added to the DOM
 function bindDevicePopupElements(document)
 {
     // ------------ Group Search ------------
 
     var groupSearchSelector = '#device-popup-group-input-' + document._id;
 
+    // the library calls this every time a search is made as the user types into the input
     var customSearchFunction = function(text, callback){
 
         // build regex to find text anywhere in field
@@ -552,10 +554,14 @@ function bindDevicePopupElements(document)
     // get group objects for groups that this device directly belongs to
     var belongsToGroups = Groups.find({_id: {$in: parents}}).fetch();
 
-    console.log(belongsToGroups);
 
+
+    // This calls a library which generates the tag field.  (jquery.tokeninput.js)
+    // first param is empty string.
+    // second is options hash.
     $(groupSearchSelector).tokenInput("", {
         theme: "facebook",
+        // bjm added this custom callback to the library for how we use it with meteor
         doSearch: customSearchFunction,
         onAdd: onAdd,
         onDelete: onDelete,
@@ -643,7 +649,7 @@ Template.leftPanelGroup.deviceCount = function() {
     return devicesInGroup(this._id).length;
 }
 
+// Search for events that apply to this device.  Note that we don't call .find().fetch().length, instead use .find().count();
 Template.devicePopup.deviceFenceEvents = function () {
-    console.log('here');
     return Events.find({type:"deviceFence","event.deviceId":this._id}).count();
 }
