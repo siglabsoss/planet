@@ -4,7 +4,10 @@
       "git": "https://github.com/bevanhunt/meteor-leaflet.git",
       "ref": "450d2083cc820e69d04011eec129d93ad2484d56"
     },
-    "iron-router": {},
+    "iron-router": {
+        "git": "https://github.com/EventedMind/iron-router.git",
+        "ref": "ce56e58b45624dce992490f3a1c10f10d3948bae"
+    },
     "sugar": {},
     "jquery-ui": {},
     "font-awesome": {}
