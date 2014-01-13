@@ -9,9 +9,14 @@
 
 <template name="loggedOut">
     <h1>Please Login</h1>
-    user,pass<br>
-    <h2><a href="{{pathFor 'dashboard'}}">Skip this</a></h2>
+    <div class="row">
+        <div class="col-md-2">hi</div>
+        <div class="col-md-2">{{loginButtons}}</div>
+    </div>
+    <h2><a href="dashboard">Skip this</a></h2>
     {{>debugPost}}
+
+    123456789101112
 </template>
 
 
@@ -21,4 +26,36 @@
         <input type="text" name="lol">
         <input type="submit">
     </form>
+</template>
+
+
+<template name="loggedOutLayout">
+
+    <div class="navbar pop-navbar navbar-default navbar-fixed-top">
+        <div class="container">
+
+            <div class="navbar-collapse collapse" id="navbar-main">
+                <ul class="nav navbar-nav navbar-left">
+                    <li class="disabled">
+                        <a href="#" class="iron-ignore">Map</a>
+                    </li>
+                    <li class="dropdown disabled">
+                        <a href="#" class="dropdown-toggle iron-ignore" data-toggle="dropdown">Settings <b class="caret"></b></a>
+                    </li>
+                    <li class="disabled">
+                        <a href="#" class="iron-ignore">Alerts</a>
+                    </li>
+                    <li>
+                        <a href="">Help</a>
+                    </li>
+                </ul>
+
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="http://popwi.com/" target="_blank">Built By PopWi</a></li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+    {{yield}}
 </template>
