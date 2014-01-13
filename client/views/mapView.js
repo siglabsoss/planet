@@ -603,6 +603,15 @@ Template.leftPanelGroup.rendered = function() {
     });
 }
 
+// This has global scope because there is no var.
+// call .changed() on this to re-render the left panel.
+leftPanelRerenderDependency = new Deps.Dependency();
+
+// just here to allow us to re-render the template at will
+Template.leftPanelGroups.dependenciesString = function() {
+    leftPanelRerenderDependency.depend();
+    return "";
+}
 
 Template.leftPanelGroups.rendered = function() {
 

@@ -1,6 +1,6 @@
 <template name="mainMapAndLeft">
-    <div class="row shownOnlyWithMap">
-        <div class="col-md-3 text-left shownOnlyWithMap" id="leftMapPanel">
+    <div class="row shownOnlyWithMap hidden">
+        <div class="col-md-3 text-left shownOnlyWithMap hidden" id="leftMapPanel">
 
                 <div class="leftPanelHeading">
                     <h2>Groups</h2>
@@ -8,10 +8,10 @@
                 {{>leftPanelGroups}}
 
         </div>
-        <div class="col-md-9 black-background shownOnlyWithMap" id="mapBootstrapContainer">
+        <div class="col-md-9 black-background shownOnlyWithMap hidden" id="mapBootstrapContainer">
             {{>flashAlert}}
             {{#constant}}
-            <div id="main_map_container" class="map_container shownOnlyWithMap">
+            <div id="main_map_container" class="map_container shownOnlyWithMap hidden">
                 <div id="map" class="map"></div>
             </div>
             {{/constant}}
@@ -161,4 +161,5 @@
             {{/each}}
         </ol>
     </div>
+    {{dependenciesString}}
 </template>
