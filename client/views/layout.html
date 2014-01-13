@@ -41,9 +41,12 @@
                         <a href="">Help</a>
                     </li>
                     <li>
+                        <a href="{{pathFor 'userSettings'}}">Account</a>
+                    </li>
+                    <li>
                         <!-- Force a page refresh when logging out.  (the logged out template destroys the map and it won't look right if they log back in)
                         Adding iron-ignore prevents the router from listening to this which adds lag before browser refreshes -->
-                        <a href="/" onClick="location.href = '/'" class="iron-ignore">Log out</a> <!--{   pathFor 'loggedOut'}-->
+                        <a href="/" onClick="Meteor.logout(); location.href = '/'" class="iron-ignore">Log out</a> <!--{   pathFor 'loggedOut'}-->
                     </li>
                 </ul>
 

@@ -26,6 +26,18 @@ Meteor.startup(function () {
 
         serverSideProcessFences : function(deviceIds) {
             asyncProcessFences(deviceIds);
+        },
+
+        updateUserObject : function(o) {
+
+            // Client can just call
+            // Meteor.users.update(Meteor.userId(), {$set:{'profile.user.firstName': 'Ben'}});
+            if(o.firstName)
+                Meteor.users.update({_id: this.userId }, {$set:{'profile.user.firstName': o.firstName}});
+
+            if(o.lastName)
+                Meteor.users.update({_id: this.userId }, {$set:{'profile.user.lastName': o.lastName}});
+
         }
 
 
