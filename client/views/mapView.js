@@ -620,6 +620,14 @@ Template.leftPanelGroups.dependenciesString = function() {
     return "";
 }
 
+Template.leftPanelGroup.eyeIconClass = function() {
+    if(this.groupVisible) {
+        return "fa-eye";
+    } else {
+        return "fa-eye-slash";
+    }
+}
+
 Template.leftPanelGroups.rendered = function() {
 
     var eyeballLeftOffset = 8;
@@ -644,24 +652,34 @@ Template.leftPanelGroups.rendered = function() {
         var $eye = $this.find('.actual-eyeball-class');
         var id = $this.attr('data-id');
 
+        // clicking on the eye only updates the database, then the template re-render changes the font awesome icon
         if( $eye.hasClass('fa-eye') ) {
-            $eye.removeClass('fa-eye').addClass('fa-eye-slash');
+//            $eye.removeClass('fa-eye').addClass('fa-eye-slash');
             removeFromSetUserSetting('map.view.visibleGroups', id);
         } else {
-            $eye.removeClass('fa-eye-slash').addClass('fa-eye');
+//            $eye.removeClass('fa-eye-slash').addClass('fa-eye');
             addToSetUserSetting('map.view.visibleGroups', id);
         }
 
     });
-
-
 }
 
 Template.leftPanelGroups.groups = function() {
     var flatGroups = Groups.find().fetch();
 
+    var profile = Meteor.user().profile;
 
-    return buildItemHeirarchy(flatGroups,{depth:true});
+    // look at each group, set this member variable if the group is visible to the current user
+    flatGroups.each(function(g) {
+        if( profile && profile.map && profile.map.view && profile.map.view.visibleGroups && profile.map.view.visibleGroups.indexOf(g._id) != -1 )
+            g.groupVisible = true;
+        else
+            g.groupVisible = false;
+    });
+
+    var heirarchy = buildItemHeirarchy(flatGroups);
+
+    return heirarchy;
 }
 
 
