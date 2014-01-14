@@ -10,9 +10,9 @@ function bindDashboardElements()
     
     $('.showFenceDrop').on('click', function(e){
 
-        var newValue = ! Settings.findOne(settingsDocId()).view.showFences;
-
-        Settings.update(settingsDocId(), {$set:{view:{showFences:newValue}}});
+        // toggle
+        var newValue = ! getUserSetting('map.view.showFences');
+        setUserSetting('map.view.showFences', newValue);
 
         var message = "Fences Shown";
         if( !newValue )
@@ -31,22 +31,6 @@ Template.layout.rendered = function() {
     // (re) Bind all our dom elements
     bindDashboardElements();
 }
-
-
-//FIXME make settings more uniform
-
-getShowFences = function()
-{
-    var o = Settings.findOne({userId:fakeUserId()});
-
-    // default value
-    if( ! (o && o.view) )
-        return true;
-
-    return o.view.showFences;
-}
-
-
 
 
 // Returns raw html for an alert

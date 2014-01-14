@@ -245,14 +245,19 @@ var clientFences = [];
 
 function installMapViewAutorun()
 {
+    var queryObserve;
+
     Deps.autorun(function() {
 
-        if( getShowFences() )
+        if( getUserSetting('map.view.showFences') )
         {
+            // this prevents re-render with 'true' twice in a row problems
+            if( queryObserve )
+                return;
 
             var query = Fences.find({userId:fakeUserId()});
 
-            query.observe({
+            queryObserve = query.observe({
                 added: function(document) {
                     var layer = buildLeafletLayerFromDoc(document);
 
@@ -292,6 +297,12 @@ function installMapViewAutorun()
                     delete(clientFences[i]);
                 }
             }
+
+            // this prevents re-render with 'true' twice in a row problems
+            if( queryObserve ) {
+                queryObserve.stop();
+            }
+            queryObserve = null;
         }
 
     });

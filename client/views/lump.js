@@ -261,16 +261,6 @@ fakeUserId = function()
     return "2zjj2CjuCa3mbx6zW";
 }
 
-settingsDocId = function()
-{
-
-    var s = Settings.findOne({userId:fakeUserId()});
-
-    if(!s)
-        return null;
-
-    return s._id;
-}
 
 Template.fenceList.fenceList = function ()
 {
@@ -305,4 +295,18 @@ Template.fence.deviceCount = function()
         return 0;
     else
         return Object.keys(devices).length;
+}
+
+// This helps with finding rendered templates
+// http://projectricochet.com/blog/meteor-js-performance#.UtTAs2RDvYc
+logRenders = function() {
+    _.each(Template, function (template, name) {
+        var oldRender = template.rendered;
+        var counter = 0;
+
+        template.rendered = function () {
+            console.log(name, "render count: ", ++counter);
+            oldRender && oldRender.apply(this, arguments);
+        };
+    });
 }

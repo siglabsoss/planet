@@ -13,7 +13,7 @@ if (Meteor.isClient) {
 }
 
 
-Template.layout.showFenceSetting = function()
-{
-    return getShowFences();
+Template.layout.showFenceSetting = function() {
+    // using reactive causes issues if this value changes which blows away the map :(
+    return getUserSetting('map.view.showFences', {reactive:false});
 }
