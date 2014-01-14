@@ -579,9 +579,7 @@ function bindDevicePopupElements(document)
 function bindFencePopupElements()
 {
 
-    $('.deleteFenceLink').off('click');
-
-    $('.deleteFenceLink').on('click', function(e){
+    $('.deleteFenceLink').off('click').on('click', function(e){
         var deleteFenceId = this.getAttribute('data-id');
 
         if (confirm('Are you sure you want to delete this fence?')) {
@@ -595,10 +593,8 @@ function bindFencePopupElements()
 
 Template.leftPanelGroup.rendered = function() {
 
-    $('.left-disclose').off('click');
-
     // toggles groups on left
-    $('.left-disclose').on('click', function() {
+    $('.left-disclose').off('click').on('click', function() {
         $(this).closest('li').toggleClass('mjs-nestedSortable-collapsed').toggleClass('mjs-nestedSortable-expanded');
     });
 }
@@ -633,12 +629,16 @@ Template.leftPanelGroups.rendered = function() {
 
     // handles click and toggles eyeballs on/off
     $('.groupListEyeball').off('click').on('click', function() {
-        $eye = $(this).find('.actual-eyeball-class');
+        var $this = $(this);
+        var $eye = $this.find('.actual-eyeball-class');
+        var id = $this.attr('data-id');
 
         if( $eye.hasClass('fa-eye') ) {
-            $(this).find('.actual-eyeball-class').removeClass('fa-eye').addClass('fa-eye-slash');
+            $eye.removeClass('fa-eye').addClass('fa-eye-slash');
+            removeFromSetUserSetting('map.view.visibleGroups', id);
         } else {
-            $(this).find('.actual-eyeball-class').removeClass('fa-eye-slash').addClass('fa-eye');
+            $eye.removeClass('fa-eye-slash').addClass('fa-eye');
+            addToSetUserSetting('map.view.visibleGroups', id);
         }
 
     });
