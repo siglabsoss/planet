@@ -602,11 +602,26 @@ function bindFencePopupElements()
     });
 }
 
-Template.leftPanelGroup.rendered = function() {
+Template.leftPanelGroup.collapsedClass = function() {
+    if(this.groupExpanded) {
+        return "mjs-nestedSortable-expanded";
+    } else {
+        return "mjs-nestedSortable-collapsed";
+    }
+}
 
+Template.leftPanelGroup.rendered = function() {
     // toggles groups on left
     $('.left-disclose').off('click').on('click', function() {
-        $(this).closest('li').toggleClass('mjs-nestedSortable-collapsed').toggleClass('mjs-nestedSortable-expanded');
+
+        var $li = $(this).closest('li');
+        var id = $li.attr('data-id');
+
+        if(  $li.hasClass('mjs-nestedSortable-expanded') ) {
+            removeFromSetUserSetting('map.view.expandedGroups', id);
+        } else {
+            addToSetUserSetting('map.view.expandedGroups', id);
+        }
     });
 }
 
@@ -671,10 +686,18 @@ Template.leftPanelGroups.groups = function() {
 
     // look at each group, set this member variable if the group is visible to the current user
     flatGroups.each(function(g) {
-        if( profile && profile.map && profile.map.view && profile.map.view.visibleGroups && profile.map.view.visibleGroups.indexOf(g._id) != -1 )
+        if( profile && profile.map && profile.map.view && profile.map.view.visibleGroups && profile.map.view.visibleGroups.indexOf(g._id) != -1 ) {
             g.groupVisible = true;
-        else
+        } else {
             g.groupVisible = false;
+        }
+
+        // set this member variable if group is expanded
+        if( profile && profile.map && profile.map.view && profile.map.view.expandedGroups && profile.map.view.expandedGroups.indexOf(g._id) != -1 ) {
+            g.groupExpanded = true;
+        } else {
+            g.groupExpanded = false;
+        }
     });
 
     var heirarchy = buildItemHeirarchy(flatGroups);
