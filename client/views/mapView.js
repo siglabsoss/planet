@@ -537,10 +537,10 @@ function bindDevicePopupElements(document)
     };
 
     var onAdd = function(group) {
-        Devices.update(document._id, {$addToSet:{'parents': group._id}})
+        Devices.update(document._id, {$addToSet:{'parents': group._id}});
     };
     var onDelete = function(group) {
-        Devices.update(document._id, {$pull:{'parents': group._id}})
+        Devices.update(document._id, {$pull:{'parents': group._id}});
     };
 
     var parents = document.parents ? document.parents : [];
@@ -690,7 +690,7 @@ Template.leftPanelGroups.groups = function() {
 
 
 Template.leftPanelGroup.deviceCount = function() {
-    return devicesInGroup(this._id).length;
+    return this.devicesInGroupCount;
 }
 
 // Search for events that apply to this device.  Note that we don't call .find().fetch().length, instead use .find().count();

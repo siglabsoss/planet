@@ -27,6 +27,56 @@ Meteor.startup(function () {
     });
 
     Meteor.publish("groups", function () {
+
+
+        // This is a very inefficient way of counting how many devices are in each group
+        // This code calculates the value, and then with self.added() it creates a "generated" field that is never stored in the DB
+        // See http://docs.meteor.com/#meteor_publish
+        var self = this;
+
+        var updateCounts = function(added) {
+            var temp = Groups.find().fetch();
+            temp.each(function(g) {
+                var count = devicesInGroup(g).length; // This returns the entire object which is wasteful
+                if( added ) {
+                    self.added("groups", g._id, {devicesInGroupCount: count});
+                } else {
+                    self.changed("groups", g._id, {devicesInGroupCount: count});
+                }
+            });
+            self.ready();
+        };
+
+
+        var timeoutHandle;
+        var debounceMs = 100;
+
+        // this observes whenever the 'parents' field of any device changes
+        // then it calls updateCounts() with a debounce because updateCounts actually scans and counts the entire database (not just for one device)
+        var handle = Devices.find({},{fields: {parents: 1}}).observeChanges({
+            added: function (id) {
+//                console.log('added');
+                if( timeoutHandle )
+                    Meteor.clearTimeout(timeoutHandle);
+                timeoutHandle = Meteor.setTimeout(function(){updateCounts(true);},debounceMs);
+
+            },
+            changed: function(id, fields) {
+//                console.log('changed:');
+                if( timeoutHandle )
+                    Meteor.clearTimeout(timeoutHandle);
+                timeoutHandle = Meteor.setTimeout(function(){updateCounts(false);},debounceMs);
+            },
+            removed: function (id) {
+//                console.log('removed');
+                if( timeoutHandle )
+                    Meteor.clearTimeout(timeoutHandle);
+                timeoutHandle = Meteor.setTimeout(function(){updateCounts(false);},debounceMs);
+            }
+            // don't care about moved
+        });
+
+
         return Groups.find({});
     });
 
