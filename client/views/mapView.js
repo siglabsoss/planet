@@ -23,18 +23,8 @@ window.resize = function(t) {
 // this array has "file scope" because it is var
 var clientMapMarkers = [];
 
-function insertClientMapMarker(marker, doc)
-{
-//    console.log(doc);
 
-    // save an associative array indexed by the mongo id
-    clientMapMarkers[doc._id] = marker;
-
-
-//    console.log(clientMapMarkers);
-}
-
-function updateClientMapMarker(newDocument, oldDocument)
+function updateClientMapMarker(newDocument)
 {
     // pull the object from the array and update its lat lng
     clientMapMarkers[newDocument._id].setLatLng(L.latLng([newDocument.lat, newDocument.lng]));
@@ -279,7 +269,7 @@ function installMapViewAutorun()
                     drawnItemsLayerGroup.removeLayer(clientFences[oldDocument._id]._leaflet_id);
 
                     // delete our record of the layer
-                    delete(clientFences[i]);
+                    delete(clientFences[oldDocument._id]);
                 }
             });
         }
@@ -350,6 +340,9 @@ function mainMapRunOnce()
 
     drawnItemsLayerGroup = new L.FeatureGroup();
     window.mapObject.addLayer(drawnItemsLayerGroup);
+
+    drawnMarkersLayerGroup = new L.FeatureGroup();
+    window.mapObject.addLayer(drawnMarkersLayerGroup);
 
     // Set the title to show on the polygon button
     L.drawLocal.draw.toolbar.buttons.polygon = 'Draw a GEO fence!';
@@ -434,34 +427,24 @@ function mainMapRunOnce()
     query = Devices.find({});
     query.observe({
         added: function(document) {
-            var marker = buildLeafletMarkerFromDoc(document);
-
+            var markerObject = buildLeafletMarkerFromDoc(document);
 
             // after calling marker.addTo (or map.addLayer(marker)) the marker object gets a new member, called _leaflet_id
-            marker.addTo(window.mapObject);
 
+            // update global array
+            clientMapMarkers[document._id] = markerObject;
 
-
-            insertClientMapMarker(marker, document);
+            drawnMarkersLayerGroup.addLayer(clientMapMarkers[document._id]);
         },
-        changed: updateClientMapMarker,
-        removed: function(mark) {
-//            var key, layers, val, _results;
-//            layers = window.map._layers;
-//            _results = [];
-//            for (key in layers) {
-//                val = layers[key];
-//                if (!val._latlng) {
-//
-//                } else {
-//                    if (val._latlng.lat === mark.latlng.lat && val._latlng.lng === mark.latlng.lng) {
-//                        _results.push(window.map.removeLayer(val));
-//                    } else {
-//                        _results.push(void 0);
-//                    }
-//                }
-//            }
-//            return _results;
+        changed: function(newDocument, oldDocument){
+            updateClientMapMarker(newDocument);
+        },
+        removed: function(oldDocument) {
+            // remove the layer from the map
+            drawnMarkersLayerGroup.removeLayer(clientMapMarkers[oldDocument._id]._leaflet_id);
+
+            // delete our record of the layer
+            delete(clientMapMarkers[oldDocument._id]);
         }
     });
 
