@@ -7,6 +7,7 @@ Meteor.startup(function () {
 
     Meteor.subscribe("groups");
     Meteor.subscribe("fences");
+    Meteor.subscribe("alerts");
 
 
     Deps.autorun(function() {

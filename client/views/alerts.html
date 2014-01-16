@@ -1,3 +1,23 @@
 <template name="alerts">
     alerts...
+    {{#each alerts}}
+        {{>alert}}
+    {{/each}}
+</template>
+
+<template name="alert">
+<div class="row">
+    <div class="col-lg-1">&nbsp;</div>
+    <div class="col-lg-4">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">{{name}}<span class="pull-right"><i class="fa fa-trash-o"></i></span></h3>
+            </div>
+            <div class="panel-body">
+                {{_id}}
+            </div>
+        </div>
+    </div>
+</div>
+
 </template>

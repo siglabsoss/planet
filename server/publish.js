@@ -88,11 +88,27 @@ Meteor.startup(function () {
         return Devices.find({});
     });
 
+    Meteor.publish("alerts", function () {
+        return Alerts.find({});
+    });
+
 
 
     // Permissions
     Devices.allow({
         update: function(userId, docs, fields, modifier) {
+            return true;
+        }
+    });
+
+    Alerts.allow({
+        insert: function(userId, doc) {
+            return true;
+        },
+        update: function(userId, docs, fields, modifier) {
+            return true;
+        },
+        remove: function(userId, doc) {
             return true;
         }
     });
