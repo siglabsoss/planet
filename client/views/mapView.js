@@ -626,6 +626,17 @@ Template.leftPanelGroup.eyeIconClass = function() {
     }
 }
 
+Template.leftPanelGroup.occludedClass = function() {
+    // subscribe.js calculates an array we need, and notifies us when it changes
+    clientOccludedGroupsDep.depend();
+
+    if( clientOccludedGroups && clientOccludedGroups.indexOf(this._id) !== -1 ) {
+        return "";
+    } else {
+        return "occludedGroup";
+    }
+}
+
 Template.leftPanelGroups.rendered = function() {
 
     var eyeballLeftOffset = 8;

@@ -128,7 +128,7 @@
 
 
 <template name="leftPanelGroup">
-    <span style="position: relative"><span id="groupListEyeball_{{_id}}" class="groupListEyeball" data-id="{{_id}}">
+    <span style="position: relative"><span id="groupListEyeball_{{_id}}" class="groupListEyeball {{occludedClass}}" data-id="{{_id}}">
         <span class="fa-stack fa-lg">
             <i class="fa fa-square fa-stack-2x grey-text"></i>
             <i class="fa {{eyeIconClass}} fa-stack-1x actual-eyeball-class"></i>
@@ -136,7 +136,7 @@
     </span></span>
     <li id="groupList_{{_id}}" class="mjs-nestedSortable-branch {{collapsedClass}}" data-id="{{_id}}">
 
-        <div class="list-group-item leftPanelGroup">
+        <div class="list-group-item leftPanelGroup {{occludedClass}}">
             <span class="left-disclose"><span></span></span>
             {{name}}
             <span class="badge">{{deviceCount}}</span>
