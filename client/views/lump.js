@@ -84,56 +84,6 @@ Template.groupsReactive.rendered = Template.groups.rendered = function() {
 
 }
 
-// returns true for success, false for failure
-function attachChild(output, child, depth)
-{
-    var ret = true;
-    var childrenEntered = false; // set to true once we recurse into children
-    for(var i in output)
-    {
-        if( child.parents.find(output[i]._id) )
-        {
-            child.depth = depth;
-
-            output[i].children.push(child);
-
-            // remove the parent we just attached
-            child.parents = child.parents.exclude(output[i]._id);
-
-            // only say success if we've attached to all the parents
-            if( child.parents.length === 0 )
-                return true;
-        }
-        if( output[i].children.length != 0 )
-        {
-            childrenEntered = true;
-            ret = ret && attachChild(output[i].children, child, depth + 1);
-        }
-    }
-    return ret && childrenEntered; // if we haven't looked at any children, ret will be incorrectly set to false which the && prevents
-}
-
-// recursive function to crawl the nested groups with a DFS and assign unique id's for the dom
-function numberChildUnique(output, number)
-{
-    // default value if not provided
-    number = typeof number !== 'undefined' ? number : 1;
-
-    var prefix = "list_";
-
-    for(var i in output)
-    {
-        output[i].domId = prefix + number;
-        number++;
-
-        if( output[i].children.length != 0 )
-        {
-            number = numberChildUnique(output[i].children, number);
-        }
-    }
-
-    return number;
-}
 
 function mergeDevicesGroups(devices,groups)
 {
@@ -161,70 +111,7 @@ function mergeDevicesGroups(devices,groups)
     return output;
 }
 
-buildItemHeirarchy = function(g, options)
-{
 
-    var worstCaseIterations = g.length + 1;
-    var output = [];
-    for (var i in g) {
-        g[i].children = [];
-    }
-
-    // add all the top level parents
-    for (var i in g) {
-        var node = g[i];
-        if( (!node.parents) || node.parents.length === 0 )
-        {
-            node.depth = 0;
-            output.push(node);
-            delete(g[i]); //delete node from input because we've successfully attached it
-        }
-    }
-
-    // for some reason delete in javascript leaves undefined in the array, this fixes that
-    g = g.compact();
-
-//    debugger;
-
-
-    var fullyOrdered;
-
-//    debugger;
-    // running attachChild for every node is not guaranteed to work the first time
-    do
-    {
-        if( !worstCaseIterations-- )
-        {
-            console.log("Something went wrong when searching for parent nodes");
-            break;
-        }
-        // start out assuming things are ok
-        fullyOrdered = true;
-        for (var i in g) {
-            var node = g[i];
-
-            // try to attach the child.  If we are attaching a child to a parent that hasn't been attached yet, we loop through again
-            var success = attachChild(output, node, 1);
-
-            // if a single pass fails, set this flag which will make the while go again
-            if( !success )
-            {
-                fullyOrdered = false;
-            }
-            else
-            {
-                delete(g[i]); // mark the node as attached by deleting it so we don't re-attach forever
-            }
-        }
-
-    }
-    while (!fullyOrdered);
-
-//    numberChildUnique(output);
-
-
-    return output;
-}
 
 
 Template.groupsSimple.rowTypeIsGroup = Template.groupsReactive.rowTypeIsGroup = Template.group.rowTypeIsGroup = Template.groups.rowTypeIsGroup = function(t)
@@ -243,7 +130,7 @@ Template.groupsSimple.groups = Template.groupsReactive.groups = Template.groups.
 
     var merged = mergeDevicesGroups(devices, flatGroups);
 
-    return buildItemHeirarchy(merged);
+    return buildDocumentHeirarchy(merged);
 }
 
 Template.groupsReactive.groupsDebug = Template.groups.groupsDebug = function()

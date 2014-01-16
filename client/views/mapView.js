@@ -683,7 +683,7 @@ Template.leftPanelGroups.groups = function() {
         }
     });
 
-    var heirarchy = buildItemHeirarchy(flatGroups);
+    var heirarchy = buildDocumentHeirarchy(flatGroups);
 
     return heirarchy;
 }
