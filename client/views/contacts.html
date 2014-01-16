@@ -18,23 +18,21 @@
             <div class="panel panel-success">
                 {{#if viewEditing}}
                 <div class="panel-heading">
-                    <h1 class="panel-title">Editing<!--<span class="pull-right"><i class="fa fa-trash-o"></i></span>--></h3>
+                    <h1 class="panel-title">Editing<!--<span class="pull-right"><i class="fa fa-trash-o"></i></span>--></h1>
                 </div>
                 {{/if}}
                 <div class="panel-body">
-                    <h2>{{name}}
+                    <h2><span id="contactName_{{_id}}" data-has-class="large-edit-in-place" data-name="name">{{name}}</span>
                         {{#unless viewEditing}}
                         <span class="pull-right"><i class="fa fa-pencil edit-pencil-button edit-contact-form-data" data-id="{{_id}}"></i></span>
                         {{/unless}}
                     </h2>
-                    <form>
+
                     <div class="list-group">
-                        <a href="#" class="list-group-item">Email: <span id="emailOne" data-name="name" data-pk="1">bjmorse@gmail.com</span>
-                        </a>
-                        <a href="#" class="list-group-item iron-ignore">Email: ben@popwi.com
-                        </a>
+                        <a href="#" class="list-group-item">Emails: <span id="contactEmailList_{{_id}}" data-name="emails">{{emails}}</span></a>
+                        <a href="#" class="list-group-item">SMS: <span id="contactSmsList_{{_id}}" data-name="sms">{{sms}}</span></a>
                     </div>
-                        </form>
+
 
                     {{#if viewEditing}}
                     <div class="pull-right">
