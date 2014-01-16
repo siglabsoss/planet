@@ -92,6 +92,10 @@ Meteor.startup(function () {
         return Alerts.find({});
     });
 
+    Meteor.publish("contacts", function () {
+        return Contacts.find({});
+    });
+
 
 
     // Permissions
@@ -102,6 +106,18 @@ Meteor.startup(function () {
     });
 
     Alerts.allow({
+        insert: function(userId, doc) {
+            return true;
+        },
+        update: function(userId, docs, fields, modifier) {
+            return true;
+        },
+        remove: function(userId, doc) {
+            return true;
+        }
+    });
+
+    Contacts.allow({
         insert: function(userId, doc) {
             return true;
         },
