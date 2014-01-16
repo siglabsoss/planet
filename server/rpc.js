@@ -2,6 +2,10 @@
 Meteor.startup(function () {
     Meteor.methods({
 
+        debugEmail: function(){
+            debugSendEmail();
+        },
+
         clearDebugLog: function()
         {
             Logs.remove({});
