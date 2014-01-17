@@ -1,20 +1,55 @@
 <template name="alerts">
-    alerts...
+    <div class="row">
+        <div class="col-lg-1"><h2>Alerts</h2></div>
+        <div class="col-lg-1">
+            {{>flashAlert}}
+        </div>
+    </div>
+
     {{#each alerts}}
         {{>alert}}
     {{/each}}
 </template>
 
 <template name="alert">
-<div class="row">
-    <div class="col-lg-1">&nbsp;</div>
-    <div class="col-lg-4">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h3 class="panel-title">{{name}}<span class="pull-right"><i class="fa fa-trash-o"></i></span></h3>
-            </div>
-            <div class="panel-body">
-                {{_id}}
+    <div class="row">
+        <div class="col-lg-1">&nbsp;</div>
+        <div class="col-lg-4">
+            <div class="panel panel-danger">
+                {{#if viewEditing}}
+                <div class="panel-heading">
+                    <h1 class="panel-title">Editing <span class="pull-right"><i class="fa fa-trash-o edit-trash-button delete-alert-form-data"></i></span></h1>
+                </div>
+                {{else}}
+                <div class="panel-heading">
+                    <h1 class="panel-title">&nbsp</h1>
+                </div>
+                {{/if}}
+                <div class="panel-body">
+                    <h2><span id="alertName_{{_id}}" data-has-class="large-edit-in-place" data-name="name">{{name}}</span>
+                        {{#unless viewEditing}}
+                        <span class="pull-right"><i class="fa fa-pencil edit-pencil-button edit-alert-form-data"></i></span>
+                        {{/unless}}
+                    </h2>
+                    <div class="row">
+                        <div class="col-sm-2 alert-form-label">Notify: </div>
+                        <div class="col-sm-10 alert-form-label"><span class="alertFormSelect2Wrapper"><span id="alertFormGroupInput_{{_id}}">{{contactsPlainText}}</span></span></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1">Group: </div>
+                        <div class="col-md-4"></div>
+                    </div>
+
+
+                    {{#if viewEditing}}
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-primary cancel-alert-form-data"><i class="fa fa-ban"> &nbsp;Cancel</i></button>
+                        <button type="button" class="btn btn-success save-alert-form-data" data-id={{_id}}><i class="fa fa-check"> &nbsp;Save</i></button>
+                    </div>
+                    {{/if}}
+
+                    {{_id}}
+                </div>
             </div>
         </div>
     </div>
