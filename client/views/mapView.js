@@ -515,59 +515,77 @@ Deps.autorun(function(){
 
 });
 
+// returns something that you put into select2
+// basically adds the .text member copied from .name
+function convertDocumentsSelect2(documents) {
+    var data = [];
+    documents.each(function(d){
+        data.push({id: d._id, text: d.name});
+    });
+    return data;
+}
+
 // Called right after a device popup is rendered and also added to the DOM
 function bindDevicePopupElements(document)
 {
-    // ------------ Group Search ------------
-
-    var groupSearchSelector = '#device-popup-group-input-' + document._id;
-
-    // the library calls this every time a search is made as the user types into the input
-    var customSearchFunction = function(text, callback){
-
-        // build regex to find text anywhere in field
-        var expression = ".*"+text+".*";
-        var rx = RegExp(expression,'i');
-
-        // search mongo
-        var groups = Groups.find({name:rx}).fetch();
-
-        // give results back to dropdown thing
-        callback(groups);
-    };
-
-    var onAdd = function(group) {
-        Devices.update(document._id, {$addToSet:{'parents': group._id}});
-    };
-    var onDelete = function(group) {
-        Devices.update(document._id, {$pull:{'parents': group._id}});
-    };
-
+    // ------------ select2 group search ----
     var parents = document.parents ? document.parents : [];
 
     // get group objects for groups that this device directly belongs to
     var belongsToGroups = Groups.find({_id: {$in: parents}}).fetch();
 
+    var select2options = {
+        multiple: true,
+        placeholder: "Select groups.",
+        // when the user types
+        query: function (query) {
 
+            // build regex to find text anywhere in field
+            var expression = ".*"+query.term+".*";
+            var rx = RegExp(expression,'i');
 
-    // This calls a library which generates the tag field.  (jquery.tokeninput.js)
-    // first param is empty string.
-    // second is options hash.
-    $(groupSearchSelector).tokenInput("", {
-        theme: "facebook",
-        // bjm added this custom callback to the library for how we use it with meteor
-        doSearch: customSearchFunction,
-        onAdd: onAdd,
-        onDelete: onDelete,
-        prePopulate: belongsToGroups,
-        hintText: "Type a group name"
+            // search mongo
+            var documents = Groups.find({name:rx}).fetch();
 
+            // callback is expecting a results member
+            var data = {
+                results: convertDocumentsSelect2(documents)
+            };
+
+            query.callback(data);
+        },
+        initSelection: function(element, callback) {
+            // don't care what element is bc we already know
+
+            // callback is just expecting an array
+            callback(convertDocumentsSelect2(belongsToGroups));
+        }
+    };
+
+    var select2groupSearchSelector = '#select2-device-popup-group-input-' + document._id;
+
+    // shorten name
+    var $select2group = $(select2groupSearchSelector);
+
+    // build select2
+    $select2group.select2(select2options);
+
+    // WHAT IS WRONG? we need this line, but it has no data.  The data came from initSelection()
+    $select2group.select2("val", []);
+
+    // bind change
+    $select2group.on("change", function(e) {
+        // here e has a lot of stuff in it. including e.val which is an array of the full set
+        // we only deal in deltas tho
+
+        if( e && e.added && e.added.id ) {
+            Devices.update(document._id, {$addToSet:{'parents': e.added.id}});
+        }
+
+        if( e && e.removed && e.removed.id ) {
+            Devices.update(document._id, {$pull:{'parents': e.removed.id}});
+        }
     });
-
-    // fix sizing when pre-populating a non empty list
-    $(groupSearchSelector).tokenInput("resizeInput");
-
-
 }
 
 function bindFencePopupElements()
