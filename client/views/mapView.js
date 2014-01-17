@@ -515,15 +515,7 @@ Deps.autorun(function(){
 
 });
 
-// returns something that you put into select2
-// basically adds the .text member copied from .name
-function convertDocumentsSelect2(documents) {
-    var data = [];
-    documents.each(function(d){
-        data.push({id: d._id, text: d.name});
-    });
-    return data;
-}
+
 
 // Called right after a device popup is rendered and also added to the DOM
 function bindDevicePopupElements(document)
