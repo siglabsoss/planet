@@ -10,7 +10,16 @@ var contactsBootstrapEditableDefaults =  {
 $.extend($.fn.editable.defaults, contactsBootstrapEditableDefaults);
 
 Template.contacts.contacts = function() {
-    return Contacts.find();
+    var results = Contacts.find().fetch();
+
+    var newRow = Session.get("contactViewNewObject")
+
+    if( newRow && typeof newRow === "object" )
+    {
+        results.add(newRow);
+    }
+
+    return results;
 }
 
 // This is a list of selectors which to bind the edit in place js
@@ -39,12 +48,13 @@ Template.contact.rendered = function() {
     if( Template.contact.viewEditing.call(this.data) ) {
         // bind and pop
         bindEditInPlaceAndShow(this.data);
-
     }
 }
 
+// returns true if this contact is being edited
+// note we use Session.equals() because http://stackoverflow.com/questions/21159270/is-it-better-to-reuse-or-recreate-a-reactive-source-in-meteor
 Template.contact.viewEditing = function() {
-    return Session.get("contactViewEditingId") === this._id;
+    return Session.equals("contactViewEditingId", this._id);
 }
 
 function bindEditInPlaceAndShow(data) {
@@ -68,13 +78,13 @@ function bindEditInPlaceAndShow(data) {
 
                 var $input = this.data('editable').input.$input;
 
+
+                // This is reactive, not sure if this should go first, or if Contacts.update()
+                Session.set("contactViewEditingId", null);
+
+                // build query to update the specific field
                 var query = {$set:{}};
                 query.$set[field] = $input.val();
-
-                console.log(query);
-
-                // This is reactive
-                Session.set("contactViewEditingId", null);
 
                 // Update model
                 Contacts.update(data._id, query);
@@ -108,16 +118,32 @@ function bindEditInPlaceAndShow(data) {
 
 Template.contacts.events({
     "click i.plus-button-green": function(e) {
-//        e.preventDefault();
-//        console.log("new");
 
-//        debugger;
+        var editingId = Random.id();
 
+        var obj = {
+            name: OctoNameGenerator.get({wordSet:'geo'}),
+            emails: "",
+            sms: "",
+            _id: editingId
+        };
 
+        Session.set("contactViewNewObject", obj);
 
+        if( !Session.get("contactViewEditingId") )
+            Session.set("contactViewEditingId", editingId);
 
     },
     'click .save-contact-form-data': function(e) {
+
+        var newRow = Session.get("contactViewNewObject");
+
+        // if we are clicking save on a new concat, we must first insert a doc before the loop below calls update
+        if( newRow && newRow._id && newRow._id === this._id ) {
+            Contacts.insert(newRow);
+            Session.set("contactViewNewObject", null);
+        }
+
         // this is data
         var sels = editableDOMSelectors(this);
 
@@ -126,17 +152,37 @@ Template.contacts.events({
         });
     },
     'click .cancel-contact-form-data': function(e) {
+
+        // user clicked cancel on the virtualy created row, so unset it
+        var newRow = Session.get("contactViewNewObject");
+        if( newRow && newRow._id === this._id ) {
+            Session.set("contactViewNewObject", null);
+        }
         Session.set("contactViewEditingId", null);
     },
     'click .edit-contact-form-data': function(e) {
-        var id = $(e.target).attr('data-id');
-
         // set session variable to reactivly change stuff in the template
-        if( id && typeof id === "string") {
-            Session.set("contactViewEditingId", id);
-        }
+        Session.set("contactViewEditingId", this._id);
+
 
         // I tried putting jquery stuff here, but since we JUST changed a reactive thingy, the template insta-re-renders
+    },
+    'click .delete-contact-form-data': function(e) {
+
+        var newRow = Session.get("contactViewNewObject");
+
+        if (confirm('Are you sure you want to delete this contact?')) {
+
+            if( newRow && newRow._id === this._id ) {
+                Session.set("contactViewNewObject", null);
+            } else {
+                Contacts.remove(this._id);
+            }
+
+            flashAlertMessage("Contact deleted", {hideAfter:2000});
+        } else {
+            // Do nothing!
+        }
 
     }
 });
