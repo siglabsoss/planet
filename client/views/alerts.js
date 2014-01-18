@@ -21,8 +21,11 @@ Template.alert.contactsPlainText = function() {
     if( this.contacts && Array.isArray(this.contacts) && this.contacts.length != 0 ) {
         var result = "";
 
-        this.contacts.each(function(c){
-            result = result + Contacts.findOne(c).name +  ', ';
+        this.contacts.each(function(cId){
+            var c = Contacts.findOne(cId);
+            if( c && c.name ) {
+                result = result + Contacts.findOne(cId).name +  ', ';
+            }
         });
         return result;
     }
@@ -92,6 +95,8 @@ function bindAlertEditInPlaceAndShow(data) {
         var select2options = {
             multiple: true,
             placeholder: "Select contacts to notify.",
+            width: '100%',
+
             // when the user types
             query: function (query) {
 
