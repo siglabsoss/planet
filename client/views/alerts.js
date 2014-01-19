@@ -91,7 +91,7 @@ function alertSelect2DOMSelectors(data) {
     var prefix = [
         "#alertFormContactInput_"
         ,"#alertFormGroupInput_"
-//        ,"#alertFormRuleInput_"
+        ,"#alertFormRuleInput_"
     ];
 
     var results = [];
@@ -104,6 +104,20 @@ function alertSelect2DOMSelectors(data) {
     return results;
 }
 
+
+
+// Global Scope
+alertRuleTypes = ["diabled", "keepin", "keepout"];
+
+// Client side only fake collection
+// Just used to make search easy lol
+AlertRuleTypesCollection = new Meteor.Collection("alertRuleTypes",{connection:null});
+
+alertRuleTypes.each(function(value){
+    var doc = {name:value, text:value};
+    AlertRuleTypesCollection.insert(doc);
+});
+
 // pass in string, returns collection
 function getCollection(string){
     switch(string){
@@ -112,6 +126,9 @@ function getCollection(string){
             break;
         case "Groups":
             return Groups;
+            break;
+        case "AlertRuleTypes":
+            return AlertRuleTypesCollection;
             break;
     }
     return null;
@@ -140,14 +157,21 @@ alertGetTypeNiceName = function(string)
         case "keepout":
             return "Keep out of Fence";
             break;
+        default:
         case "disabled":
-            return "groups";
+            return "Disabled";
             break;
     }
     return "";
 }
 
-Template.alert.getTypeNiceName = alertGetTypeNiceName;
+Template.alert.getTypeNiceName = function() {
+    if( this.rule && this.rule.type ) {
+        return alertGetTypeNiceName(this.rule.type);
+    } else {
+        return alertGetTypeNiceName(null); // the default
+    }
+}
 
 editAlertFormPendingChanges = [];
 
@@ -157,13 +181,15 @@ function bindAlertEditInPlaceAndShow(data) {
     var select2sels = alertSelect2DOMSelectors(data);
 
 
-    editAlertFormPendingChanges = [];
+//    editAlertFormPendingChanges = [];
 
     // "tokenized field"
     select2sels.each(function(selector){
 
         // clear/setup pending changes array
-        editAlertFormPendingChanges[data._id] = [];
+        if( !Array.isArray(editAlertFormPendingChanges[data._id]) ) {
+            editAlertFormPendingChanges[data._id] = []; // build to array if first time
+        }
         editAlertFormPendingChanges[data._id][selector] = [];
 
         var $selector = $(selector);
@@ -186,7 +212,7 @@ function bindAlertEditInPlaceAndShow(data) {
         // if true, we are selecting a single thing from a member on us via dot notation
         var isDotNotation = false;
         var dotNotationString = $selector.attr('data-dot-notation');
-        if( $selector.attr('data-dot-notation') && typeof dotNotation === "string" ) {
+        if( dotNotationString && typeof dotNotationString === "string" ) {
             isDotNotation = true;
         }
 
@@ -199,16 +225,13 @@ function bindAlertEditInPlaceAndShow(data) {
             // when the user types
             query: function (query) {
 
-                if( isDotNotation && false ) {
-//                    collection.find()
-                } else {
-                    // build regex to find text anywhere in field
-                    var expression = ".*"+query.term+".*";
-                    var rx = RegExp(expression,'i');
+                // build regex to find text anywhere in field
+                var expression = ".*"+query.term+".*";
+                var rx = RegExp(expression,'i');
 
-                    // search mongo
-                    var documents = collection.find({name:rx}).fetch();
-                }
+                // search mongo
+                var documents = collection.find({name:rx}).fetch();
+
                 // callback is expecting a results member
                 var data = {
                     results: convertDocumentsSelect2(documents)
@@ -221,12 +244,23 @@ function bindAlertEditInPlaceAndShow(data) {
 
                 var initialSelection = [];
 
-                if( data && data[fieldName] && Array.isArray(data[fieldName]) ) {
-                    initialSelection = collection.find({_id: {$in: data[fieldName]}}).fetch();
+                var fetchedValue = DDot.match(dotNotationString).fetch(data);
+
+                if( isDotNotation && data && fetchedValue ) {
+                    initialSelection = collection.find({name: fetchedValue}).fetch();
+
+                    // callback is just expecting an array
+                    callback(convertDocumentsSelect2(initialSelection).first());
+                } else {
+                    if( data && data[fieldName] && Array.isArray(data[fieldName]) ) {
+                        initialSelection = collection.find({_id: {$in: data[fieldName]}}).fetch();
+
+                        // callback is just expecting an array
+                        callback(convertDocumentsSelect2(initialSelection));
+                    }
                 }
 
-                // callback is just expecting an array
-                callback(convertDocumentsSelect2(initialSelection));
+
             }
         };
 
@@ -234,34 +268,60 @@ function bindAlertEditInPlaceAndShow(data) {
         // build select2
         $selector.select2(select2options);
 
-        // WHAT IS WRONG? we need this line, but it has no data.  The data came from initSelection()
-        $selector.select2("val", []);
+
+
+        if( isDotNotation ) {
+            // Still a bit confused about this
+            $selector.select2("val", {id:data._id});
+        } else {
+            // WHAT IS WRONG? we need this line, but it has no data.  The data came from initSelection()
+            $selector.select2("val", []);
+        }
 
         // bind change
         $selector.on("change", function(e) {
             // here e has a lot of stuff in it. including e.val which is an array of the full set
             // we only deal in deltas tho
 
+            if( isDotNotation ) {
+                if( e && e.type && e.type === "change" && e.added && e.added.id ) {
 
+                    // push change made by user into a queue which we can execute later when they press 'save'
+                    editAlertFormPendingChanges[data._id][selector].push(function(){
 
-            if( e && e.added && e.added.id ) {
+                        // look at our fake collection to pull the value
+                        var value = collection.findOne(e.added.id);
 
-                // push change made by user into a queue which we can execute later when they press 'save'
-                editAlertFormPendingChanges[data._id][selector].push(function(){
-                    var query = {$addToSet:{}};
-                    query.$addToSet[fieldName] = e.added.id;
-                    Alerts.update(data._id, query);
+                        if( value && value.name ) {
+
+                            // set it by name
+                            var query = {$set:{}};
+                            query.$set[dotNotationString] = value.name;
+                            Alerts.update(data._id, query);
+                        }
+                    });
+                }
+            } else {
+
+                if( e && e.added && e.added.id ) {
+
+                    // push change made by user into a queue which we can execute later when they press 'save'
+                    editAlertFormPendingChanges[data._id][selector].push(function(){
+                        var query = {$addToSet:{}};
+                        query.$addToSet[fieldName] = e.added.id;
+                        Alerts.update(data._id, query);
+                    });
+                }
+
+                if( e && e.removed && e.removed.id ) {
+
+                    // push change made by user into a queue which we can execute later when they press 'save'
+                    editAlertFormPendingChanges[data._id][selector].push(function(){
+                        var query = {$pull:{}};
+                        query.$pull[fieldName] = e.removed.id;
+                        Alerts.update(data._id, query);
                 });
-            }
-
-            if( e && e.removed && e.removed.id ) {
-
-                // push change made by user into a queue which we can execute later when they press 'save'
-                editAlertFormPendingChanges[data._id][selector].push(function(){
-                    var query = {$pull:{}};
-                    query.$pull[fieldName] = e.removed.id;
-                    Alerts.update(data._id, query);
-                });
+                }
             }
         });
 
