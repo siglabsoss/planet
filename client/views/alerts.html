@@ -33,11 +33,16 @@
                     </h2>
                     <div class="row">
                         <div class="col-sm-2 alert-form-label">Notify: </div>
-                        <div class="col-sm-10 alert-form-label"><span class="alertFormSelect2Wrapper"><span id="alertFormGroupInput_{{_id}}">{{contactsPlainText}}</span></span></div>
+                        <div class="col-sm-10 alert-form-label"><span class="alertFormSelect2Wrapper"><span id="alertFormContactInput_{{_id}}" data-is-multiple="true" data-collection="Contacts" data-placeholder-text="Select contacts to notify.">{{contactsPlainText}}</span></span></div>
                     </div>
                     <div class="row">
-                        <div class="col-md-1">Group: </div>
-                        <div class="col-md-4"></div>
+                        <div class="col-md-2 alert-form-label">Groups: </div>
+                        <div class="col-md-10 alert-form-label"><span class="alertFormSelect2Wrapper"><span id="alertFormGroupInput_{{_id}}" data-is-multiple="true" data-collection="Groups" data-placeholder-text="Notify about groups.">{{groupsPlainText}}</span></span></div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2 alert-form-label">Rule: </div>
+                        <div class="col-md-10 alert-form-label"><span class="alertFormSelect2Wrapper"><span id="alertFormRuleInput_{{_id}}" data-is-multiple="false" data-dot-notation="rule.type" data-placeholder-text="Select a rule">{{getTypeNiceName}}</span></span></div>
                     </div>
 
 

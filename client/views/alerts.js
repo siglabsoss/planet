@@ -1,3 +1,12 @@
+"use-strict";
+
+// This file (As well as contcats) is setup funny.
+// The types and number of editible inputs are determined by selectors returned from these functions:
+//   alertEditableDOMSelectors
+//   alertSelect2DOMSelectors
+
+// There should be a better way to set this up, and they each require so much custom javascript.
+
 Template.alerts.alerts = function() {
     return Alerts.find();
 }
@@ -16,23 +25,46 @@ Template.alert.rendered = function() {
     }
 }
 
-// returns comma separated list of contacts
-Template.alert.contactsPlainText = function() {
-    if( this.contacts && Array.isArray(this.contacts) && this.contacts.length != 0 ) {
+function getPlainText(string) {
+
+    var collection = getCollection(string);
+    var fieldName = getField(string);
+
+    if( collection && fieldName && this[fieldName] && Array.isArray(this[fieldName]) && this[fieldName].length != 0 ) {
         var result = "";
 
-        this.contacts.each(function(cId){
-            var c = Contacts.findOne(cId);
-            if( c && c.name ) {
-                result = result + Contacts.findOne(cId).name +  ', ';
+        this[fieldName].each(function(linkedId){
+            var object = collection.findOne(linkedId);
+            if( object && object.name ) {
+                result = result + object.name +  ', ';
             }
         });
         return result;
     }
 
     return "(none)";
+}
+
+// returns comma separated list of contacts
+Template.alert.contactsPlainText = function() {
+    return getPlainText.call(this, "Contacts");
 };
 
+Template.alert.groupsPlainText = function() {
+    return getPlainText.call(this, "Groups");
+};
+
+Template.alert.ruleTypeString = function () {
+    var string = "(none)";
+
+    if( this.rule && this.rule.type ) {
+        string = this.rule.type;
+    }
+
+    return string;
+}
+
+// List of all text input type selectors
 function alertEditableDOMSelectors(data) {
 
     var prefix = [
@@ -52,13 +84,14 @@ function alertEditableDOMSelectors(data) {
 }
 
 
-// This is a list of selectors which to bind the edit in place js
+
+// List of all select2 plugin controlled inputs (single and multiple select aka "tokenized field")
 function alertSelect2DOMSelectors(data) {
 
     var prefix = [
-        "#alertFormGroupInput_"
-//        "#contactEmailList_",
-//        "#contactSmsList_"
+        "#alertFormContactInput_"
+        ,"#alertFormGroupInput_"
+//        ,"#alertFormRuleInput_"
     ];
 
     var results = [];
@@ -71,6 +104,51 @@ function alertSelect2DOMSelectors(data) {
     return results;
 }
 
+// pass in string, returns collection
+function getCollection(string){
+    switch(string){
+        case "Contacts":
+            return Contacts;
+            break;
+        case "Groups":
+            return Groups;
+            break;
+    }
+    return null;
+}
+
+// pass in string, returns collection
+function getField(string){
+    switch(string){
+        case "Contacts":
+            return "contacts";
+            break;
+        case "Groups":
+            return "groups";
+            break;
+    }
+    return null;
+}
+
+// global scope
+alertGetTypeNiceName = function(string)
+{
+    switch(string){
+        case "keepin":
+            return "Keep in Fence";
+            break;
+        case "keepout":
+            return "Keep out of Fence";
+            break;
+        case "disabled":
+            return "groups";
+            break;
+    }
+    return "";
+}
+
+Template.alert.getTypeNiceName = alertGetTypeNiceName;
+
 editAlertFormPendingChanges = [];
 
 function bindAlertEditInPlaceAndShow(data) {
@@ -81,7 +159,7 @@ function bindAlertEditInPlaceAndShow(data) {
 
     editAlertFormPendingChanges = [];
 
-
+    // "tokenized field"
     select2sels.each(function(selector){
 
         // clear/setup pending changes array
@@ -90,23 +168,47 @@ function bindAlertEditInPlaceAndShow(data) {
 
         var $selector = $(selector);
 
+        var attribute = $selector.attr('data-collection');
+
+        // depending on this data member, we search a different collection with this select2
+        var collection = getCollection(attribute);
+
+        // depending on this data member, we update the correct field
+        var fieldName = getField(attribute);
+
+
+        // is this input a multiple?
+        var isMultiple = false;
+        if( $selector.attr('data-is-multiple') === 'true') {
+            isMultiple = true;
+        }
+
+        // if true, we are selecting a single thing from a member on us via dot notation
+        var isDotNotation = false;
+        var dotNotationString = $selector.attr('data-dot-notation');
+        if( $selector.attr('data-dot-notation') && typeof dotNotation === "string" ) {
+            isDotNotation = true;
+        }
 
 
         var select2options = {
-            multiple: true,
-            placeholder: "Select contacts to notify.",
+            multiple: isMultiple,
+            placeholder: $selector.attr('data-placeholder-text'),
             width: '100%',
 
             // when the user types
             query: function (query) {
 
-                // build regex to find text anywhere in field
-                var expression = ".*"+query.term+".*";
-                var rx = RegExp(expression,'i');
+                if( isDotNotation && false ) {
+//                    collection.find()
+                } else {
+                    // build regex to find text anywhere in field
+                    var expression = ".*"+query.term+".*";
+                    var rx = RegExp(expression,'i');
 
-                // search mongo
-                var documents = Contacts.find({name:rx}).fetch();
-
+                    // search mongo
+                    var documents = collection.find({name:rx}).fetch();
+                }
                 // callback is expecting a results member
                 var data = {
                     results: convertDocumentsSelect2(documents)
@@ -119,8 +221,8 @@ function bindAlertEditInPlaceAndShow(data) {
 
                 var initialSelection = [];
 
-                if( data.contacts && Array.isArray(data.contacts) ) {
-                    initialSelection = Contacts.find({_id: {$in: data.contacts}}).fetch();
+                if( data && data[fieldName] && Array.isArray(data[fieldName]) ) {
+                    initialSelection = collection.find({_id: {$in: data[fieldName]}}).fetch();
                 }
 
                 // callback is just expecting an array
@@ -140,11 +242,15 @@ function bindAlertEditInPlaceAndShow(data) {
             // here e has a lot of stuff in it. including e.val which is an array of the full set
             // we only deal in deltas tho
 
+
+
             if( e && e.added && e.added.id ) {
 
                 // push change made by user into a queue which we can execute later when they press 'save'
                 editAlertFormPendingChanges[data._id][selector].push(function(){
-                    Alerts.update(data._id, {$addToSet:{'contacts': e.added.id}});
+                    var query = {$addToSet:{}};
+                    query.$addToSet[fieldName] = e.added.id;
+                    Alerts.update(data._id, query);
                 });
             }
 
@@ -152,7 +258,9 @@ function bindAlertEditInPlaceAndShow(data) {
 
                 // push change made by user into a queue which we can execute later when they press 'save'
                 editAlertFormPendingChanges[data._id][selector].push(function(){
-                    Alerts.update(data._id, {$pull:{'contacts': e.removed.id}});
+                    var query = {$pull:{}};
+                    query.$pull[fieldName] = e.removed.id;
+                    Alerts.update(data._id, query);
                 });
             }
         });
@@ -163,6 +271,7 @@ function bindAlertEditInPlaceAndShow(data) {
 
     var inputSels = alertEditableDOMSelectors(data);
 
+    // text input
     inputSels.each(function(selector){
 
         // we are probably binding to a span
