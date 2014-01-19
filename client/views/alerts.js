@@ -8,8 +8,19 @@
 // There should be a better way to set this up, and they each require so much custom javascript.
 
 Template.alerts.alerts = function() {
-    return Alerts.find();
+    var results = Alerts.find().fetch();
+
+    var newRow = Session.get("alertViewNewObject")
+
+    if( newRow && typeof newRow === "object" )
+    {
+        results.add(newRow);
+    }
+
+    return results;
 }
+
+
 
 Template.alert.viewEditing = function() {
     return Session.equals("alertViewEditingId", this._id);
@@ -390,32 +401,33 @@ function bindAlertEditInPlaceAndShow(data) {
 Template.alerts.events({
     "click i.plus-button-green": function(e) {
 
-//        var editingId = Random.id();
+        var editingId = Random.id();
+
+        var obj = {
+            name: OctoNameGenerator.get({wordSet:'geo', wordTypes:['verbs','adjectives']}),
+            contacts: [],
+            groups: [],
+            rule:{type:'keepout'},
+            _id: editingId
+        };
 //
-//        var obj = {
-//            name: OctoNameGenerator.get({wordSet:'geo'}),
-//            emails: "",
-//            sms: "",
-//            _id: editingId
-//        };
-//
-//        Session.set("alertViewNewObject", obj);
-//
-//        if( !Session.get("alertViewEditingId") )
-//            Session.set("alertViewEditingId", editingId);
+        Session.set("alertViewNewObject", obj);
+
+        if( !Session.get("alertViewEditingId") )
+            Session.set("alertViewEditingId", editingId);
 
     },
     'click .save-alert-form-data': function(e) {
 
-//        var newRow = Session.get("alertViewNewObject");
-//
-//        // if we are clicking save on a new alert, we must first insert a doc before the loop below calls update
-//        if( newRow && newRow._id && newRow._id === this._id ) {
-//            Alerts.insert(newRow);
-//            Session.set("alertViewNewObject", null);
-//        }
-//
-//        // this is data
+        var newRow = Session.get("alertViewNewObject");
+
+        // if we are clicking save on a new alert, we must first insert a doc before the loop below calls update
+        if( newRow && newRow._id && newRow._id === this._id ) {
+            Alerts.insert(newRow);
+            Session.set("alertViewNewObject", null);
+        }
+
+        // this is data
         var sels = alertEditableDOMSelectors(this);
 
         sels.each(function(selector){
@@ -443,10 +455,10 @@ Template.alerts.events({
     'click .cancel-alert-form-data': function(e) {
 
         // user clicked cancel on the virtualy created row, so unset it
-//        var newRow = Session.get("alertViewNewObject");
-//        if( newRow && newRow._id === this._id ) {
-//            Session.set("alertViewNewObject", null);
-//        }
+        var newRow = Session.get("alertViewNewObject");
+        if( newRow && newRow._id === this._id ) {
+            Session.set("alertViewNewObject", null);
+        }
         Session.set("alertViewEditingId", null);
 
         // delete pending changes for this alert
