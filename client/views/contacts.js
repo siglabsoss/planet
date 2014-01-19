@@ -122,7 +122,7 @@ Template.contacts.events({
         var editingId = Random.id();
 
         var obj = {
-            name: OctoNameGenerator.get({wordSet:'geo'}),
+            name: OctoNameGenerator.get({wordSet:'geo', wordTypes:['verbs','nouns']}),
             emails: "",
             sms: "",
             _id: editingId

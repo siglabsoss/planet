@@ -66,7 +66,7 @@
     wordSets['geo'] = {};
     wordSets['geo']['verbs'] = [
         "travel", "bike", "drop-off", "check-in", "check-out", "pick-up", "take-off", "land", "ride", "fly", "analyze", "announce",
-        "assist", "assure", "attempt", "attract", "cross", "bathe", "breath", "belong", "boil", "boast", "borrow", "bounce", "broadcast",
+        "assist", "assure", "attempt", "attract", "cross", "bathe", "breathe", "belong", "boil", "boast", "borrow", "bounce", "broadcast",
         "bump", "challenge", "change", "clarify", "clean", "collect", "connect", "confuse", "continue", "convert", "copy", "cost", "count",
         "cover", "crack", "crawl", "creep", "cycle", "decorate", "demonstrate", "detail", "design", "diagnose", "dig", "disappear",
         "discover", "dive", "divide", "double", "draft", "drag", "drain", "drive", "encourage", "estimate", "extract", "feed", "fetch",
