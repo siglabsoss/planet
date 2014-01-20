@@ -143,11 +143,6 @@ Template.groupsReactive.domID = Template.groups.domID = function()
     return _id;
 }
 
-fakeUserId = function()
-{
-    return "2zjj2CjuCa3mbx6zW";
-}
-
 
 Template.fenceList.fenceList = function ()
 {

@@ -99,10 +99,12 @@ function insertFenceFromLeafletEvent(e)
     doc.layer.options.stroke = layer.options.stroke;
     doc.layer.options.weight = layer.options.weight;
 
-
-    doc.userId = fakeUserId();
-
     // FIXME: this should be enforced server side once subscriptions are added
+    doc.userId = Meteor.userId();
+
+    doc.name = OctoNameGenerator.get({wordSet:'geo', wordTypes:['adjectives']}) + "-" + type + "-fence";
+
+
     doc.devices = [];
 
     Fences.insert(doc);
@@ -245,7 +247,7 @@ function installMapViewAutorun()
             if( queryObserve )
                 return;
 
-            var query = Fences.find({userId:fakeUserId()});
+            var query = Fences.find({});
 
             queryObserve = query.observe({
                 added: function(document) {
