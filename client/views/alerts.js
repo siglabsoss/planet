@@ -7,6 +7,13 @@
 
 // There should be a better way to set this up, and they each require so much custom javascript.
 
+/* Steps to add an input field:
+1) copy pasta html, give unique id, and update all data- attributes correctly
+2) update one of ...Selectors functions listed above
+3) update getCollection, getField
+4) add template variable like ...PlainText and update html
+*/
+
 Template.alerts.alerts = function() {
     var results = Alerts.find().fetch();
 
