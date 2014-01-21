@@ -79,8 +79,11 @@
             ,init: function(selectorIn) {
                 this.selector = selectorIn;
                 this.initJQueryElement();
+
+//                this.editingCollection = userOptions.collection;
+//                this.searchedColle
             }
-            ,editAlertFormPendingChanges:[]
+            ,dataPendingChanges:[]
             ,info: function() {
                 console.log("information");
             }
@@ -89,13 +92,89 @@
             }
             ,$selector: null
             ,selector: null
+            ,data:{} // for some reason this needs to be an object to be extended properly
         });
 
         PopMultiInput = clazz(PopAbstractInputOptions, {
             init:function(selector) {
-                this.parent.init(selector);
+                var self = this;
+                self.parent.init(selector);
 
-                this.select2options.multi = true;
+                self.select2options.multi = true;
+
+                // if true, we are selecting a single thing from a member on us via dot notation
+                self.isDotNotation = false;
+                self.dotNotationString = self.$selector.attr('data-dot-notation');
+                if( self.dotNotationString && typeof self.dotNotationString === "string" ) {
+                    self.isDotNotation = true;
+                }
+
+
+
+
+
+
+
+                // build select2
+                self.$selector.select2(self.select2options);
+
+
+
+                if( self.isDotNotation ) {
+                    // Still a bit confused about this
+                    self.$selector.select2("val", {id:self.data._id});
+                } else {
+                    // WHAT IS WRONG? we need this line, but it has no data.  The data came from initSelection()
+                    self.$selector.select2("val", []);
+                }
+
+                // bind change
+                self.$selector.on("change", function(e) {
+                    // here e has a lot of stuff in it. including e.val which is an array of the full set
+                    // we only deal in deltas tho
+
+                    if( self.isDotNotation ) {
+                        if( e && e.type && e.type === "change" && e.added && e.added.id ) {
+
+                            // push change made by user into a queue which we can execute later when they press 'save'
+                            self.dataPendingChanges.push(function(){
+
+
+                                var value = self.searchedCollection.findOne(e.added.id);
+
+                                if( value && value.name ) {
+
+                                    // set it by name
+                                    var query = {$set:{}};
+                                    query.$set[self.dotNotationString] = value.name;
+                                    self.editingCollection.update(data._id, query);
+                                }
+                            });
+                        }
+                    } else {
+
+                        if( e && e.added && e.added.id ) {
+
+                            // push change made by user into a queue which we can execute later when they press 'save'
+                            self.dataPendingChanges.push(function(){
+                                var query = {$addToSet:{}};
+                                query.$addToSet[self.fieldName] = e.added.id;
+                                self.editingCollection.update(data._id, query);
+                            });
+                        }
+
+                        if( e && e.removed && e.removed.id ) {
+
+                            // push change made by user into a queue which we can execute later when they press 'save'
+                            self.dataPendingChanges.push(function(){
+                                var query = {$pull:{}};
+                                query.$pull[self.fieldName] = e.removed.id;
+                                self.editingCollection.update(data._id, query);
+                            });
+                        }
+                    }
+                });
+
 
 
             },
@@ -104,15 +183,6 @@
             }
         });
 
-        function getPopMultiInput(selector) {
-
-            var instance = new PopMultiInput(); // this returns something that says "constructor" in the console, but really it's just a malloc'd object
-            instance.init(selector); // this is the real constructor
-
-
-            return instance;
-        }
-
 
 
         var publicInterface = {
@@ -120,7 +190,19 @@
             match: function(key) {
                 return newLookup(key);
             }
-            ,multiInput: getPopMultiInput
+            ,MultiInput: function(selector, optionsIn) {
+
+                var userOptions = (optionsIn)?optionsIn:{};
+
+                // simple way to mix in additional user options, (clazz does extend for us)
+                var YourClass = clazz(PopMultiInput, userOptions);
+
+                var instance = new YourClass(); // this returns something that says "constructor" in the console, but really it's just a malloc'd object
+                instance.init(selector); // this is the real constructor
+
+
+                return instance;
+            }
 //            ,"class": {
 //                "text": PopTextInput,
 //                "multi": PopMultiInput,
