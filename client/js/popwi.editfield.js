@@ -15,6 +15,7 @@
             constructor.prototype.constructor = constructor;
             constructor.prototype.parent = SuperClass.prototype;
             constructor.prototype = $.extend(constructor.prototype, methods);
+            SuperClass.child = constructor.prototype;
             return constructor;
         }
 
@@ -35,72 +36,31 @@
             select2options: {
                 multiple: false,
     //            placeholder: "Placeholder",$selector.attr('data-placeholder-text'),
-                width: '100%',
-
-                // when the user types
-                query: function (query) {
-
-//                    // build regex to find text anywhere in field
-//                    var expression = ".*"+query.term+".*";
-//                    var rx = RegExp(expression,'i');
-//
-//                    // search mongo
-//                    var documents = collection.find({name:rx}).fetch();
-//
-//                    // callback is expecting a results member
-//                    var data = {
-//                        results: convertDocumentsSelect2(documents)
-//                    };
-
-//                    query.callback(data);
-                },
-                initSelection: function(element, callback) {
-//                    // don't care what element is bc we already know
-//
-//                    var initialSelection = [];
-//
-//                    var fetchedValue = DDot.match(dotNotationString).fetch(data);
-//
-//                    if( isDotNotation && data && fetchedValue ) {
-//                        initialSelection = collection.find({name: fetchedValue}).fetch();
-//
-//                        // callback is just expecting an array
-//                        callback(convertDocumentsSelect2(initialSelection).first());
-//                    } else {
-//                        if( data && data[fieldName] && Array.isArray(data[fieldName]) ) {
-//                            initialSelection = collection.find({_id: {$in: data[fieldName]}}).fetch();
-//
-//                            // callback is just expecting an array
-//                            callback(convertDocumentsSelect2(initialSelection));
-//                        }
-//                    }
-                }
-            } //select2options
-            ,init: function(selectorIn) {
+                width: '100%'
+            }
+            ,init: function(selectorIn, child) {
                 this.selector = selectorIn;
                 this.initJQueryElement();
-
-//                this.editingCollection = userOptions.collection;
-//                this.searchedColle
             }
             ,dataPendingChanges:[]
-            ,info: function() {
-                console.log("information");
-            }
             ,initJQueryElement: function() {
                 this.$selector = $(this.selector);
             }
             ,$selector: null
             ,selector: null
-            ,data:{} // for some reason this needs to be an object to be extended properly
         });
 
         PopMultiInput = clazz(PopAbstractInputOptions, {
-            init:function(selector) {
-                var self = this;
-                self.parent.init(selector);
+            init:function(selector, child) {
 
-                self.select2options.multi = true;
+                this.parent.init(selector, child);
+
+                var self = child;
+                console.log('Child init/build');
+
+
+
+                self.select2options.multiple = true;
 
                 // if true, we are selecting a single thing from a member on us via dot notation
                 self.isDotNotation = false;
@@ -108,6 +68,48 @@
                 if( self.dotNotationString && typeof self.dotNotationString === "string" ) {
                     self.isDotNotation = true;
                 }
+
+
+                self.select2options.initSelection = function(element, callback) {
+                    // don't care what element is bc we already know
+
+                    var initialSelection = [];
+
+                    var fetchedValue = DDot.match(self.dotNotationString).fetch(self.data);
+
+                    if( self.isDotNotation && self.data && fetchedValue ) {
+                        initialSelection = self.searchedCollection.find({name: fetchedValue}).fetch();
+
+                        // callback is just expecting an array
+                        callback(convertDocumentsSelect2(initialSelection).first());
+                    } else {
+                        if( self.data && self.data[self.fieldName] && Array.isArray(self.data[self.fieldName]) ) {
+                            initialSelection = self.searchedCollection.find({_id: {$in: self.data[self.fieldName]}}).fetch();
+
+                            // callback is just expecting an array
+                            callback(convertDocumentsSelect2(initialSelection));
+                        }
+                    }
+                };
+
+                self.select2options.query = function(query) {  // when the user types
+
+                    // build regex to find text anywhere in field
+                    var expression = ".*"+query.term+".*";
+                    var rx = RegExp(expression,'i');
+
+                    // search mongo
+                    var documents = self.searchedCollection.find({name:rx}).fetch();
+
+                    // callback is expecting a results member
+                    var data = {
+                        results: convertDocumentsSelect2(documents)
+                    };
+
+                    query.callback(data);
+                };
+
+
 
 
 
@@ -194,7 +196,17 @@
 
                 var userOptions = (optionsIn)?optionsIn:{};
 
-                // simple way to mix in additional user options, (clazz does extend for us)
+                // NOTE: Javascript inheritance and prototypes
+                // Because we are using clazz (Which I think is really cool), we must manually overide the init() at each level of inheritance, and manually call this.parent.init()
+                // With each call of init, the this variable loses inheritance of the childs members.  This really sucks because we build functionality into parents that rely on members
+                // that will exist in the child which breaks stuff.
+                // So the best thing I could think was to pass the self of the most inherited object up the stack.  works great after hours of thinking lol
+
+                // simple (or maybe not?) way to mix in additional user options, (clazz does extend for us)
+                userOptions.init = function(selector){
+                    this.parent.init(selector, this);
+                };
+
                 var YourClass = clazz(PopMultiInput, userOptions);
 
                 var instance = new YourClass(); // this returns something that says "constructor" in the console, but really it's just a malloc'd object
@@ -203,12 +215,6 @@
 
                 return instance;
             }
-//            ,"class": {
-//                "text": PopTextInput,
-//                "multi": PopMultiInput,
-//                "abstract": PopAbstractInput
-//            }
-
         };
 
         return publicInterface;
