@@ -149,7 +149,7 @@
                                     // set it by name
                                     var query = {$set:{}};
                                     query.$set[self.dotNotationString] = value.name;
-                                    self.editingCollection.update(data._id, query);
+                                    self.editingCollection.update(self.data._id, query);
                                 }
                             });
                         }
@@ -161,7 +161,7 @@
                             self.dataPendingChanges.push(function(){
                                 var query = {$addToSet:{}};
                                 query.$addToSet[self.fieldName] = e.added.id;
-                                self.editingCollection.update(data._id, query);
+                                self.editingCollection.update(self.data._id, query);
                             });
                         }
 
@@ -171,7 +171,7 @@
                             self.dataPendingChanges.push(function(){
                                 var query = {$pull:{}};
                                 query.$pull[self.fieldName] = e.removed.id;
-                                self.editingCollection.update(data._id, query);
+                                self.editingCollection.update(self.data._id, query);
                             });
                         }
                     }
@@ -179,26 +179,51 @@
 
 
 
-            },
-            abss: function() {
-                return "PopMultiInput"
+            }
+            ,getChanges: function() {
+                return this.dataPendingChanges;
+            }
+            ,discardChanges: function() {
+                this.dataPendingChanges = null;
+            }
+            ,saveChanges: function() {
+                var self = this;
+                // all the saved changes to the select2 are built into a function, and added to a list of pending changes
+                if( self.dataPendingChanges && Array.isArray(self.dataPendingChanges) ) {
+
+                    self.dataPendingChanges.each(function(fn){
+                        if( typeof fn === "function" ) {
+                            // call the single change, in the list of changes that the user made to the select2
+                            fn();
+                        } // if
+                    }); // each functions
+                } // if
+            }
+            ,destroy: function() {
+                var self = this;
+                self.discardChanges();
+
+                if( self.$selector ) {
+                    self.$selector.select2("destroy");
+                }
+
+                // mark stuff for garbage collection
+                self.select2options = null;
+                self.$selector = null;
+                self.selector = null;
             }
         });
 
 
 
         var publicInterface = {
-            // returns a LookupFunction
-            match: function(key) {
-                return newLookup(key);
-            }
-            ,MultiInput: function(selector, optionsIn) {
+            MultiInput: function(selector, optionsIn) {
 
                 var userOptions = (optionsIn)?optionsIn:{};
 
                 // NOTE: Javascript inheritance and prototypes
-                // Because we are using clazz (Which I think is really cool), we must manually overide the init() at each level of inheritance, and manually call this.parent.init()
-                // With each call of init, the this variable loses inheritance of the childs members.  This really sucks because we build functionality into parents that rely on members
+                // Because we are using clazz (Which I think is really cool), we must manually override the init() at each level of inheritance, and manually call this.parent.init()
+                // With each call of parent.init, the 'this' variable loses inheritance of the members attached to the child.  This really sucks because we build functionality into parents that rely on members
                 // that will exist in the child which breaks stuff.
                 // So the best thing I could think was to pass the self of the most inherited object up the stack.  works great after hours of thinking lol
 
