@@ -300,7 +300,7 @@ function installMapViewAutorun()
     });
 }
 
-
+// file scope
 var drawnItemsLayerGroup;
 
 
@@ -349,6 +349,7 @@ function mainMapRunOnce()
     // Set the title to show on the polygon button
     L.drawLocal.draw.toolbar.buttons.polygon = 'Draw a GEO fence!';
 
+
     var drawControl = new L.Control.Draw({
         position: 'topleft',
         draw: {
@@ -374,6 +375,70 @@ function mainMapRunOnce()
         edit: false
     });
     window.mapObject.addControl(drawControl);
+
+
+    var buttonControl = new L.Control.Button({
+        options: {
+            position: 'topleft',
+            text: "h"
+
+        },
+        iconUrl: "icons/row%209/8.png",
+//        onAdd: function (map) {
+//            // create the control container with a particular class name
+//            var container = L.DomUtil.create('div', 'my-custom-control');
+//
+//            // ... initialize other DOM elements, add listeners, etc.
+//
+//            return container;
+//        },
+        onClick: function (e) {
+
+            console.log(e);
+            console.log(e.target);
+
+            return null;
+        }
+    });
+
+    window.mapObject.addControl(buttonControl);
+
+
+
+    //    var drawControl2 = new L.Control.Draw({
+//        position: 'topleft',
+//        edit: {
+//            featureGroup: drawnItems,
+//            remove: false
+//        }
+//    });
+//    window.map.addControl(drawControl2);
+
+
+//    var MyControl = L.Control.extend({
+//        options: {
+//            position: 'topright'
+//        },
+//
+//        onAdd: function (map) {
+//            // create the control container with a particular class name
+//            var container = L.DomUtil.create('div', 'my-custom-control');
+//
+//            // ... initialize other DOM elements, add listeners, etc.
+//
+//            return container;
+//        }
+//    });
+//
+//    var myControlInstance = new MyControl();
+//
+//    window.mapObject.addControl(myControlInstance);
+
+
+
+
+
+
 
     window.mapObject.on('draw:created', function (e) {
         var type = e.layerType,
