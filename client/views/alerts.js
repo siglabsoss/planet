@@ -65,6 +65,10 @@ Template.alert.groupsPlainText = function() {
     return getPlainText.call(this, "Groups");
 };
 
+Template.alert.fencesPlainText = function () {
+    return getPlainText.call(this, "Fences");
+}
+
 Template.alert.ruleTypeString = function () {
     var string = "(none)";
 
@@ -101,6 +105,9 @@ function getCollection(string){
         case "AlertRuleTypes":
             return AlertRuleTypesCollection;
             break;
+        case "Fences":
+            return Fences;
+            break;
     }
     return null;
 }
@@ -113,6 +120,9 @@ function getField(string){
             break;
         case "Groups":
             return "groups";
+            break;
+        case "Fences":
+            return "fences";
             break;
     }
     return null;
@@ -194,6 +204,15 @@ function bindAlertEditInPlaceAndShow(data) {
             editingCollection:Alerts,
             data:data,
             fieldName:"name"
+        })
+    );
+
+    alertPopHandles.push(
+        PopEditField.MultiInput( '#alertFormFenceInput_'+data._id, {
+            editingCollection:Alerts,
+            searchedCollection:Fences,
+            data:data,
+            fieldName:"fences"
         })
     );
 }
