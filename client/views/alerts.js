@@ -1,17 +1,10 @@
 "use-strict";
 
-// This file (As well as contcats) is setup funny.
-// The types and number of editible inputs are determined by selectors returned from these functions:
-//   alertEditableDOMSelectors
-//   alertSelect2DOMSelectors
-
-// There should be a better way to set this up, and they each require so much custom javascript.
+// This file (As well as contacts) use popwi.editfield
 
 /* Steps to add an input field:
 1) copy pasta html, give unique id, and update all data- attributes correctly
-2) update one of ...Selectors functions listed above
-3) update getCollection, getField
-4) add template variable like ...PlainText and update html
+2) update bind...EditInPlaceAndShow, copy pasta one of the PopEditField constructor calls and update fields
 */
 
 Template.alerts.alerts = function() {
@@ -152,50 +145,57 @@ Template.alert.getTypeNiceName = function() {
 }
 
 
-editAlertFormPendingChanges = [];
-popHandles = [];
+// file scope
+var alertPopHandles = [];
 
 function bindAlertEditInPlaceAndShow(data) {
 
+    // Below are a bunch of calls to PopEditField.xxx constructors
+    // There are additional options which are part of the html dom element, including:
+    //   data-placeholder-text
+    //   data-is-multiple
+    // Dom options are more stylistic, while options passed here are more javascript-esque
+
+
     // reset this to prevent lingering handles from previous edits
-    popHandles = [];
+    alertPopHandles = [];
 
-    var groupHandle = PopEditField.MultiInput('#alertFormGroupInput_'+data._id,{
-        editingCollection:Alerts,
-        searchedCollection:Groups,
-        data:data,
-        fieldName:"groups"
-    });
+    alertPopHandles.push(
+        PopEditField.MultiInput( '#alertFormGroupInput_'+data._id, {
+            editingCollection:Alerts,
+            searchedCollection:Groups,
+            data:data,
+            fieldName:"groups"
+        })
+    );
 
-    popHandles.push(groupHandle);
+    alertPopHandles.push(
+        PopEditField.MultiInput( '#alertFormContactInput_'+data._id, {
+            editingCollection:Alerts,
+            searchedCollection:Contacts,
+            data:data,
+            fieldName:"contacts"
+        })
+    );
 
-    var contactHandle = PopEditField.MultiInput('#alertFormContactInput_'+data._id,{
-        editingCollection:Alerts,
-        searchedCollection:Contacts,
-        data:data,
-        fieldName:"contacts"
-    });
+    // this is a single input (As marked by data-is-multiple in the DOM), we use dotNotationString instead of fieldName
+    alertPopHandles.push(
+        PopEditField.SingleInput( '#alertFormRuleInput_'+data._id, {
+            editingCollection:Alerts,
+            searchedCollection:AlertRuleTypesCollection,
+            data:data,
+            dotNotationString: "rule.type"
+        })
+    );
 
-    popHandles.push(contactHandle);
-
-//    this is a single input (As marked by data-is-multiple in the DOM), we use dotNotationString instead of fieldName
-    var ruleHandle = PopEditField.SingleInput('#alertFormRuleInput_'+data._id,{
-        editingCollection:Alerts,
-        searchedCollection:AlertRuleTypesCollection,
-        data:data,
-        dotNotationString: "rule.type"
-    });
-
-    popHandles.push(ruleHandle);
-
-    var nameHandle = PopEditField.TextInput('#alertName_'+data._id,{
-        editingCollection:Alerts,
-        data:data,
-        fieldName:"name"
-    });
-
-    popHandles.push(nameHandle);
-
+    // this is a freeform text input, so no need for searchedCollection
+    alertPopHandles.push(
+        PopEditField.TextInput('#alertName_'+data._id, {
+            editingCollection:Alerts,
+            data:data,
+            fieldName:"name"
+        })
+    );
 }
 
 
@@ -228,7 +228,7 @@ Template.alerts.events({
             Session.set("alertViewNewObject", null);
         }
 
-        popHandles.each(function(handle){
+        alertPopHandles.each(function(handle){
            if( typeof handle === "object") {
                handle.saveChanges();
            }
@@ -239,12 +239,12 @@ Template.alerts.events({
 
 
         // this may or may not help reduce memory
-        popHandles.each(function(handle){
+        alertPopHandles.each(function(handle){
             if( typeof handle === "object") {
                 handle.destroy();
             }
         });
-        popHandles = [];
+        alertPopHandles = [];
 
     },
     'click .cancel-alert-form-data': function(e) {
@@ -258,12 +258,12 @@ Template.alerts.events({
         Session.set("alertViewEditingId", null);
 
         // submit all of the PopEditField objects
-        popHandles.each(function(handle){
+        alertPopHandles.each(function(handle){
             if( typeof handle === "object") {
                 handle.destroy();
             }
         });
-        popHandles = [];
+        alertPopHandles = [];
     },
     'click .edit-alert-form-data': function(e) {
         // set session variable to reactivly change stuff in the template
@@ -283,6 +283,8 @@ Template.alerts.events({
             } else {
                 Alerts.remove(this._id);
             }
+
+            Session.set("alertViewEditingId", null);
 
             flashAlertMessage("Alert deleted", {hideAfter:2000});
         } else {
