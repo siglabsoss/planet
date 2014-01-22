@@ -82,30 +82,10 @@ Template.alert.ruleTypeString = function () {
     return string;
 }
 
-// List of all text input type selectors
-function alertEditableDOMSelectors(data) {
-
-    var prefix = [
-        "#alertName_"
-//        "#contactEmailList_",
-//        "#contactSmsList_"
-    ];
-
-    var results = [];
-
-    // prefix + id = selector
-    prefix = prefix.each(function(p){
-        results.push(p + "" + data._id);
-    });
-
-    return results;
-}
-
-
 
 
 // Global Scope
-alertRuleTypes = ["diabled", "keepin", "keepout"];
+alertRuleTypes = ["disabled", "keepin", "keepout"];
 
 // Client side only fake collection
 // Just used to make search easy lol
@@ -177,6 +157,9 @@ popHandles = [];
 
 function bindAlertEditInPlaceAndShow(data) {
 
+    // reset this to prevent lingering handles from previous edits
+    popHandles = [];
+
     var groupHandle = PopEditField.MultiInput('#alertFormGroupInput_'+data._id,{
         editingCollection:Alerts,
         searchedCollection:Groups,
@@ -205,62 +188,13 @@ function bindAlertEditInPlaceAndShow(data) {
 
     popHandles.push(ruleHandle);
 
-
-
-    var inputSels = alertEditableDOMSelectors(data);
-
-    // text input
-    inputSels.each(function(selector){
-
-        // we are probably binding to a span
-        var $selector = $(selector);
-
-        var options = {
-            title: 'Enter value',
-            success: function(response, newValue) {
-
-                // success callback gets called with this set to the span.  However we can use a few references to find the <input> tag
-
-                var $span = $(this);
-
-                var field = $span.attr('data-name');
-
-                var $input = this.data('editable').input.$input;
-
-
-                // This is reactive, not sure if this should go first, or if Contacts.update()
-                Session.set("alertViewEditingId", null);
-
-                // build query to update the specific field
-                var query = {$set:{}};
-                query.$set[field] = $input.val();
-
-                // Update model
-                Alerts.update(data._id, query);
-
-                return true;
-            }
-        };
-
-        // look at the html from the temlpate to see if it has this attr
-        var inputClass = $selector.attr('data-has-class');
-        if( inputClass && typeof inputClass === "string")
-        {
-            // if so we want to set this option for the edit in place
-            options.inputclass = inputClass; // notice caps
-        }
-
-        // create and bind
-        $selector.editable(options);
-
-        // activate
-        $selector.editable('show');
-
-        // Now that we've shown it, we can do this if we want
-        //   $selector.data('editable').input.$input.val()  or .addClass() or whatever
-
+    var nameHandle = PopEditField.TextInput('#alertName_'+data._id,{
+        editingCollection:Alerts,
+        data:data,
+        fieldName:"name"
     });
 
+    popHandles.push(nameHandle);
 
 }
 
@@ -271,13 +205,13 @@ Template.alerts.events({
         var editingId = Random.id();
 
         var obj = {
-            name: OctoNameGenerator.get({wordSet:'geo', wordTypes:['verbs','adjectives']}),
+            name: OctoNameGenerator.get({wordSet:'geo', wordTypes:[,'adjectives']}) + '-alert',
             contacts: [],
             groups: [],
             rule:{type:'keepout'},
             _id: editingId
         };
-//
+
         Session.set("alertViewNewObject", obj);
 
         if( !Session.get("alertViewEditingId") )
@@ -300,19 +234,17 @@ Template.alerts.events({
            }
         });
 
+        // This is reactive, not sure if this should go first, or if Contacts.update()
+        Session.set("alertViewEditingId", null);
+
+
         // this may or may not help reduce memory
         popHandles.each(function(handle){
             if( typeof handle === "object") {
                 handle.destroy();
             }
         });
-
-        // this is data
-        var sels = alertEditableDOMSelectors(this);
-
-        sels.each(function(selector){
-            $(selector).editable('submit');
-        });
+        popHandles = [];
 
     },
     'click .cancel-alert-form-data': function(e) {
@@ -322,16 +254,16 @@ Template.alerts.events({
         if( newRow && newRow._id === this._id ) {
             Session.set("alertViewNewObject", null);
         }
+
         Session.set("alertViewEditingId", null);
 
-        // delete pending changes for this alert
-        editAlertFormPendingChanges[this._id] = [];
-
+        // submit all of the PopEditField objects
         popHandles.each(function(handle){
             if( typeof handle === "object") {
                 handle.destroy();
             }
         });
+        popHandles = [];
     },
     'click .edit-alert-form-data': function(e) {
         // set session variable to reactivly change stuff in the template

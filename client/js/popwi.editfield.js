@@ -28,10 +28,6 @@
         // List of classes
         var PopAbstractInputOptions, PopTextInput, PopMultiInput, PopSingleInput;
 
-        PopTextInput = clazz(Object, {
-
-        });
-
 
         PopAbstractInputOptions = clazz(Object, {
 
@@ -249,6 +245,65 @@
             }
         });
 
+        PopTextInput = clazz(PopAbstractInputOptions, {
+            bootstrapEditableOptions: {
+                title: 'Enter value' // default placeholder
+            }
+            ,finalizeOptions:function(child){
+            }
+            ,init:function(selector, child) {
+                this.parent.init(selector, child);
+
+                var self = child;
+
+
+                // look at the html from the temlpate to see if it has this attr
+                var inputClass = self.$selector.attr('data-has-class');
+                if( inputClass && typeof inputClass === "string")
+                {
+                    // if so we want to set this option for the edit in place
+                    self.bootstrapEditableOptions.inputclass = inputClass; // notice caps
+                }
+
+                self.bootstrapEditableOptions.placeholder = self.$selector.attr('data-placeholder-text');
+
+                // called when the bootstrap-editable submit() function is called
+                self.bootstrapEditableOptions.success = function(response, newValue) {
+
+                    // success callback gets called with this set to the span.  However we can use a few references to find the <input> tag
+                    var $span = $(this);
+
+                    // this is different than self.$selector
+                    var $input = this.data('editable').input.$input;
+
+                    // build query to update the specific field
+                    var query = {$set:{}};
+                    query.$set[self.fieldName] = $input.val();
+
+                    // Update model
+                    self.editingCollection.update(self.data._id, query);
+
+                    return true;
+                }
+
+
+                // create and bind
+                self.$selector.editable(self.bootstrapEditableOptions);
+
+                // activate
+                self.$selector.editable('show');
+
+                // Now that we've shown it, we can do this if we want
+                //   $selector.data('editable').input.$input.val()  or .addClass() or whatever
+            }
+            ,saveChanges: function() {
+                this.$selector.editable('submit');
+            }
+            ,destroy: function() {
+                // destroying causes too much head-ache because calling submit() then destroy() will call bootstrapEditableOptions.success() after destroy which messes shit up
+            }
+        });
+
 
 
         var publicInterface = {
@@ -285,6 +340,22 @@
                 };
 
                 var YourClass = clazz(PopSingleInput, userOptions);
+
+                var instance = new YourClass(); // this returns something that says "constructor" in the console, but really it's just a malloc'd object
+
+                instance.parent.finalizeOptions(instance);
+                instance.init(selector); // this is the real constructor
+
+                return instance;
+            },
+            TextInput: function(selector, optionsIn) {
+                var userOptions = (optionsIn)?optionsIn:{};
+
+                userOptions.init = function(selector){
+                    this.parent.init(selector, this);
+                };
+
+                var YourClass = clazz(PopTextInput, userOptions);
 
                 var instance = new YourClass(); // this returns something that says "constructor" in the console, but really it's just a malloc'd object
 
