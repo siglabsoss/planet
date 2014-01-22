@@ -20,7 +20,25 @@ Meteor.startup(function () {
 
 //            var devices = devicesInGroup(groups.first());
 //            console.log(devices);
-            return Devices.find({parents:{$in:groups}});
+
+            var basicQuery = {parents:{$in:groups}};
+
+
+            // the groups collection has the ungroupedMagicGroup() object (artifically) added to it
+            // so the user can decide to either show or hide the group
+            // here we detect that, and build a special $or query
+            if( groups.indexOf(ungroupedMagicGroup()._id) !== -1 ) {
+                // look for devices that do not have a 0'th element in the parents (groups) field (aka parents is null or empty list)
+                return Devices.find({
+                    $or: [
+                        {'parents.0':{ $exists: false}},
+                        basicQuery
+                    ]
+                });
+            } else {
+                return Devices.find(basicQuery);
+            }
+
         } else {
             return Devices.find({});
         }
@@ -44,6 +62,18 @@ Meteor.startup(function () {
                     self.changed("groups", g._id, {devicesInGroupCount: count});
                 }
             });
+
+            var ungrouped = ungroupedMagicGroup();
+
+            var ungroupedCount = Devices.find({'parents.0':{ $exists: false}}).fetch().count();
+
+            if( added ) {
+                self.added("groups", ungrouped._id, {devicesInGroupCount: ungroupedCount,name:ungrouped.name});
+            } else {
+                self.changed("groups", ungrouped._id, {devicesInGroupCount: ungroupedCount});
+            }
+
+
             self.ready();
         };
 
@@ -143,6 +173,11 @@ Meteor.startup(function () {
 
     Groups.allow({
         insert: function(userId, doc) {
+
+            // prevent name collision
+            if( doc.name === ungroupedMagicGroup().name )
+                return false;
+
             return true;
         },
         update: function(userId, docs, fields, modifier) {
