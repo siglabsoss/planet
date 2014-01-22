@@ -87,7 +87,6 @@ Template.groupsReactive.rendered = Template.groups.rendered = function() {
 
 function mergeDevicesGroups(devices,groups)
 {
-//    debugger;
     var output = [];
     for(var i in devices)
     {
