@@ -26,21 +26,18 @@
         // Below here is executed code
 
         // List of classes
-        var PopAbstractInputOptions, PopTextInput, PopMultiInput, PopSingleInput, PopInputHandle;
+        var PopAbstractInputOptions, PopTextInput, PopMultiInput, PopSingleInput;
 
-        PopInputHandle = clazz(Object, {});
+        PopTextInput = clazz(Object, {
+
+        });
 
 
         PopAbstractInputOptions = clazz(Object, {
 
-            select2options: {
-                multiple: false,
-    //            placeholder: "Placeholder",$selector.attr('data-placeholder-text'),
-                width: '100%'
-            }
-            ,init: function(selectorIn, child) {
-                this.selector = selectorIn;
-                this.initJQueryElement();
+            init: function(selectorIn, child) {
+                child.selector = selectorIn;
+                child.initJQueryElement();
             }
             ,dataPendingChanges:[]
             ,initJQueryElement: function() {
@@ -51,9 +48,13 @@
         });
 
         PopMultiInput = clazz(PopAbstractInputOptions, {
+            select2options: {
+                multiple: false,
+                width: '100%'
+            }
             // finalizes options which are hard to set with $.extend
             // this should not call parent
-            finalizeOptions:function(child) {
+            ,finalizeOptions:function(child) {
                 child.select2options.multiple = true;
             }
             ,init:function(selector, child) {
@@ -61,8 +62,9 @@
                 this.parent.init(selector, child);
 
                 var self = child;
-                console.log('Child init/build');
+//                console.log('Child init/build');
 
+                self.select2options.placeholder = self.$selector.attr('data-placeholder-text');
 
                 // if true, we are selecting a single thing from a member on us via dot notation
                 self.isDotNotation = false;
