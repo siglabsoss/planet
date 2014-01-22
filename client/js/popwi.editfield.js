@@ -51,7 +51,12 @@
         });
 
         PopMultiInput = clazz(PopAbstractInputOptions, {
-            init:function(selector, child) {
+            // finalizes options which are hard to set with $.extend
+            // this should not call parent
+            finalizeOptions:function(child) {
+                child.select2options.multiple = true;
+            }
+            ,init:function(selector, child) {
 
                 this.parent.init(selector, child);
 
@@ -59,12 +64,9 @@
                 console.log('Child init/build');
 
 
-
-                self.select2options.multiple = true;
-
                 // if true, we are selecting a single thing from a member on us via dot notation
                 self.isDotNotation = false;
-                self.dotNotationString = self.$selector.attr('data-dot-notation');
+//                self.dotNotationString = self.$selector.attr('data-dot-notation');
                 if( self.dotNotationString && typeof self.dotNotationString === "string" ) {
                     self.isDotNotation = true;
                 }
@@ -200,7 +202,13 @@
                 } // if
             }
             ,destroy: function() {
-                var self = this;
+                var self;
+                if( arguments.length === 0 ) {
+                    self = this;
+                } else {
+                    self = arguments[0];
+                }
+
                 self.discardChanges();
 
                 if( self.$selector ) {
@@ -211,6 +219,31 @@
                 self.select2options = null;
                 self.$selector = null;
                 self.selector = null;
+            }
+        });
+
+
+
+        // almost identical to PopMultiInput, just using a different finalizeOptions() function
+        PopSingleInput = clazz(PopMultiInput, {
+            // finalizes options which are hard to set with $.extend
+            // this should not call parent
+            finalizeOptions:function(child) {
+                child.select2options.multiple = false;
+            }
+            ,init:function(selector, child) {
+                this.parent.init(selector, child);
+            }
+            ,destroy: function() {
+                // destroy also needs to pass child up chain to avoid modifying our virgin SingleInput, MultiInput, and PopAbstractInputOptions classes
+                var self;
+                if( arguments.length === 0 ) {
+                    self = this;
+                } else {
+                    self = arguments[0];
+                }
+
+                this.parent.destroy(self);
             }
         });
 
@@ -235,8 +268,26 @@
                 var YourClass = clazz(PopMultiInput, userOptions);
 
                 var instance = new YourClass(); // this returns something that says "constructor" in the console, but really it's just a malloc'd object
+
+                instance.parent.finalizeOptions(instance);
                 instance.init(selector); // this is the real constructor
 
+
+                return instance;
+            },
+            SingleInput: function(selector, optionsIn) {
+                var userOptions = (optionsIn)?optionsIn:{};
+
+                userOptions.init = function(selector){
+                    this.parent.init(selector, this);
+                };
+
+                var YourClass = clazz(PopSingleInput, userOptions);
+
+                var instance = new YourClass(); // this returns something that says "constructor" in the console, but really it's just a malloc'd object
+
+                instance.parent.finalizeOptions(instance);
+                instance.init(selector); // this is the real constructor
 
                 return instance;
             }

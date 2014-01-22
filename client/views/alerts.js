@@ -103,26 +103,6 @@ function alertEditableDOMSelectors(data) {
 
 
 
-// List of all select2 plugin controlled inputs (single and multiple select aka "tokenized field")
-function alertSelect2DOMSelectors(data) {
-
-    var prefix = [
-        "#alertFormContactInput_"
-        ,"#alertFormGroupInput_"
-        ,"#alertFormRuleInput_"
-    ];
-
-    var results = [];
-
-    // prefix + id = selector
-    prefix = prefix.each(function(p){
-        results.push(p + "" + data._id);
-    });
-
-    return results;
-}
-
-
 
 // Global Scope
 alertRuleTypes = ["diabled", "keepin", "keepout"];
@@ -191,160 +171,40 @@ Template.alert.getTypeNiceName = function() {
     }
 }
 
+
 editAlertFormPendingChanges = [];
+popHandles = [];
 
 function bindAlertEditInPlaceAndShow(data) {
 
+    var groupHandle = PopEditField.MultiInput('#alertFormGroupInput_'+data._id,{
+        editingCollection:Alerts,
+        searchedCollection:Groups,
+        data:data,
+        fieldName:"groups"
+    });
 
-    var select2sels = alertSelect2DOMSelectors(data);
+    popHandles.push(groupHandle);
 
+    var contactHandle = PopEditField.MultiInput('#alertFormContactInput_'+data._id,{
+        editingCollection:Alerts,
+        searchedCollection:Contacts,
+        data:data,
+        fieldName:"contacts"
+    });
 
-//    editAlertFormPendingChanges = [];
+    popHandles.push(contactHandle);
 
-    // "tokenized field"
-    select2sels.each(function(selector){
+//    this is a single input (As marked by data-is-multiple in the DOM), we use dotNotationString instead of fieldName
+    var ruleHandle = PopEditField.SingleInput('#alertFormRuleInput_'+data._id,{
+        editingCollection:Alerts,
+        searchedCollection:AlertRuleTypesCollection,
+        data:data,
+        dotNotationString: "rule.type"
+    });
 
-        // clear/setup pending changes array
-        if( !Array.isArray(editAlertFormPendingChanges[data._id]) ) {
-            editAlertFormPendingChanges[data._id] = []; // build to array if first time
-        }
-        editAlertFormPendingChanges[data._id][selector] = [];
+    popHandles.push(ruleHandle);
 
-        var $selector = $(selector);
-
-        var attribute = $selector.attr('data-collection');
-
-        // depending on this data member, we search a different collection with this select2
-        var collection = getCollection(attribute);
-
-        // depending on this data member, we update the correct field
-        var fieldName = getField(attribute);
-
-
-        // is this input a multiple?
-        var isMultiple = false;
-        if( $selector.attr('data-is-multiple') === 'true') {
-            isMultiple = true;
-        }
-
-        // if true, we are selecting a single thing from a member on us via dot notation
-        var isDotNotation = false;
-        var dotNotationString = $selector.attr('data-dot-notation');
-        if( dotNotationString && typeof dotNotationString === "string" ) {
-            isDotNotation = true;
-        }
-
-
-        var select2options = {
-            multiple: isMultiple,
-            placeholder: $selector.attr('data-placeholder-text'),
-            width: '100%',
-
-            // when the user types
-            query: function (query) {
-
-                // build regex to find text anywhere in field
-                var expression = ".*"+query.term+".*";
-                var rx = RegExp(expression,'i');
-
-                // search mongo
-                var documents = collection.find({name:rx}).fetch();
-
-                // callback is expecting a results member
-                var data = {
-                    results: convertDocumentsSelect2(documents)
-                };
-
-                query.callback(data);
-            },
-            initSelection: function(element, callback) {
-                // don't care what element is bc we already know
-
-                var initialSelection = [];
-
-                var fetchedValue = DDot.match(dotNotationString).fetch(data);
-
-                if( isDotNotation && data && fetchedValue ) {
-                    initialSelection = collection.find({name: fetchedValue}).fetch();
-
-                    // callback is just expecting an array
-                    callback(convertDocumentsSelect2(initialSelection).first());
-                } else {
-                    if( data && data[fieldName] && Array.isArray(data[fieldName]) ) {
-                        initialSelection = collection.find({_id: {$in: data[fieldName]}}).fetch();
-
-                        // callback is just expecting an array
-                        callback(convertDocumentsSelect2(initialSelection));
-                    }
-                }
-
-
-            }
-        };
-
-
-        // build select2
-        $selector.select2(select2options);
-
-
-
-        if( isDotNotation ) {
-            // Still a bit confused about this
-            $selector.select2("val", {id:data._id});
-        } else {
-            // WHAT IS WRONG? we need this line, but it has no data.  The data came from initSelection()
-            $selector.select2("val", []);
-        }
-
-        // bind change
-        $selector.on("change", function(e) {
-            // here e has a lot of stuff in it. including e.val which is an array of the full set
-            // we only deal in deltas tho
-
-            if( isDotNotation ) {
-                if( e && e.type && e.type === "change" && e.added && e.added.id ) {
-
-                    // push change made by user into a queue which we can execute later when they press 'save'
-                    editAlertFormPendingChanges[data._id][selector].push(function(){
-
-                        // look at our fake collection to pull the value
-                        var value = collection.findOne(e.added.id);
-
-                        if( value && value.name ) {
-
-                            // set it by name
-                            var query = {$set:{}};
-                            query.$set[dotNotationString] = value.name;
-                            Alerts.update(data._id, query);
-                        }
-                    });
-                }
-            } else {
-
-                if( e && e.added && e.added.id ) {
-
-                    // push change made by user into a queue which we can execute later when they press 'save'
-                    editAlertFormPendingChanges[data._id][selector].push(function(){
-                        var query = {$addToSet:{}};
-                        query.$addToSet[fieldName] = e.added.id;
-                        Alerts.update(data._id, query);
-                    });
-                }
-
-                if( e && e.removed && e.removed.id ) {
-
-                    // push change made by user into a queue which we can execute later when they press 'save'
-                    editAlertFormPendingChanges[data._id][selector].push(function(){
-                        var query = {$pull:{}};
-                        query.$pull[fieldName] = e.removed.id;
-                        Alerts.update(data._id, query);
-                });
-                }
-            }
-        });
-
-
-    }); //each select2sels
 
 
     var inputSels = alertEditableDOMSelectors(data);
@@ -434,6 +294,19 @@ Template.alerts.events({
             Session.set("alertViewNewObject", null);
         }
 
+        popHandles.each(function(handle){
+           if( typeof handle === "object") {
+               handle.saveChanges();
+           }
+        });
+
+        // this may or may not help reduce memory
+        popHandles.each(function(handle){
+            if( typeof handle === "object") {
+                handle.destroy();
+            }
+        });
+
         // this is data
         var sels = alertEditableDOMSelectors(this);
 
@@ -441,23 +314,6 @@ Template.alerts.events({
             $(selector).editable('submit');
         });
 
-        var that = this;
-
-
-        var select2sels = alertSelect2DOMSelectors(this);
-
-        select2sels.each(function(selector){
-            // all the saved changes to the select2 are built into a function, and added to a list of pending changes
-            if( editAlertFormPendingChanges && typeof editAlertFormPendingChanges[that._id] === "object" && Array.isArray(editAlertFormPendingChanges[that._id][selector]) ) {
-
-                editAlertFormPendingChanges[that._id][selector].each(function(fn){
-                    if( typeof fn === "function" ) {
-                        // call the single change, in the list of changes that the user made to the select2
-                        fn();
-                    } // if
-                }); // each functions
-            } // if
-        }); // each select2sels
     },
     'click .cancel-alert-form-data': function(e) {
 
@@ -470,6 +326,12 @@ Template.alerts.events({
 
         // delete pending changes for this alert
         editAlertFormPendingChanges[this._id] = [];
+
+        popHandles.each(function(handle){
+            if( typeof handle === "object") {
+                handle.destroy();
+            }
+        });
     },
     'click .edit-alert-form-data': function(e) {
         // set session variable to reactivly change stuff in the template
