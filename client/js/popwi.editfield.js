@@ -1,8 +1,17 @@
+/*
+ * Author Ben Morse
+ * This is a function which wraps two different "edit in place" plugins for a nice warm and fuzzy meteor experience.
+ *
+ *   For multiple and single selects: http://ivaynberg.github.io/select2/      3.4.5
+ *   For plain text inputs:           http://github.com/vitalets/x-editable    the "Bootstrap 3" build
+ */
+
 (function (window) {
 
     // this is a constructor but not named that for clarity with what is about to go down
     function popEditFieldRunOnce() {
 
+        // This function is pulled directly from select.js, and i love how it works!
         /**
          * Creates a new class
          *
@@ -29,6 +38,7 @@
         var PopAbstractInputOptions, PopTextInput, PopMultiInput, PopSingleInput;
 
 
+        // things shared by all input classes
         PopAbstractInputOptions = clazz(Object, {
 
             init: function(selectorIn, child) {
@@ -43,6 +53,8 @@
             ,selector: null
         });
 
+
+        // wrap select2's multi-input mode
         PopMultiInput = clazz(PopAbstractInputOptions, {
             select2options: {
                 multiple: false,
@@ -54,11 +66,9 @@
                 child.select2options.multiple = true;
             }
             ,init:function(selector, child) {
-
                 this.parent.init(selector, child);
 
                 var self = child;
-//                console.log('Child init/build');
 
                 self.select2options.placeholder = self.$selector.attr('data-placeholder-text');
 
@@ -245,6 +255,7 @@
             }
         });
 
+        // wrap x-editable text edit in place
         PopTextInput = clazz(PopAbstractInputOptions, {
             bootstrapEditableOptions: {
                 title: 'Enter value' // default placeholder
@@ -257,7 +268,7 @@
                 var self = child;
 
 
-                // look at the html from the temlpate to see if it has this attr
+                // look at the html from the template to see if it has this attr
                 var inputClass = self.$selector.attr('data-has-class');
                 if( inputClass && typeof inputClass === "string")
                 {
@@ -284,7 +295,7 @@
                     self.editingCollection.update(self.data._id, query);
 
                     return true;
-                }
+                };
 
 
                 // create and bind
@@ -305,7 +316,7 @@
         });
 
 
-
+        // This object is what gets exposed to the outside world
         var publicInterface = {
             MultiInput: function(selector, optionsIn) {
 
