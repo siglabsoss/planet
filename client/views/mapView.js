@@ -29,16 +29,44 @@ function updateClientMapMarker(newDocument)
     // pull the object from the array and update its lat lng
     clientMapMarkers[newDocument._id].setLatLng(L.latLng([newDocument.lat, newDocument.lng]));
 
-//    console.log(clientMapMarkers);
+    // this property isn't always set, so skip calling setIcon if we can
+    if( typeof newDocument.clientSelected !== "undefined" ) {
+        if( newDocument.clientSelected ) {
+            clientMapMarkers[newDocument._id].setIcon(selectedIcon);
+        } else {
+            clientMapMarkers[newDocument._id].setIcon(defaultIcon);
+        }
+    }
 }
 
+// file scope
+var selectedIcon = L.icon({
+    iconUrl: 'icons/marker-icon-selected.png',
+    shadowUrl: 'packages/leaflet/images/marker-shadow.png'
+
+//    iconSize:     [38, 95], // size of the icon
+//    shadowSize:   [50, 64], // size of the shadow
+//    iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+//    shadowAnchor: [4, 62],  // the same for the shadow
+//    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+});
+
+// default icon (file scope)
+var defaultIcon = L.icon({
+    iconUrl: 'packages/leaflet/images/marker-icon.png',
+    shadowUrl: 'packages/leaflet/images/marker-shadow.png'
+});
 
 function buildLeafletMarkerFromDoc(document)
 {
     var marker;
     var pos = [document.lat, document.lng];
 
-    marker = L.marker(pos);
+    var markerOptions = {
+        icon: defaultIcon
+    };
+
+    marker = L.marker(pos, markerOptions);
 
     var popup = new L.popup(mapPopupOptions).setContent("");
 
@@ -303,6 +331,42 @@ function installMapViewAutorun()
 // file scope
 var drawnItemsLayerGroup;
 
+// finds devices inside a bounds object (which leaflet can generate)
+findDevicesInBounds = function(bounds) {
+
+    var north = bounds.getNorth();
+    var east = bounds.getEast();
+    var south = bounds.getSouth();
+    var west = bounds.getWest();
+
+    var query = {$and:[
+        {lat:{$lt:north}},
+        {lat:{$gt:south}},
+        {lng:{$lt:east}},
+        {lng:{$gt:west}}
+    ]};
+
+
+    var selected = Devices.find(query).fetch();
+
+    return selected;
+}
+
+// sets a client only attribute on the Devices collection
+markDevicesSelected = function(selectedDevices) {
+
+    selectedDevices.each(function(d){
+
+        // using _collection.update does a local update and doesn't send to server.  This is undocumented and may change
+        Devices._collection.update(d._id, {$set:{clientSelected:true}});
+
+    });
+
+    var deviceIds = selectedDevices.map('_id');
+
+    Devices._collection.update({clientSelected:true, _id:{$nin:deviceIds}}, {$set:{clientSelected:false}}, {multi:true});
+}
+
 
 function mainMapRunOnce()
 {
@@ -386,7 +450,15 @@ function mainMapRunOnce()
             polyline: false,
             polygon: false,
             rectangle: {
-
+                onSelectCreate:function(bounds) {
+                    console.log("cratedddd");
+                    var selected = findDevicesInBounds(bounds);
+                    markDevicesSelected(selected);
+                },
+                onSelectDragChange:function(bounds) {
+                    var selected = findDevicesInBounds(bounds);
+                    markDevicesSelected(selected);
+                }
             },
             circle: false,
             marker: false

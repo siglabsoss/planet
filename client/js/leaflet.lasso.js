@@ -244,6 +244,6 @@ L.Control.DrawLasso = L.Control.extend({
             }
         }
 
-        console.log('clicked');
+//        console.log('clicked');
     }
 });
