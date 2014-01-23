@@ -231,16 +231,19 @@ function buildLeafletLayerFromDoc(document)
     // build a popup object with empty content
     var popup = new L.popup(mapPopupOptions).setContent("");
 
+    // When it's opened, meteor re-renders contents
     var popupOpened = function(event) {
+
+        var updatedDocument = Fences.findOne(document._id);
         // (re) render popup content
         // Wrapping this with Meteor.render() seems to break clicking the same geofence twice without clicking away in-between
-        popup.setContent(Template.geoFencePopup(Fences.findOne(document._id)));
+        popup.setContent(Template.geoFencePopup(updatedDocument));
 
         // call the normal popup open
         event.target._openPopup(event);
 
         // Bind elements in the popup
-        bindFencePopupElements();
+        bindFencePopupElements(updatedDocument);
     };
 
     // normal popup binding
@@ -712,7 +715,7 @@ function bindDevicePopupElements(document)
     });
 }
 
-function bindFencePopupElements()
+function bindFencePopupElements(data)
 {
 
     $('.deleteFenceLink').off('click').on('click', function(e){
@@ -725,6 +728,44 @@ function bindFencePopupElements()
             // Do nothing!
         }
     });
+
+    $('#chooseFenceColor_' + data._id).off('click').on('click', function(e){
+        console.log('here');
+        //Fences.update(data._id, {$set:{'layer.options.color':'#000'}});
+
+
+    });
+
+
+    $('#edit-fence-popup-data_' + data._id).off('click').on('click', function(e){
+//        Session.set("fencePopupEditingId", data._id);
+
+        // This should switch everything inside the popup to edit mode
+
+
+        $('.showWithEditFencePopup_' + data._id).removeClass('hidden');
+
+
+        var cp = ColorPicker(document.getElementById('slide'), document.getElementById('picker'),
+            function(hex, hsv, rgb, mousePicker, mouseSlide) {
+                currentColor = hex;
+                ColorPicker.positionIndicators(
+                    document.getElementById('slide-indicator'),
+                    document.getElementById('picker-indicator'),
+                    mouseSlide, mousePicker
+                );
+                document.body.style.backgroundColor = hex;
+                document.getElementById('hex').innerHTML = hex;
+                document.getElementById('rgb').innerHTML = 'rgb(' + rgb.r.toFixed() + ',' + rgb.g.toFixed() + ',' + rgb.b.toFixed() + ')';
+                document.getElementById('hsv').innerHTML = 'hsv(' + hsv.h.toFixed() + ',' + hsv.s.toFixed(2) + ',' + hsv.v.toFixed(2) + ')';
+            });
+        cp.setHex('#D4EDFB');
+
+    });
+
+
+
+
 }
 
 Template.leftPanelGroup.collapsedClass = function() {
@@ -852,5 +893,5 @@ Template.leftPanelGroup.deviceCount = function() {
 
 // Search for events that apply to this device.  Note that we don't call .find().fetch().length, instead use .find().count();
 Template.devicePopup.deviceFenceEvents = function () {
-    return Events.find({type:"deviceFence","event.deviceId":this._id}).count();
+    return Events.find({type:"deviceFence","event.deviceId":this._id}).count();;;;
 }
