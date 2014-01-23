@@ -458,6 +458,14 @@ function mainMapRunOnce()
                 onSelectDragChange:function(bounds) {
                     var selected = findDevicesInBounds(bounds);
                     markDevicesSelected(selected);
+                },
+                onToolEnabled:function() {
+                    console.log('enabled');
+                    showMapBottomPanel(true);
+                },
+                onToolDisabled:function() {
+                    console.log('disabled');
+                    showMapBottomPanel(false);
                 }
             },
             circle: false,
@@ -849,4 +857,22 @@ Template.leftPanelGroup.deviceCount = function() {
 // Search for events that apply to this device.  Note that we don't call .find().fetch().length, instead use .find().count();
 Template.devicePopup.deviceFenceEvents = function () {
     return Events.find({type:"deviceFence","event.deviceId":this._id}).count();
+}
+
+showMapBottomPanel = function(show) {
+
+    var $selector = $("#mainMapBottomPanel");
+
+    var bottomPanelHeight = "200px";
+    var showTime = 500; // ms
+    var hideTime = 300;
+
+    if( show ) {
+        $selector.removeClass('hidden');
+        $selector.animate({height: bottomPanelHeight, opacity: 1.0}, showTime);
+    } else {
+        $selector.animate({height: "0px", opacity:0.3}, hideTime, "swing", function() {
+            $selector.addClass('hidden');
+                });
+    }
 }

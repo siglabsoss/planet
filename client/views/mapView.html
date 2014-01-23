@@ -15,6 +15,10 @@
                 <div id="map" class="map"></div>
             </div>
             {{/constant}}
+            <!-- This span does not have shownOnlyWithMap because we don't want the Deps.autorun in mapView.js to control the visiblity of this -->
+            <span class="col-md-12 hidden red-background" id="mainMapBottomPanel">
+            Selection Details
+            </span>
         </div>
     </div>
 

@@ -180,6 +180,14 @@ L.Control.DrawLasso = L.Control.extend({
 
             // Listen for when toolbar is enabled
             this._toolbars[id].on('enable', this._toolbarEnabled, this);
+
+            if( this.options.draw && this.options.draw.rectangle && this.options.draw.rectangle.onToolEnabled && $.isFunction(this.options.draw.rectangle.onToolEnabled) ) {
+                this._toolbars[id].on('enable', this.options.draw.rectangle.onToolEnabled, this);
+            }
+
+            if( this.options.draw && this.options.draw.rectangle && this.options.draw.rectangle.onToolDisabled && $.isFunction(this.options.draw.rectangle.onToolDisabled) ) {
+                this._toolbars[id].on('disable', this.options.draw.rectangle.onToolDisabled, this);
+            }
         }
 
         if (L.EditToolbar && this.options.edit) {
