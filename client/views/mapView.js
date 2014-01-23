@@ -348,8 +348,8 @@ function mainMapRunOnce()
 
     // Set the title to show on the polygon button
     L.drawLocal.draw.toolbar.buttons.polygon = 'Draw a GEO fence!';
-
-
+//
+//
     var drawControl = new L.Control.Draw({
         position: 'topleft',
         draw: {
@@ -377,62 +377,55 @@ function mainMapRunOnce()
     window.mapObject.addControl(drawControl);
 
 
-    var buttonControl = new L.Control.Button({
-        options: {
-            position: 'topleft',
-            text: "h"
 
+
+
+    var drawControlLasso = new L.Control.DrawLasso({
+        position: 'topleft',
+        draw: {
+            polyline: false,
+            polygon: false,
+            rectangle: {
+
+            },
+            circle: false,
+            marker: false
         },
-        iconUrl: "icons/row%209/8.png",
-//        onAdd: function (map) {
-//            // create the control container with a particular class name
-//            var container = L.DomUtil.create('div', 'my-custom-control');
-//
-//            // ... initialize other DOM elements, add listeners, etc.
-//
-//            return container;
-//        },
-        onClick: function (e) {
-
-            console.log(e);
-            console.log(e.target);
-
-            return null;
-        }
+        edit: false
     });
-
-    window.mapObject.addControl(buttonControl);
-
+    window.mapObject.addControl(drawControlLasso);
 
 
-    //    var drawControl2 = new L.Control.Draw({
-//        position: 'topleft',
-//        edit: {
-//            featureGroup: drawnItems,
-//            remove: false
-//        }
-//    });
-//    window.map.addControl(drawControl2);
-
-
-//    var MyControl = L.Control.extend({
+//
+//
+//    var buttonControl = new L.Control.Button({
 //        options: {
-//            position: 'topright'
+//            position: 'topleft',
+//            text: "h"
+//
 //        },
+//        iconUrl: "icons/row%209/8.png",
+////        onAdd: function (map) {
+////            // create the control container with a particular class name
+////            var container = L.DomUtil.create('div', 'my-custom-control');
+////
+////            // ... initialize other DOM elements, add listeners, etc.
+////
+////            return container;
+////        },
+//        onClick: function (e) {
 //
-//        onAdd: function (map) {
-//            // create the control container with a particular class name
-//            var container = L.DomUtil.create('div', 'my-custom-control');
+//            console.log(e);
+//            console.log(e.target);
 //
-//            // ... initialize other DOM elements, add listeners, etc.
-//
-//            return container;
+//            return null;
 //        }
 //    });
 //
-//    var myControlInstance = new MyControl();
-//
-//    window.mapObject.addControl(myControlInstance);
+//    window.mapObject.addControl(buttonControl);
+
+
+
 
 
 
