@@ -764,6 +764,7 @@ function bindFencePopupElements(data)
         $('#saveFenceColor_' + data._id).off('click').on('click', function(e){
             console.log('save');
             $('.showWithEditFencePopup_' + data._id).addClass('hidden');
+            $('svg').slice(1).remove();
         });
 
         $('#cancelFenceColor_' + data._id).off('click').on('click', function(e){
@@ -771,6 +772,7 @@ function bindFencePopupElements(data)
             Fences.update(data._id, {$set:{'layer.options.color':prevColor}});
             $('#chooseFenceColor_' + data._id).css('background-color', prevColor);
             $('.showWithEditFencePopup_' + data._id).addClass('hidden');
+            $('svg').slice(1).remove();
         });
 
     });
