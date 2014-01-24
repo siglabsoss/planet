@@ -32,12 +32,20 @@
     height:222px;
 }
 .cp-default .picker {
-    width: 200px;
-    height: 200px;
+    width: 100px;
+    height: 100px;
 }
 .cp-default .slide {
-    width: 30px;
-    height: 200px;
+    width: 15px;
+    height: 100px;
+}
+
+.cp-default. save {
+
+}
+
+cp.cp-default. cancel {
+
 }
 .cp-default .slide-wrapper {
     margin-left: 10px;

@@ -745,6 +745,9 @@ function bindFencePopupElements(data)
 
         $('.showWithEditFencePopup_' + data._id).removeClass('hidden');
 
+        var prevColor = data.layer.options.color;
+        console.log(prevColor);
+
 
         var cp = ColorPicker(document.getElementById('slide'), document.getElementById('picker'),
             function(hex, hsv, rgb, mousePicker, mouseSlide) {
@@ -754,12 +757,21 @@ function bindFencePopupElements(data)
                     document.getElementById('picker-indicator'),
                     mouseSlide, mousePicker
                 );
-
-
-                alert(data.layer.options.color);
-
                 Fences.update(data._id, {$set:{'layer.options.color':hex}});
+                $('#chooseFenceColor_' + data._id).css('background-color', hex);
             });
+
+        $('#saveFenceColor_' + data._id).off('click').on('click', function(e){
+            console.log('save');
+            $('.showWithEditFencePopup_' + data._id).addClass('hidden');
+        });
+
+        $('#cancelFenceColor_' + data._id).off('click').on('click', function(e){
+            console.log('cancel');
+            Fences.update(data._id, {$set:{'layer.options.color':prevColor}});
+            $('#chooseFenceColor_' + data._id).css('background-color', prevColor);
+            $('.showWithEditFencePopup_' + data._id).addClass('hidden');
+        });
 
     });
 
