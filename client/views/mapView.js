@@ -460,12 +460,14 @@ function mainMapRunOnce()
                     markDevicesSelected(selected);
                 },
                 onToolEnabled:function() {
-                    console.log('enabled');
+                    clickableMapBottomPanel(false);
                     showMapBottomPanel(true);
+
                 },
                 onToolDisabled:function() {
                     console.log('disabled');
-                    showMapBottomPanel(false);
+//                    showMapBottomPanel(false);
+                    clickableMapBottomPanel(true);
                 }
             },
             circle: false,
@@ -863,7 +865,7 @@ showMapBottomPanel = function(show) {
 
     var $selector = $("#mainMapBottomPanel");
 
-    var bottomPanelHeight = "200px";
+    var bottomPanelHeight = "200px";//$selector.find('.panel').height();
     var showTime = 500; // ms
     var hideTime = 300;
 
@@ -875,4 +877,28 @@ showMapBottomPanel = function(show) {
             $selector.addClass('hidden');
                 });
     }
+}
+
+clickableMapBottomPanel = function(clickable) {
+
+    var $selector = $("#mainMapBottomPanel");
+
+    if( clickable) {
+        $selector.removeClass('disable-mouse-events');
+    } else {
+        $selector.addClass('disable-mouse-events');
+    }
+}
+
+Template.mapBottomPanel.events({
+    'click .close-map-bottom-panel':function(e) {
+        showMapBottomPanel(false);
+    },
+    'click .map-bottom-panel-deslect-all':function(e) {
+        Devices._collection.update({clientSelected:true}, {$set:{clientSelected:false}}, {multi:true});
+    }
+});
+
+Template.mapBottomPanel.selectedDeviceCount = function() {
+    return Devices.find({clientSelected:true}).count();
 }
