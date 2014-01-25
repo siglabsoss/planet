@@ -746,6 +746,7 @@ function bindFencePopupElements(data)
         $('.showWithEditFencePopup_' + data._id).removeClass('hidden');
 
         var prevColor = data.layer.options.color;
+        var currentColor = prevColor;
         console.log(prevColor);
 
 
@@ -757,19 +758,22 @@ function bindFencePopupElements(data)
                     document.getElementById('picker-indicator'),
                     mouseSlide, mousePicker
                 );
-                Fences.update(data._id, {$set:{'layer.options.color':hex}});
-                $('#chooseFenceColor_' + data._id).css('background-color', hex);
+                currentColor = hex;
+                Fences._collection.update(data._id, {$set:{'layer.options.color':currentColor}});
+                $('#chooseFenceColor_' + data._id).css('background-color', currentColor);
             });
 
         $('#saveFenceColor_' + data._id).off('click').on('click', function(e){
             console.log('save');
+            prevColor = currentColor;
+            Fences.update(data._id, {$set:{'layer.options.color':currentColor}});
             $('.showWithEditFencePopup_' + data._id).addClass('hidden');
             $('svg').slice(1).remove();
         });
 
         $('#cancelFenceColor_' + data._id).off('click').on('click', function(e){
             console.log('cancel');
-            Fences.update(data._id, {$set:{'layer.options.color':prevColor}});
+            Fences._collection.update(data._id, {$set:{'layer.options.color':prevColor}});
             $('#chooseFenceColor_' + data._id).css('background-color', prevColor);
             $('.showWithEditFencePopup_' + data._id).addClass('hidden');
             $('svg').slice(1).remove();
