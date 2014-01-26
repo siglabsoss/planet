@@ -20,13 +20,13 @@
       },
       "iron-router": {
         "git": "https://github.com/EventedMind/iron-router.git",
-        "tag": "v0.6.1",
-        "commit": "4e1ee0581d68bff422a915dacb0bd30eae10fe08"
+        "tag": "v0.6.2",
+        "commit": "ce56e58b45624dce992490f3a1c10f10d3948bae"
       },
       "sugar": {
         "git": "https://github.com/bevanhunt/meteor-sugar.git",
-        "tag": "v0.0.9",
-        "commit": "751a4465e0a7d7e4e800e794ca1e6a449e15e63d"
+        "tag": "v0.1.6",
+        "commit": "8973ed7e027e260a572571d02d0f4a428ca866f9"
       },
       "jquery-ui": {
         "git": "https://github.com/TimHeckel/meteor-jquery-ui.git",
