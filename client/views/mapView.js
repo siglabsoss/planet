@@ -231,6 +231,8 @@ function buildLeafletLayerFromDoc(document)
     // build a popup object with empty content
     var popup = new L.popup(mapPopupOptions).setContent("");
 
+//    window.mapObject.options.closeOnClick = true;
+
     // When it's opened, meteor re-renders contents
     var popupOpened = function(event) {
 
@@ -243,7 +245,7 @@ function buildLeafletLayerFromDoc(document)
         event.target._openPopup(event);
 
         // Bind elements in the popup
-        bindFencePopupElements(updatedDocument);
+        bindFencePopupElements(updatedDocument, popup);
     };
 
     // normal popup binding
@@ -715,7 +717,8 @@ function bindDevicePopupElements(document)
     });
 }
 
-function bindFencePopupElements(data)
+// Called to bind stuff in the fence popup.  First param is the document, second is the leaflet popup object
+function bindFencePopupElements(data, popupObject)
 {
 
     $('.deleteFenceLink').off('click').on('click', function(e){
@@ -738,14 +741,23 @@ function bindFencePopupElements(data)
 
 
     $('#edit-fence-popup-data_' + data._id).off('click').on('click', function(e){
+
+        // re-fetch the document because it may have changed since we bound the popup to the fences
+
+        var updatedData = Fences.findOne(data._id);
+        //Disable the click close of the popup
+
 //        Session.set("fencePopupEditingId", data._id);
 
         // This should switch everything inside the popup to edit mode
 
+       //HIDE HERE
+        $('#edit-fence-popup-data_' + data._id).hide();
 
-        $('.showWithEditFencePopup_' + data._id).removeClass('hidden');
+        $('.showWithEditFencePopup_' + updatedData._id).removeClass('hidden');
 
-        var prevColor = data.layer.options.color;
+
+        var prevColor = updatedData.layer.options.color;
         var currentColor = prevColor;
         console.log(prevColor);
 
@@ -769,6 +781,7 @@ function bindFencePopupElements(data)
             Fences.update(data._id, {$set:{'layer.options.color':currentColor}});
             $('.showWithEditFencePopup_' + data._id).addClass('hidden');
             $('svg').slice(1).remove();
+            $('#edit-fence-popup-data_' + data._id).show();
         });
 
         $('#cancelFenceColor_' + data._id).off('click').on('click', function(e){
@@ -777,6 +790,7 @@ function bindFencePopupElements(data)
             $('#chooseFenceColor_' + data._id).css('background-color', prevColor);
             $('.showWithEditFencePopup_' + data._id).addClass('hidden');
             $('svg').slice(1).remove();
+            $('#edit-fence-popup-data_' + data._id).show();
         });
 
     });
