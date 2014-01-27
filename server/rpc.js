@@ -1,10 +1,13 @@
 
+
 Meteor.startup(function () {
     Meteor.methods({
 
         generateTestDevices: function(){
 
-            for (var i=1; i<5; i++){
+            var count = 5;
+
+            for (var i=1; i<count; i++){
                 Devices.insert({lat:37.493316 + 0.1 * (-0.5 + Math.random()),
                                 lng:-122.250366 + 0.1 * (-0.5 + Math.random()),
                                 serial:i});
@@ -12,12 +15,37 @@ Meteor.startup(function () {
 
         },
 
+
+
         shakeTestDevices: function(){
-            for (var i=1; i<5; i++){
-                Devices.update(Devices.find({serial: i}).fetch()[0]._id, {$inc: {lat: 0.01 * (-0.5 + Math.random())}});
-                Devices.update(Devices.find({serial: i}).fetch()[0]._id, {$inc: {lng: 0.01 * (-0.5 + Math.random())}});
-            }
+
+            var updateTimeInterval = 1000;
+            var stopShakeAfter = 20000;
+
+            var shakeFunction = function() {
+
+
+                var count = 5;
+
+                for (var i=1; i<count; i++){
+                    Devices.update(Devices.find({serial: i}).fetch()[0]._id, {$inc: {lat: 0.01 * (-0.5 + Math.random())}});
+                    Devices.update(Devices.find({serial: i}).fetch()[0]._id, {$inc: {lng: 0.01 * (-0.5 + Math.random())}});
+                }
+
+
+            };
+
+            var interval = Meteor.setInterval(shakeFunction, updateTimeInterval);
+
+            var stopFunction = function() {
+                   Meteor.clearInterval(interval);
+            };
+
+            Meteor.setTimeout(stopFunction, stopShakeAfter);
         },
+
+
+
 
         removeAllTestDevices: function(){
             Devices.remove({});
