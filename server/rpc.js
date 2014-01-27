@@ -2,6 +2,27 @@
 Meteor.startup(function () {
     Meteor.methods({
 
+        generateTestDevices: function(){
+
+            for (var i=1; i<5; i++){
+                Devices.insert({lat:37.493316 + 0.1 * (-0.5 + Math.random()),
+                                lng:-122.250366 + 0.1 * (-0.5 + Math.random()),
+                                serial:i});
+            }
+
+        },
+
+        shakeTestDevices: function(){
+            for (var i=1; i<5; i++){
+                Devices.update(Devices.find({serial: i}).fetch()[0]._id, {$inc: {lat: 0.01 * (-0.5 + Math.random())}});
+                Devices.update(Devices.find({serial: i}).fetch()[0]._id, {$inc: {lng: 0.01 * (-0.5 + Math.random())}});
+            }
+        },
+
+        removeAllTestDevices: function(){
+            Devices.remove({});
+        },
+
         debugEmail: function(){
             debugSendEmail();
         },
