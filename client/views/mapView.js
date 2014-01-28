@@ -766,7 +766,7 @@ function bindFencePopupElements(data, popupObject)
        $("#picker").css("background-color", prevColor);
        $('#picker-indicator').css("left", hsvValue.s*200+"px");
        $('#picker-indicator').css("top", (1-hsvValue.v)*200+"px");
-       $('#slide-indicator').css("top", Math.floor((hsvValue.h)/360*200-13)+"px");
+        $('#slide-indicator').css("top", Math.floor((hsvValue.h)/360*200-13+200)%200+"px");
 
 
         var cp = ColorPicker(document.getElementById('slide'), document.getElementById('picker'),
