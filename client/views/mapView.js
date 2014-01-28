@@ -751,15 +751,22 @@ function bindFencePopupElements(data, popupObject)
 
         // This should switch everything inside the popup to edit mode
 
-       //HIDE HERE
         $('#edit-fence-popup-data_' + data._id).hide();
 
         $('.showWithEditFencePopup_' + updatedData._id).removeClass('hidden');
 
 
+
         var prevColor = updatedData.layer.options.color;
         var currentColor = prevColor;
-        console.log(prevColor);
+
+        var hsvValue = ColorPicker.hex2hsv(prevColor);
+        console.log(hsvValue.h)
+
+       $("#picker").css("background-color", prevColor);
+       $('#picker-indicator').css("left", hsvValue.s*200+"px");
+       $('#picker-indicator').css("top", (1-hsvValue.v)*200+"px");
+       $('#slide-indicator').css("top", Math.floor((hsvValue.h)/360*200-13)+"px");
 
 
         var cp = ColorPicker(document.getElementById('slide'), document.getElementById('picker'),
@@ -773,6 +780,8 @@ function bindFencePopupElements(data, popupObject)
                 currentColor = hex;
                 Fences._collection.update(data._id, {$set:{'layer.options.color':currentColor}});
                 $('#chooseFenceColor_' + data._id).css('background-color', currentColor);
+//                console.log(hsv.h);
+                console.log(hsvValue.h);
             });
 
         $('#saveFenceColor_' + data._id).off('click').on('click', function(e){
