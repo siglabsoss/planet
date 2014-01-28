@@ -69,6 +69,7 @@
                 <p>Fence Id: {{_id}}</p>
                 <p>Color: <span class="map-popup-color" id="chooseFenceColor_{{_id}}" style="background-color: {{layer.options.color}}"></span></p>
 
+
                 <div class="showWithEditFencePopup_{{_id}} hidden">
                     <div id="color-picker" class="cp-default">
                         <div class="picker-wrapper">
@@ -79,6 +80,9 @@
                             <div id="slide" class="slide"></div>
                             <div id="slide-indicator" class="slide-indicator"></div>
                         </div>
+
+                        <input id="OpacityControl" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="10" data-slider-step="1" data-slider-value="5"/>
+
                     </div>
                     <div>
                         &nbsp;
