@@ -88,7 +88,8 @@ L.DrawToolbarLasso = L.DrawToolbar.extend({
 //    },
 
     getModeHandlers: function (map) {
-        return [
+
+        var modeHandlers = [
 //            {
 //                enabled: this.options.polyline,
 //                handler: new L.Draw.Polyline(map, this.options.polyline),
@@ -116,6 +117,12 @@ L.DrawToolbarLasso = L.DrawToolbar.extend({
 //                title: L.drawLocal.draw.toolbar.buttons.marker
 //            }
         ];
+
+        // Hack override stuff
+        modeHandlers[0].handler._initialLabelText = 'Click and drag to select.';
+        modeHandlers[0].handler._endLabelText = 'Release to finish selection.';
+
+        return modeHandlers;
     }
 //    ,
 
