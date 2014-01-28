@@ -818,6 +818,10 @@ Template.leftPanelGroups.rendered = function() {
 Template.leftPanelGroups.groups = function() {
     var flatGroups = Groups.find().fetch();
 
+    if( !Meteor.user() ) {
+        return [];
+    }
+
     var profile = Meteor.user().profile;
 
     // look at each group, set this member variable if the group is visible to the current user
