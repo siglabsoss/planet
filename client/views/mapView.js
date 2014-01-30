@@ -5,6 +5,7 @@
 // popup_width
 var mapPopupOptions = {maxWidth:600,minWidth:300};
 
+// t is the instance of the template that was rendered when the map was created, see docs for "Template.myTemplate.rendered"
 window.resize = function(t) {
     var c, h, m, top, w;
     w = window.innerWidth;
@@ -368,16 +369,15 @@ markDevicesSelected = function(selectedDevices) {
 }
 
 
-function mainMapRunOnce()
+function mainMapRunOnce(templateInstance)
 {
-    var query,
-        _this = this;
+    var query;
     key = "d4b5ecf084be4fd5b333f2bc34c1df12";
     mapStyle = "67367"; // dark blue
     mapStyle = "2172"; //lighter gmaps clone
-    window.resize(this);
+    window.resize(templateInstance);
     $(window).resize(function() {
-        return window.resize(_this);
+        return window.resize(templateInstance);
     });
     L.Icon.Default.imagePath = 'packages/leaflet/images';
     window.mapObject = L.map('map', {
@@ -595,11 +595,10 @@ function mainMapRunOnce()
     installMapViewAutorun();
 }
 
-var callMainMapRunOnce = (function(thisVar) {
+var callMainMapRunOnce = (function(templateInstance) {
     // Code inside {} will be executed once only
 
-    // parts use "this", so we need to use javascript's native call() so we can set the value of "this" for mainMapRunOnce
-    mainMapRunOnce.call(thisVar);
+    mainMapRunOnce(templateInstance)
 
 }).once();
 
@@ -610,7 +609,9 @@ Template.mainMapAndLeft.rendered = function() {
     // We need to do leaflet map stuff one time.
 
     // This function uses sugarjs runonce capability.
-    // Things are complicated by the fact that the leaflet needs "this" to be preserved
+
+    // from http://docs.meteor.com/
+    //   In the body of the callback, this is a template instance object that is unique to this occurrence of the template and persists across re-renderings.
     callMainMapRunOnce(this);
 
 };
