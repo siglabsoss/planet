@@ -9,55 +9,57 @@
 <template name="layout">
 
     <div class="navbar pop-navbar navbar-default navbar-fixed-top">
-        <div class="container">
+        <div class="navbar-inner">
+            <div class="container-fluid">
 
-            <div class="navbar-collapse collapse" id="navbar-main">
-                <ul class="nav navbar-nav navbar-left">
-                    <li>
-                        <a href="/dashboard">Map</a>
-                    </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle iron-ignore" data-toggle="dropdown">Settings <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li class="showFenceDrop">
-                                {{#if showFenceSetting}}
-                                <a href="#"><span class="glyphicon glyphicon-check font-green"></span> Show Fences</a>
-                                {{else}}
-                                <a href="#" class="font-strike"><span class="glyphicon glyphicon-remove font-red"></span> Show Fences</a>
-                                {{/if}}
-                            </li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li class="divider"></li>
-                            <li class="dropdown-header">Dropdown header</li>
-                            <li><a href="#">Separated link</a></li>
-                            <li><a href="#">One more separated link</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="/alerts">Alerts</a>
-                    </li>
-                    <li>
-                        <a href="/contacts">Contacts</a>
-                    </li>
-                    <li>
-                        <a href="">Help</a>
-                    </li>
-                    <li>
-                        <a href="{{pathFor 'userSettings'}}">Account</a>
-                    </li>
-                    <li>
-                        <!-- Force a page refresh when logging out.  (the logged out template destroys the map and it won't look right if they log back in)
-                        Adding iron-ignore prevents the router from listening to this which adds lag before browser refreshes -->
-                        <a href="/" onClick="Meteor.logout(); location.href = '/'" class="iron-ignore">Log out</a> <!--{   pathFor 'loggedOut'}-->
-                    </li>
-                </ul>
+                <div class="navbar-collapse collapse" id="navbar-main">
+                    <ul class="nav navbar-nav navbar-left">
+                        <li style="margin-left:1em">
+                            <a href="/dashboard">Map</a>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle iron-ignore" data-toggle="dropdown">Settings <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li class="showFenceDrop">
+                                    {{#if showFenceSetting}}
+                                    <a href="#"><span class="glyphicon glyphicon-check font-green"></span> Show Fences</a>
+                                    {{else}}
+                                    <a href="#" class="font-strike"><span class="glyphicon glyphicon-remove font-red"></span> Show Fences</a>
+                                    {{/if}}
+                                </li>
+                                <li><a href="#">Another action</a></li>
+                                <li><a href="#">Something else here</a></li>
+                                <li class="divider"></li>
+                                <li class="dropdown-header">Dropdown header</li>
+                                <li><a href="#">Separated link</a></li>
+                                <li><a href="#">One more separated link</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="/alerts">Alerts</a>
+                        </li>
+                        <li>
+                            <a href="/contacts">Contacts</a>
+                        </li>
+                        <li>
+                            <a href="">Help</a>
+                        </li>
+                        <li>
+                            <a href="{{pathFor 'userSettings'}}">Account</a>
+                        </li>
+                        <li>
+                            <!-- Force a page refresh when logging out.  (the logged out template destroys the map and it won't look right if they log back in)
+                            Adding iron-ignore prevents the router from listening to this which adds lag before browser refreshes -->
+                            <a href="/" onClick="Meteor.logout(); location.href = '/'" class="iron-ignore">Log out</a> <!--{   pathFor 'loggedOut'}-->
+                        </li>
+                    </ul>
 
-                <ul class="nav navbar-nav navbar-right">
-                    <!--<li><a href="http://builtwithbootstrap.com/" target="_blank">Built With Bootstrap</a></li>-->
-                    <!--<li><a href="https://wrapbootstrap.com/?ref=bsw" target="_blank">WrapBootstrap</a></li>-->
-                </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <!--<li><a href="http://builtwithbootstrap.com/" target="_blank">Built With Bootstrap</a></li>-->
+                        <!--<li><a href="https://wrapbootstrap.com/?ref=bsw" target="_blank">WrapBootstrap</a></li>-->
+                    </ul>
 
+                </div>
             </div>
         </div>
     </div>
