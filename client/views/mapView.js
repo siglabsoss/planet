@@ -5,18 +5,6 @@
 // popup_width
 var mapPopupOptions = {maxWidth:600,minWidth:300};
 
-// t is the instance of the template that was rendered when the map was created, see docs for "Template.myTemplate.rendered"
-window.resize = function(t) {
-    var c, h, m, top, w;
-    w = window.innerWidth;
-    h = window.innerHeight;
-    top = t.find('#map').offsetTop;
-    var leftPanelWidth = $('#leftMapPanel').width();
-    c = w - leftPanelWidth - 1;
-    m = (h - top) - 65;
-    t.find('#main_map_container').style.width = "" + c + "px";
-    return t.find('#map').style.height = "" + m + "px";
-};
 
 
 
@@ -375,9 +363,35 @@ function mainMapRunOnce(templateInstance)
     key = "d4b5ecf084be4fd5b333f2bc34c1df12";
     mapStyle = "67367"; // dark blue
     mapStyle = "2172"; //lighter gmaps clone
-    window.resize(templateInstance);
+
+    var mapDom = templateInstance.find('#map'); // this is DOM element I think
+    var containerDom = templateInstance.find('#main_map_container');
+    var $leftPanel = $('#leftMapPanel');
+
+
+    var resizeMap = function(){
+        // t is the instance of the template that was rendered when the map was created, see docs for "Template.myTemplate.rendered"
+        var containerWidth, h, m, top, w;
+        w = window.innerWidth;
+        h = window.innerHeight;
+        top = mapDom.offsetTop;
+        var leftPanelWidth = $leftPanel.width();
+        containerWidth = w - leftPanelWidth - 1;
+        m = (h - top) - 65;
+
+        // set the width of the container
+        containerDom.style.width = "" + containerWidth + "px";
+
+        // but set the height on the map itself (why? who cares?)
+        mapDom.style.height = "" + m + "px";
+    };
+
+
+
+
+    resizeMap();
     $(window).resize(function() {
-        return window.resize(templateInstance);
+        resizeMap();
     });
     L.Icon.Default.imagePath = 'packages/leaflet/images';
     window.mapObject = L.map('map', {
