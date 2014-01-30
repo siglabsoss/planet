@@ -386,12 +386,20 @@ function mainMapRunOnce(templateInstance)
         mapDom.style.height = "" + m + "px";
     };
 
-
-
-
-    resizeMap();
-    $(window).resize(function() {
+    // This waits N milliseconds for the map to resize
+    // If this number is too large the user can totally prevent resizing by keeping the mouse in motion while draggin window edge
+    // Set lower to improve "jerky" map resizing as window moves
+    var debouncedResize = (function(arg1) {
         resizeMap();
+    }).debounce(50);
+
+
+    // size it once now
+    resizeMap();
+
+    // and resize with window
+    $(window).resize(function() {
+        debouncedResize();
     });
     L.Icon.Default.imagePath = 'packages/leaflet/images';
     window.mapObject = L.map('map', {
