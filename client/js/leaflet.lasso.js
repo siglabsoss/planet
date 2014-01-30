@@ -1,5 +1,6 @@
 // RectangleLasso is a copy of L.Draw.Rectangle
 // this is basically a copy of the entire class with the same extension pattern as the original
+// this has some rules in pop-planet.less which are marked
 L.Draw.RectangleLasso = L.Draw.SimpleShape.extend({
     statics: {
         TYPE: 'rectangle'
@@ -181,7 +182,7 @@ L.Control.DrawLasso = L.Control.extend({
         // Initialize toolbars
         if (L.DrawToolbar && this.options.draw) {
             toolbar = new L.DrawToolbarLasso(this.options.draw);
-//            toolbar._toolbarClass = "myClassPrefix2"; // this plus a css rule can select the icon
+            toolbar._toolbarClass = "leaflet-draw-edit"; // see pop-planet.less
             id = L.stamp(toolbar);
             this._toolbars[id] = toolbar;
 
