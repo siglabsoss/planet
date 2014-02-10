@@ -201,6 +201,9 @@ function applyLayerBoundsFromDoc(layer, document)
     }
 }
 
+// file scope
+var renderFencePopupFunction = [];
+
 function buildLeafletLayerFromDoc(document)
 {
     var pointList = getLayerShapeForDoc(document);
@@ -231,16 +234,22 @@ function buildLeafletLayerFromDoc(document)
     // build a popup object with empty content
     var popup = new L.popup(mapPopupOptions).setContent("");
 
+    // When it's opened, meteor re-renders contents
+    // if this function is called elsewhere, pass null.  We assume that the popup is already open
     var popupOpened = function(event) {
+
+        var updatedDocument = Fences.findOne(document._id);
         // (re) render popup content
         // Wrapping this with Meteor.render() seems to break clicking the same geofence twice without clicking away in-between
-        popup.setContent(Template.geoFencePopup(Fences.findOne(document._id)));
+        popup.setContent(Template.geoFencePopup(updatedDocument));
 
-        // call the normal popup open
-        event.target._openPopup(event);
+        if( event ) {
+            // call the normal popup open
+            event.target._openPopup(event);
+        }
 
         // Bind elements in the popup
-        bindFencePopupElements();
+        bindFencePopupElements(updatedDocument, popup);
     };
 
     // normal popup binding
@@ -251,6 +260,9 @@ function buildLeafletLayerFromDoc(document)
 
     // add our own handler
     o.on('click', popupOpened, o);
+
+    // save if we want to re-render this popup later
+    renderFencePopupFunction[document._id] = popupOpened;
 
     // I couldn't get this to work for the life of me
 //    o._popupHandlersAdded = true;
@@ -712,7 +724,11 @@ function bindDevicePopupElements(document)
     });
 }
 
-function bindFencePopupElements()
+// file scope
+var FenceNameEdit = [];
+
+// Called to bind stuff in the fence popup.  First param is the document, second is the leaflet popup object
+function bindFencePopupElements(data, popupObject)
 {
 
     $('.deleteFenceLink').off('click').on('click', function(e){
@@ -725,6 +741,147 @@ function bindFencePopupElements()
             // Do nothing!
         }
     });
+
+    $('#chooseFenceColor_' + data._id).off('click').on('click', function(e){
+        console.log('here');
+        //Fences.update(data._id, {$set:{'layer.options.color':'#000'}});
+
+
+    });
+
+
+    $('#edit-fence-popup-data_' + data._id).off('click').on('click', function(e){
+
+        // re-fetch the document because it may have changed since we bound the popup to the fences
+
+        FenceNameEdit = [];
+        FenceNameEdit.push(
+            PopEditField.TextInput('#fence_name_'+data._id, {
+                editingCollection:Fences,
+                data:data,
+                fieldName:"name"
+            })
+        );
+
+        var updatedData = Fences.findOne(data._id);
+        //FIXME: how to disable the click close of the popup?
+
+
+        // This should switch everything inside the popup to edit mode
+
+        $('#edit-fence-popup-data_' + data._id).hide();
+        $('.showWithEditFencePopup_' + updatedData._id).removeClass('hidden');
+
+
+        var prevColor = updatedData.layer.options.color;
+        var currentColor = prevColor;
+        var prevOpacity = updatedData.layer.options.fillOpacity;
+        var currentOpacity = prevOpacity;
+
+
+        var $opacitySelector = $('#OpacityControl');
+
+
+        $opacitySelector.attr('data-slider-value', Math.floor(currentOpacity*10));
+
+        $opacitySelector.slider2(
+            {
+                formater: function(value) {
+                    currentOpacity = value/10;
+
+	 				// use _collection to update clientside only
+                    if(value === 0) {
+                        Fences._collection.update(data._id, {$set:{'layer.options.fill':false}});
+                    } else {
+                        Fences._collection.update(data._id, {$set:{'layer.options.fill':true}});
+                    }
+                    Fences._collection.update(data._id, {$set:{'layer.options.fillOpacity':currentOpacity}});
+                }
+            }
+        );
+
+        var hsvValue = ColorPicker.hex2hsv(prevColor);
+
+
+        $("#picker").css("background-color", prevColor);
+        $('#picker-indicator').css("left", hsvValue.s*200+"px");
+        $('#picker-indicator').css("top", (1-hsvValue.v)*200+"px");
+        $('#slide-indicator').css("top", Math.floor((hsvValue.h)/360*200-13+200)%200+"px");
+
+
+        var cp = ColorPicker(document.getElementById('slide'), document.getElementById('picker'),
+            function(hex, hsv, rgb, mousePicker, mouseSlide) {
+
+                ColorPicker.positionIndicators(
+                    document.getElementById('slide-indicator'),
+                    document.getElementById('picker-indicator'),
+                    mouseSlide, mousePicker
+                );
+                currentColor = hex;
+                Fences._collection.update(data._id, {$set:{'layer.options.color':currentColor}});
+                $('#chooseFenceColor_' + data._id).css('background-color', currentColor);
+
+            });
+
+        $('#saveFenceColor_' + data._id).off('click').on('click', function(e){
+            prevColor = currentColor;
+
+			// Update server side and client side
+            Fences.update(data._id, {$set:{'layer.options.color':currentColor}});
+            Fences.update(data._id, {$set:{'layer.options.fillOpacity':currentOpacity}});
+            if(currentOpacity === 0.0) {
+                Fences.update(data._id, {$set:{'layer.options.fill':false}});
+            } else {
+                Fences.update(data._id, {$set:{'layer.options.fill':true}});
+            }
+            $('.showWithEditFencePopup_' + data._id).addClass('hidden');
+            $('svg').slice(1).remove();
+
+
+            var updateSuccess = function() {
+                // re-render popup after data is saved
+                renderFencePopupFunction[data._id](null);
+            };
+
+            $('#edit-fence-popup-data_' + data._id).show();
+            FenceNameEdit.each(function(handle){
+                if( typeof handle === "object") {
+                    handle.saveChanges(updateSuccess);
+                }
+            });
+
+        });
+
+        $('#cancelFenceColor_' + data._id).off('click').on('click', function(e){
+            console.log('cancel');
+            Fences._collection.update(data._id, {$set:{'layer.options.color':prevColor}});
+            Fences._collection.update(data._id, {$set:{'layer.options.fillOpacity':prevOpacity}});
+            if(prevColor === 0.0) {
+                Fences._collection.update(data._id, {$set:{'layer.options.fill':false}});
+            } else {
+                Fences._collection.update(data._id, {$set:{'layer.options.fill':true}});
+            }
+            $('#chooseFenceColor_' + data._id).css('background-color', prevColor);
+            $('.showWithEditFencePopup_' + data._id).addClass('hidden');
+            $('svg').slice(1).remove();
+            $('#edit-fence-popup-data_' + data._id).show();
+            FenceNameEdit.each(function(handle){
+                if( typeof handle === "object") {
+                    handle.destroy();
+                }
+            });
+
+            // re-render popup to revert data
+            renderFencePopupFunction[data._id](null);
+
+            FenceNameEdit = [];
+        });
+
+    });
+
+
+
+
 }
 
 Template.leftPanelGroup.collapsedClass = function() {
