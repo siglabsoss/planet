@@ -1,24 +1,23 @@
 <template name="mainMapAndLeft">
-    <div class="row shownOnlyWithMap hidden">
-        <div class="col-md-3 text-left shownOnlyWithMap hidden" id="leftMapPanel">
-
+    <div class="container-fluid">
+        <div class="row shownOnlyWithMap hidden" id="mainBootstrapRow">
+            <div class="col-md-3 text-left shownOnlyWithMap hidden" id="leftMapPanel">
                 <div class="leftPanelHeading">
                     <h2>Groups</h2>
                 </div>
                 {{>leftPanelGroups}}
-
-        </div>
-        <div class="col-md-9 black-background shownOnlyWithMap hidden" id="mapBootstrapContainer">
-            {{>flashAlert}}
-            {{#constant}}
-            <div id="main_map_container" class="map_container shownOnlyWithMap hidden">
-                <div id="map" class="map"></div>
             </div>
-            {{/constant}}
-            {{>mapBottomPanel}}
+            <div class="col-md-9 shownOnlyWithMap hidden" id="mapBootstrapContainer">
+                {{>flashAlert}}
+                {{#constant}}
+                <div id="main_map_container" class="map_container shownOnlyWithMap hidden">
+                    <div id="map" class="map"></div>
+                </div>
+                {{/constant}}
+                {{>mapBottomPanel}}
+            </div>
         </div>
     </div>
-
 </template>
 
 

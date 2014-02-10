@@ -366,24 +366,26 @@ function mainMapRunOnce(templateInstance)
 
     var mapDom = templateInstance.find('#map'); // this is DOM element I think
     var containerDom = templateInstance.find('#main_map_container');
-    var $leftPanel = $('#leftMapPanel');
-
+    var $container = $('#mapBootstrapContainer');
 
     var resizeMap = function(){
         // t is the instance of the template that was rendered when the map was created, see docs for "Template.myTemplate.rendered"
-        var containerWidth, h, m, top, w;
-        w = window.innerWidth;
+        var containerWidth, h, mapHeight, containerWidth, offset;
+
         h = window.innerHeight;
-        top = mapDom.offsetTop;
-        var leftPanelWidth = $leftPanel.width();
-        containerWidth = w - leftPanelWidth - 1;
-        m = (h - top) - 65;
+
+        offset = $container.offset();
+
+        // the -1 is correct for a wide window, and incorrect for a narrow one, but that's ok
+        mapHeight = h - offset.top - 1;   // full size of window minus map's upper left corner
+        containerWidth = $container.width(); // full width of bootstrap div
+
 
         // set the width of the container
         containerDom.style.width = "" + containerWidth + "px";
 
         // but set the height on the map itself (why? who cares?)
-        mapDom.style.height = "" + m + "px";
+        mapDom.style.height = "" + mapHeight + "px";
     };
 
     // This waits N milliseconds for the map to resize
