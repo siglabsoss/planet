@@ -783,7 +783,6 @@ function bindFencePopupElements(data, popupObject)
         var prevOpacity = updatedData.layer.options.fillOpacity;
         var currentOpacity = prevOpacity;
 
-        console.log(Math.floor(currentOpacity*10));
 
         var $opacitySelector = $('#OpacityControl');
 
@@ -794,9 +793,14 @@ function bindFencePopupElements(data, popupObject)
             {
                 formater: function(value) {
                     currentOpacity = value/10;
-                    console.log(Math.floor(currentOpacity*10));
-                    console.log(value);
-                    Fences._collection.update(data._id, {$set:{'layer.options.fillOpacity':currentOpacity}});
+                    if(value === 0){
+                        Fences._collection.update(data._id, {$set:{'layer.options.fill':false}});
+                        Fences._collection.update(data._id, {$set:{'layer.options.fillOpacity':currentOpacity}});
+                    }
+                    else{
+                        Fences._collection.update(data._id, {$set:{'layer.options.fill':true}});
+                        Fences._collection.update(data._id, {$set:{'layer.options.fillOpacity':currentOpacity}});
+                    }
                 }
             }
         );
@@ -825,10 +829,15 @@ function bindFencePopupElements(data, popupObject)
             });
 
         $('#saveFenceColor_' + data._id).off('click').on('click', function(e){
-            console.log('save');
             prevColor = currentColor;
             Fences.update(data._id, {$set:{'layer.options.color':currentColor}});
             Fences.update(data._id, {$set:{'layer.options.fillOpacity':currentOpacity}});
+            if(currentOpacity === 0.0){
+                Fences.update(data._id, {$set:{'layer.options.fill':false}});
+            }
+            else{
+                Fences.update(data._id, {$set:{'layer.options.fill':true}});
+            }
             $('.showWithEditFencePopup_' + data._id).addClass('hidden');
             $('svg').slice(1).remove();
 
@@ -851,6 +860,12 @@ function bindFencePopupElements(data, popupObject)
             console.log('cancel');
             Fences._collection.update(data._id, {$set:{'layer.options.color':prevColor}});
             Fences._collection.update(data._id, {$set:{'layer.options.fillOpacity':prevOpacity}});
+            if(prevColor === 0.0){
+                Fences._collection.update(data._id, {$set:{'layer.options.fill':false}});
+            }
+            else{
+                Fences._collection.update(data._id, {$set:{'layer.options.fill':true}});
+            }
             $('#chooseFenceColor_' + data._id).css('background-color', prevColor);
             $('.showWithEditFencePopup_' + data._id).addClass('hidden');
             $('svg').slice(1).remove();
