@@ -368,6 +368,8 @@ markDevicesSelected = function(selectedDevices) {
     Devices._collection.update({clientSelected:true, _id:{$nin:deviceIds}}, {$set:{clientSelected:false}}, {multi:true});
 }
 
+// file scope
+var resizeMap;
 
 function mainMapRunOnce(templateInstance)
 {
@@ -380,7 +382,7 @@ function mainMapRunOnce(templateInstance)
     var containerDom = templateInstance.find('#main_map_container');
     var $container = $('#mapBootstrapContainer');
 
-    var resizeMap = function(){
+    resizeMap = function(){
         // t is the instance of the template that was rendered when the map was created, see docs for "Template.myTemplate.rendered"
         var containerWidth, h, mapHeight, containerWidth, offset;
 
@@ -398,6 +400,11 @@ function mainMapRunOnce(templateInstance)
 
         // but set the height on the map itself (why? who cares?)
         mapDom.style.height = "" + mapHeight + "px";
+
+        // tell leaflet things have changed.  Without this, there will be grey tiles in a newly expanded map
+        if( window && window.mapObject ) {
+            window.mapObject.invalidateSize();
+        }
     };
 
     // This waits N milliseconds for the map to resize
@@ -684,7 +691,7 @@ Deps.autorun(function(){
 
         // required if showing map after putting in hidden div
         if( window && window.mapObject ) {
-            window.mapObject.invalidateSize();
+            resizeMap();
         }
 
     } else {
