@@ -65,7 +65,8 @@
         <div class="tab-content">
             <div class="tab-pane fade active in" id="home">
                 <span class="pull-right"><i class="fa fa-pencil edit-pencil-button" id="edit-fence-popup-data_{{_id}}"></i></span>
-                <p>name: {{name}}</p>
+                <p>name: <span id="fence_name_{{_id}}" data-has-class="" data-placeholder-text="Name.">{{name}}</span></p>
+
                 <p>Fence Id: {{_id}}</p>
                 <p>Color: <span class="map-popup-color" id="chooseFenceColor_{{_id}}" style="background-color: {{layer.options.color}}"></span></p>
 

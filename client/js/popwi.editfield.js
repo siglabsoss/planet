@@ -196,7 +196,7 @@
             ,discardChanges: function() {
                 this.dataPendingChanges = null;
             }
-            ,saveChanges: function() {
+            ,saveChanges: function(callback) {
                 var self = this;
                 // all the saved changes to the select2 are built into a function, and added to a list of pending changes
                 if( self.dataPendingChanges && Array.isArray(self.dataPendingChanges) ) {
@@ -208,6 +208,10 @@
                         } // if
                     }); // each functions
                 } // if
+
+                if( typeof callback === "function" ) {
+                    callback.call(this);
+                }
             }
             ,destroy: function() {
                 var self;
@@ -294,6 +298,11 @@
                     // Update model
                     self.editingCollection.update(self.data._id, query);
 
+                    // callback after data is saved
+                    if( self.updateCallback && typeof self.updateCallback === "function") {
+                        self.updateCallback.call(self);
+                    }
+
                     return true;
                 };
 
@@ -307,7 +316,11 @@
                 // Now that we've shown it, we can do this if we want
                 //   $selector.data('editable').input.$input.val()  or .addClass() or whatever
             }
-            ,saveChanges: function() {
+            ,saveChanges: function(callback) {
+
+                // sets member variable on our class so that self.bootstrapEditableOptions.success above can call the callback
+                this.updateCallback = callback;
+
                 this.$selector.editable('submit');
             }
             ,destroy: function() {

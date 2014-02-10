@@ -201,6 +201,9 @@ function applyLayerBoundsFromDoc(layer, document)
     }
 }
 
+// file scope
+var renderFencePopupFunction = [];
+
 function buildLeafletLayerFromDoc(document)
 {
     var pointList = getLayerShapeForDoc(document);
@@ -241,8 +244,10 @@ function buildLeafletLayerFromDoc(document)
         // Wrapping this with Meteor.render() seems to break clicking the same geofence twice without clicking away in-between
         popup.setContent(Template.geoFencePopup(updatedDocument));
 
-        // call the normal popup open
-        event.target._openPopup(event);
+        if( event ) {
+            // call the normal popup open
+            event.target._openPopup(event);
+        }
 
         // Bind elements in the popup
         bindFencePopupElements(updatedDocument, popup);
@@ -256,6 +261,9 @@ function buildLeafletLayerFromDoc(document)
 
     // add our own handler
     o.on('click', popupOpened, o);
+
+    // save if we want to re-render this popup later
+    renderFencePopupFunction[document._id] = popupOpened;
 
     // I couldn't get this to work for the life of me
 //    o._popupHandlersAdded = true;
@@ -717,6 +725,9 @@ function bindDevicePopupElements(document)
     });
 }
 
+// file scope
+var FenceNameEdit = [];
+
 // Called to bind stuff in the fence popup.  First param is the document, second is the leaflet popup object
 function bindFencePopupElements(data, popupObject)
 {
@@ -743,6 +754,15 @@ function bindFencePopupElements(data, popupObject)
     $('#edit-fence-popup-data_' + data._id).off('click').on('click', function(e){
 
         // re-fetch the document because it may have changed since we bound the popup to the fences
+
+        FenceNameEdit = [];
+        FenceNameEdit.push(
+            PopEditField.TextInput('#fence_name_'+data._id, {
+                editingCollection:Fences,
+                data:data,
+                fieldName:"name"
+            })
+        );
 
         var updatedData = Fences.findOne(data._id);
         //Disable the click close of the popup
@@ -784,9 +804,9 @@ function bindFencePopupElements(data, popupObject)
         var hsvValue = ColorPicker.hex2hsv(prevColor);
 
 
-       $("#picker").css("background-color", prevColor);
-       $('#picker-indicator').css("left", hsvValue.s*200+"px");
-       $('#picker-indicator').css("top", (1-hsvValue.v)*200+"px");
+        $("#picker").css("background-color", prevColor);
+        $('#picker-indicator').css("left", hsvValue.s*200+"px");
+        $('#picker-indicator').css("top", (1-hsvValue.v)*200+"px");
         $('#slide-indicator').css("top", Math.floor((hsvValue.h)/360*200-13+200)%200+"px");
 
 
@@ -811,7 +831,20 @@ function bindFencePopupElements(data, popupObject)
             Fences.update(data._id, {$set:{'layer.options.fillOpacity':currentOpacity}});
             $('.showWithEditFencePopup_' + data._id).addClass('hidden');
             $('svg').slice(1).remove();
+
+
+            var updateSuccess = function() {
+                // re-render popup after data is saved
+                renderFencePopupFunction[data._id](null);
+            };
+
             $('#edit-fence-popup-data_' + data._id).show();
+            FenceNameEdit.each(function(handle){
+                if( typeof handle === "object") {
+                    handle.saveChanges(updateSuccess);
+                }
+            });
+
         });
 
         $('#cancelFenceColor_' + data._id).off('click').on('click', function(e){
@@ -822,6 +855,16 @@ function bindFencePopupElements(data, popupObject)
             $('.showWithEditFencePopup_' + data._id).addClass('hidden');
             $('svg').slice(1).remove();
             $('#edit-fence-popup-data_' + data._id).show();
+            FenceNameEdit.each(function(handle){
+                if( typeof handle === "object") {
+                    handle.destroy();
+                }
+            });
+
+            // re-render popup to revert data
+            renderFencePopupFunction[data._id](null);
+
+            FenceNameEdit = [];
         });
 
     });
