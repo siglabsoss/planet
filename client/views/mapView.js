@@ -5,17 +5,6 @@
 // popup_width
 var mapPopupOptions = {maxWidth:600,minWidth:300};
 
-window.resize = function(t) {
-    var c, h, m, top, w;
-    w = window.innerWidth;
-    h = window.innerHeight;
-    top = t.find('#map').offsetTop;
-    var leftPanelWidth = $('#leftMapPanel').width();
-    c = w - leftPanelWidth - 1;
-    m = (h - top) - 65;
-    t.find('#main_map_container').style.width = "" + c + "px";
-    return t.find('#map').style.height = "" + m + "px";
-};
 
 
 
@@ -380,16 +369,51 @@ markDevicesSelected = function(selectedDevices) {
 }
 
 
-function mainMapRunOnce()
+function mainMapRunOnce(templateInstance)
 {
-    var query,
-        _this = this;
+    var query;
     key = "d4b5ecf084be4fd5b333f2bc34c1df12";
     mapStyle = "67367"; // dark blue
     mapStyle = "2172"; //lighter gmaps clone
-    window.resize(this);
+
+    var mapDom = templateInstance.find('#map'); // this is DOM element I think
+    var containerDom = templateInstance.find('#main_map_container');
+    var $container = $('#mapBootstrapContainer');
+
+    var resizeMap = function(){
+        // t is the instance of the template that was rendered when the map was created, see docs for "Template.myTemplate.rendered"
+        var containerWidth, h, mapHeight, containerWidth, offset;
+
+        h = window.innerHeight;
+
+        offset = $container.offset();
+
+        // the -1 is correct for a wide window, and incorrect for a narrow one, but that's ok
+        mapHeight = h - offset.top - 1;   // full size of window minus map's upper left corner
+        containerWidth = $container.width(); // full width of bootstrap div
+
+
+        // set the width of the container
+        containerDom.style.width = "" + containerWidth + "px";
+
+        // but set the height on the map itself (why? who cares?)
+        mapDom.style.height = "" + mapHeight + "px";
+    };
+
+    // This waits N milliseconds for the map to resize
+    // If this number is too large the user can totally prevent resizing by keeping the mouse in motion while draggin window edge
+    // Set lower to improve "jerky" map resizing as window moves
+    var debouncedResize = (function(arg1) {
+        resizeMap();
+    }).debounce(50);
+
+
+    // size it once now
+    resizeMap();
+
+    // and resize with window
     $(window).resize(function() {
-        return window.resize(_this);
+        debouncedResize();
     });
     L.Icon.Default.imagePath = 'packages/leaflet/images';
     window.mapObject = L.map('map', {
@@ -470,6 +494,16 @@ function mainMapRunOnce()
                 onSelectDragChange:function(bounds) {
                     var selected = findDevicesInBounds(bounds);
                     markDevicesSelected(selected);
+                },
+                onToolEnabled:function() {
+                    clickableMapBottomPanel(false);
+                    showMapBottomPanel(true);
+
+                },
+                onToolDisabled:function() {
+                    console.log('disabled');
+//                    showMapBottomPanel(false);
+                    clickableMapBottomPanel(true);
                 }
             },
             circle: false,
@@ -597,11 +631,10 @@ function mainMapRunOnce()
     installMapViewAutorun();
 }
 
-var callMainMapRunOnce = (function(thisVar) {
+var callMainMapRunOnce = (function(templateInstance) {
     // Code inside {} will be executed once only
 
-    // parts use "this", so we need to use javascript's native call() so we can set the value of "this" for mainMapRunOnce
-    mainMapRunOnce.call(thisVar);
+    mainMapRunOnce(templateInstance)
 
 }).once();
 
@@ -612,7 +645,9 @@ Template.mainMapAndLeft.rendered = function() {
     // We need to do leaflet map stuff one time.
 
     // This function uses sugarjs runonce capability.
-    // Things are complicated by the fact that the leaflet needs "this" to be preserved
+
+    // from http://docs.meteor.com/
+    //   In the body of the callback, this is a template instance object that is unique to this occurrence of the template and persists across re-renderings.
     callMainMapRunOnce(this);
 
 };
@@ -1010,4 +1045,46 @@ Template.leftPanelGroup.deviceCount = function() {
 // Search for events that apply to this device.  Note that we don't call .find().fetch().length, instead use .find().count();
 Template.devicePopup.deviceFenceEvents = function () {
     return Events.find({type:"deviceFence","event.deviceId":this._id}).count();
+}
+
+showMapBottomPanel = function(show) {
+
+    var $selector = $("#mainMapBottomPanel");
+
+    var bottomPanelHeight = "200px";//$selector.find('.panel').height();
+    var showTime = 500; // ms
+    var hideTime = 300;
+
+    if( show ) {
+        $selector.removeClass('hidden');
+        $selector.animate({height: bottomPanelHeight, opacity: 1.0}, showTime);
+    } else {
+        $selector.animate({height: "0px", opacity:0.3}, hideTime, "swing", function() {
+            $selector.addClass('hidden');
+                });
+    }
+}
+
+clickableMapBottomPanel = function(clickable) {
+
+    var $selector = $("#mainMapBottomPanel");
+
+    if( clickable) {
+        $selector.removeClass('disable-mouse-events');
+    } else {
+        $selector.addClass('disable-mouse-events');
+    }
+}
+
+Template.mapBottomPanel.events({
+    'click .close-map-bottom-panel':function(e) {
+        showMapBottomPanel(false);
+    },
+    'click .map-bottom-panel-deslect-all':function(e) {
+        Devices._collection.update({clientSelected:true}, {$set:{clientSelected:false}}, {multi:true});
+    }
+});
+
+Template.mapBottomPanel.selectedDeviceCount = function() {
+    return Devices.find({clientSelected:true}).count();
 }

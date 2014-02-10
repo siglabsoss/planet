@@ -1,23 +1,51 @@
 <template name="mainMapAndLeft">
-    <div class="row shownOnlyWithMap hidden">
-        <div class="col-md-3 text-left shownOnlyWithMap hidden" id="leftMapPanel">
-
+    <div class="container-fluid">
+        <div class="row shownOnlyWithMap hidden" id="mainBootstrapRow">
+            <div class="col-md-3 text-left shownOnlyWithMap hidden" id="leftMapPanel">
                 <div class="leftPanelHeading">
                     <h2>Groups</h2>
                 </div>
                 {{>leftPanelGroups}}
-
-        </div>
-        <div class="col-md-9 black-background shownOnlyWithMap hidden" id="mapBootstrapContainer">
-            {{>flashAlert}}
-            {{#constant}}
-            <div id="main_map_container" class="map_container shownOnlyWithMap hidden">
-                <div id="map" class="map"></div>
             </div>
-            {{/constant}}
+            <div class="col-md-9 shownOnlyWithMap hidden" id="mapBootstrapContainer">
+                {{>flashAlert}}
+                {{#constant}}
+                <div id="main_map_container" class="map_container shownOnlyWithMap hidden">
+                    <div id="map" class="map"></div>
+                </div>
+                {{/constant}}
+                {{>mapBottomPanel}}
+            </div>
         </div>
     </div>
+</template>
 
+
+
+<template name="mapBottomPanel">
+    <!-- This span does not have shownOnlyWithMap because we don't want the Deps.autorun in mapView.js to control the visiblity of this -->
+    <div class="col-md-11 hidden" id="mainMapBottomPanel">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                {{#isolate}}
+                <span class="col-md-4">
+                    <div>Selected {{selectedDeviceCount}} devices.</div>
+                    <div style="min-height: 40px">
+                    {{#if selectedDeviceCount}}
+                    <button type="button" class="btn btn-default btn-xs map-bottom-panel-deslect-all">Deslect All</button>
+                    {{else}}
+                    <br>
+                    {{/if}}
+                    </div>
+                </span>
+                <span class="col-md-4">y</span>
+                <span class="pull-right">
+                    <i class="fa fa-times close-map-bottom-panel"></i>
+                </span>
+                {{/isolate}}
+            </div>
+        </div>
+    </div>
 </template>
 
 

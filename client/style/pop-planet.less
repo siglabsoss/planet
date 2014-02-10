@@ -47,6 +47,10 @@ body {
     background-color: #000;
 }
 
+.trans-background {
+  background-color: fade(#000, 20%);
+}
+
 .grey-text {
     color: #ccc;
 }
@@ -107,7 +111,8 @@ body {
 }
 
 #mapBootstrapContainer {
-    padding: 1px;
+  padding: 0px;
+  margin: 0px;
 }
 
 .leftPanelHeading {
@@ -115,7 +120,7 @@ body {
 }
 
 #leftMapPanel {
-    padding-right: 0px;
+    padding: 0px;
 }
 
 .leftPanelGroup {
@@ -185,4 +190,24 @@ ol.leftPanelGroupList {
 
 .spacer-bottom {
   margin-bottom:280px;
+}
+
+#mainMapBottomPanel {
+  position: absolute;
+  bottom: 0px;
+  height: 0px;
+  padding-left: 0px;
+}
+
+.disable-mouse-events {
+  pointer-events:none;
+}
+
+// Added for the leaflet.lasso.js file
+.leaflet-draw-toolbar .leaflet-draw-edit-rectangle {
+  background-position: -152px -2px;
+}
+
+#mainBootstrapRow {
+  margin: 0px;
 }
