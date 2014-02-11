@@ -34,7 +34,7 @@ Meteor.startup(function () {
             var spawnPoint = {lat:37.774035,lng:-122.419281};
             var updateTimeInterval = 500;
             // rand must be below this to move a pin, 1 is full move
-            var randomChance = 0.01;
+            var randomChance = 0.005;
             // random movement maximum in lat/lng coords
             var wanderDistance = 0.0033;
 
