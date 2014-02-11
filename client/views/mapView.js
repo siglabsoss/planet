@@ -681,6 +681,12 @@ Template.geoFencePopupDevices.deviceListTruncated = function() {
     }
 };
 
+Template.geoFencePopup.niceAlpha = function() {
+    return Math.round(this.layer.options.fillOpacity*100);
+}
+
+
+
 
 Deps.autorun(function(){
 
