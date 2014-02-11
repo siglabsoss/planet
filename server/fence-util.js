@@ -138,6 +138,14 @@ processFences = function(deviceIds) {
 };
 
 
+resetDevicesInsideFences = function() {
+    var fenceList = Fences.find().fetch();
+
+    for( var i in fenceList ) {
+        var f = fenceList[i];
+        Fences.update(f._id, {$set:{'devices': []}})
+    }
+}
 
 
 

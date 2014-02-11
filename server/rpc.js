@@ -6,10 +6,15 @@ var testDeviceCount = 100;
 Meteor.startup(function () {
     Meteor.methods({
 
-        generateTestDevices: function(){
+
+
+        createTestDevices: function() {
+
+            var spawnPoint = {lat:37.774035,lng:-122.419281};
+
             for (var i=1; i<testDeviceCount; i++){
-                Devices.insert({lat:37.493316 + 0.1 * (-0.5 + Math.random()),
-                                lng:-122.250366 + 0.1 * (-0.5 + Math.random()),
+                Devices.insert({lat:spawnPoint.lat + 0.1 * (-0.5 + Math.random()),
+                                lng:spawnPoint.lng + 0.1 * (-0.5 + Math.random()),
                                 serial:i});
             }
         },
@@ -95,7 +100,7 @@ Meteor.startup(function () {
 
 
 
-        removeAllTestDevices: function(){
+        destroyAllDevices: function(){
             Devices.remove({});
         },
 
@@ -127,6 +132,9 @@ Meteor.startup(function () {
 
         serverSideProcessFences : function(deviceIds) {
             asyncProcessFences(deviceIds);
+        },
+        resetServerSideFences : function() {
+            resetDevicesInsideFences();
         },
 
         updateUserObject : function(o) {
