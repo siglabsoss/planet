@@ -53,6 +53,10 @@ Meteor.startup(function () {
                         continue;
 
                     var device = Devices.findOne({serial: i});
+
+                    if( !device )
+                        continue;
+
                     var pointObject = coordJSTS(device);
 
                     // ok to pass null for 3rd param unless it's a circle (oh god)
