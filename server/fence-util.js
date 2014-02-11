@@ -67,6 +67,29 @@ asyncProcessFences = function(deviceIds) {
     Meteor.setTimeout(function(){processFences(deviceIds);}, 1);
 }
 
+// call this to check inside/outside of point and rec/poly/cir
+// returns true / false.  returns null if type was not one of the three options
+deviceInsideFence = function(type, deviceDocument, fenceDocument, fenceObject) {
+    var deviceInside = null;
+
+    if( type === "rectangle" || type === "polygon" ) {
+        // this expects lat and LNG
+        var pointObject = coordJSTS(deviceDocument);
+
+        deviceInside = pointObject.within(fenceObject);
+    }
+
+    if( type === "circle" ) {
+        // dist is distance in meters
+        var dist = haversineDistanceKM(deviceDocument, fenceDocument.layer._latlng) * 1000;
+
+        // _mRadius is the radius of the circle in meters
+        deviceInside = (dist <= fenceDocument.layer._mRadius);
+    }
+
+    return deviceInside;
+}
+
 // this should always be called async
 // this is a function that looks at an array of devices ids (or every device) and every fence and updates fence.devices property
 // pass null to search every device (could be used for server startup)
@@ -100,22 +123,7 @@ processFences = function(deviceIds) {
         for( var j in deviceList ) {
             var d = deviceList[j];
 
-            var deviceInside = null;
-
-            if( type === "rectangle" || type === "polygon" ) {
-                // this expects lat and LNG
-                var pointObject = coordJSTS(d);
-
-                deviceInside = pointObject.within(fenceObject);
-            }
-
-            if( type === "circle" ) {
-                // dist is distance in meters
-                var dist = haversineDistanceKM(d, f.layer._latlng) * 1000;
-
-                // _mRadius is the radius of the circle in meters
-                deviceInside = (dist <= f.layer._mRadius);
-            }
+            var deviceInside = deviceInsideFence(type, d, f, fenceObject);
 
             if( deviceInside != null ) {
                 // run query
