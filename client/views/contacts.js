@@ -184,5 +184,8 @@ Template.contacts.events({
             // Do nothing!
         }
 
+    },
+    'click .contact-form-test-sms': function(e) {
+        Meteor.call('testContactSMS', this._id );
     }
 });

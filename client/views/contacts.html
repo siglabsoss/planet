@@ -35,7 +35,11 @@
 
                     <div class="list-group">
                         <a href="#" class="list-group-item">Emails: <span id="contactEmailList_{{_id}}" data-name="emails">{{emails}}</span></a>
-                        <a href="#" class="list-group-item">SMS: <span id="contactSmsList_{{_id}}" data-name="sms">{{sms}}</span></a>
+                        <a href="#" class="list-group-item">SMS: <span id="contactSmsList_{{_id}}" data-name="sms">{{sms}}</span>
+                            {{#unless viewEditing}}
+                            <span class="pull-right"><i class="fa fa-forward contact-form-test-sms"></i>
+                            {{/unless}}
+                            </span></a>
                     </div>
 
 
