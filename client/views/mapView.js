@@ -1162,6 +1162,11 @@ Template.mapBottomPanel.rendered = function() {
             data:fakeData,
             fieldName:"groups"
         });
+
+        // fix render bug where sometimes bottom most item is hovering too low, and a single click with both open and select a value
+        bottomPanelGroupInput.$selector.on("select2-open", function(e) {
+            bottomPanelGroupInput.$selector.select2('positionDropdown');
+        });
     }
 }
 
