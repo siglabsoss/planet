@@ -12,7 +12,8 @@
       },
       "sugar": {},
       "jquery-ui": {},
-      "font-awesome": {}
+      "font-awesome": {},
+      "twilio": {}
     },
     "packages": {
       "leaflet": {
@@ -39,6 +40,11 @@
         "git": "https://github.com/nate-strauser/meteor-font-awesome.git",
         "tag": "v4.0.3",
         "commit": "61e9361384347547ae144f8228faa4deffda23db"
+      },
+      "twilio": {
+        "git": "https://github.com/cultofmetatron/twilio-meteor.git",
+        "tag": "v1.1.0",
+        "commit": "ca454cabac4b074b4a6a61dfe8c9d118d0934b3a"
       }
     }
   }
