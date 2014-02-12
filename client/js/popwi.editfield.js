@@ -196,6 +196,9 @@
             ,discardChanges: function() {
                 this.dataPendingChanges = null;
             }
+            ,getSelection: function() {
+                return this.$selector.select2('val');
+            }
             ,saveChanges: function(callback) {
                 var self = this;
                 // all the saved changes to the select2 are built into a function, and added to a list of pending changes

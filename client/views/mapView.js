@@ -1064,14 +1064,19 @@ Template.devicePopup.deviceFenceEvents = function () {
 showMapBottomPanel = function(show) {
 
     var $selector = $("#mainMapBottomPanel");
+    var $panel = $selector.find('.panel');
 
-    var bottomPanelHeight = "200px";//$selector.find('.panel').height();
+    var bottomPanelHeight = "300px";//$selector.find('.panel').height();
     var showTime = 500; // ms
     var hideTime = 300;
 
     if( show ) {
         $selector.removeClass('hidden');
-        $selector.animate({height: bottomPanelHeight, opacity: 1.0}, showTime);
+        $selector.animate({height: $panel.height(), opacity: 1.0}, showTime);
+
+
+
+
     } else {
         $selector.animate({height: "0px", opacity:0.3}, hideTime, "swing", function() {
             $selector.addClass('hidden');
@@ -1090,14 +1095,110 @@ clickableMapBottomPanel = function(clickable) {
     }
 }
 
+var addGroupToSelectedDevices = function(groupId, add) {
+    var devices = Devices.find({clientSelected:true}).fetch();
+
+    devices.each(function(d){
+        if( add ) {
+            Devices.update(d._id, {$addToSet:{'parents': groupId}});
+        } else {
+            Devices.update(d._id, {$pull:{'parents': groupId}});
+        }
+    });
+}
+
+// file scope
+var bottomPanelGroupInput;
+
 Template.mapBottomPanel.events({
     'click .close-map-bottom-panel':function(e) {
         showMapBottomPanel(false);
     },
     'click .map-bottom-panel-deslect-all':function(e) {
         Devices._collection.update({clientSelected:true}, {$set:{clientSelected:false}}, {multi:true});
+        setTimeout(function(){showMapBottomPanel(false);}, 500);
+    },
+    'click #mapBottomPanelAssignGroupsAdd':function(e) {
+        // grab selection from selector box
+        var selection = bottomPanelGroupInput.getSelection();
+        var count = Devices.find({clientSelected:true}).count();
+
+        if( Array.isArray(selection) && selection.length === 0 ) {
+            flashAlertMessage("Please choose a group to add to " + count + " selected devices.", {hideAfter:2000, type: "danger"});
+        }
+
+        if( typeof selection === "string" ) {
+            addGroupToSelectedDevices(selection, true);
+        }
+    },
+    'click #mapBottomPanelAssignGroupsRemove':function(e) {
+        var selection = bottomPanelGroupInput.getSelection();
+        var count = Devices.find({clientSelected:true}).count();
+
+        if( Array.isArray(selection) && selection.length === 0 ) {
+            flashAlertMessage("Please choose a group to remove from " + count + " selected devices.", {hideAfter:2000, type: "danger"});
+        }
+
+        if( typeof selection === "string" ) {
+            addGroupToSelectedDevices(selection, false);
+        }
     }
 });
+
+
+
+Template.mapBottomPanel.rendered = function() {
+    console.log('ren');
+    var count = Devices.find({clientSelected:true}).count();
+
+
+    // attach PopEditField
+    if( count ) {
+        var fakeData = {
+            'groups':''
+        };
+
+        bottomPanelGroupInput = PopEditField.SingleInput('#mapBottomPanelAssignGroups', {
+            editingCollection:null,
+            searchedCollection:Groups,
+            data:fakeData,
+            fieldName:"groups"
+        });
+    }
+}
+
+Template.mapBottomPanel.selectedGroups = function() {
+
+    var selected = Devices.find({clientSelected:true}, {fields:{'parents':true}}).fetch();
+
+    var parents = [];
+
+    selected.each(function(d){
+        if(d.parents) {
+            parents.add(d.parents); // use sugarjs add because d.parents is an array
+        }
+    });
+
+    // remove dups
+    parents = parents.unique();
+
+    // if none of the selected devices belong to any groups
+    if( !parents.length ) {
+        return "(none)";
+    }
+
+    var names = [];
+
+    // fetch groups
+    var groups = Groups.find({_id: {$in: parents}}).fetch();
+
+    // extract names
+    groups.each(function(g){
+        names.push(g.name);
+    });
+
+    return names;
+}
 
 Template.mapBottomPanel.selectedDeviceCount = function() {
     return Devices.find({clientSelected:true}).count();
