@@ -1148,9 +1148,7 @@ Template.mapBottomPanel.events({
 
 
 Template.mapBottomPanel.rendered = function() {
-    console.log('ren');
     var count = Devices.find({clientSelected:true}).count();
-
 
     // attach PopEditField
     if( count ) {
