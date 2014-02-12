@@ -43,7 +43,8 @@ var selectedIcon = L.icon({
 // default icon (file scope)
 var defaultIcon = L.icon({
     iconUrl: 'packages/leaflet/images/marker-icon.png',
-    shadowUrl: 'packages/leaflet/images/marker-shadow.png'
+    shadowUrl: 'packages/leaflet/images/marker-shadow.png',
+    iconAnchor:   [12, 39]
 });
 
 function buildLeafletMarkerFromDoc(document)
