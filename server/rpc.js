@@ -99,6 +99,9 @@ Meteor.startup(function () {
         },
 
 
+        debugSms: function() {
+            sendText('5102740536', 'hello world');
+        },
 
         destroyAllDevices: function(){
             Devices.remove({});
