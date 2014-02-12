@@ -132,10 +132,66 @@ processFences = function(deviceIds) {
                 } else {
                     Fences.update(f._id, {$pull:{'devices': d._id}})
                 }
+
+                checkRuleViolation(d, f, deviceInside);
             }
         } // for devices
     } // for fences
 };
+
+checkRuleViolation = function(deviceDocument, fenceDocument, deviceInside) {
+    var rules = Alerts.find({fences:fenceDocument._id}).fetch();
+
+    // only bother if we are looking a fence that any rule is written for
+    if( rules.length ) {
+
+        rules.each(function(r){
+
+            // all devices affected by this rule (via groups)
+            var ruleDevices = [];
+            r.groups.each(function(g){
+                ruleDevices.add(devicesInGroup(g));
+            });
+
+            ruleDevices = ruleDevices.unique();
+
+            var ruleDeviceIds = ruleDevices.map(function(d) {
+                return d._id;
+            });
+
+            // only bother if the updated device applies to this rule
+            if( ruleDeviceIds.indexOf(deviceDocument._id) !== -1 ) {
+
+                if( r.rule ) {
+                    if(r.rule.type === "keepout") {
+                        if( deviceInside ) {
+                            notifyContacts(r, deviceDocument, fenceDocument);
+                        }
+                    }
+
+                    if(r.rule.type === "keepin") {
+                        if( !deviceInside ) {
+                            notifyContacts(r, deviceDocument, fenceDocument);
+                        }
+                    }
+                }
+            }
+        });
+    }
+}
+
+notifyContacts = function(ruleDocument, deviceDocument, fenceDocument) {
+    var message = "violation of " + ruleDocument.rule.type + " fence " + fenceDocument.name + " by device " + deviceDocument.serial;
+
+    var contacts = Contacts.find({_id: {$in: ruleDocument.contacts}}).fetch();
+
+    console.log(ruleDocument);
+
+    contacts.each(function(c){
+        sendSMS(c.sms, message);
+    });
+
+}
 
 
 resetDevicesInsideFences = function() {
