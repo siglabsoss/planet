@@ -45,7 +45,6 @@
                 child.selector = selectorIn;
                 child.initJQueryElement();
             }
-            ,dataPendingChanges:[]
             ,initJQueryElement: function() {
                 this.$selector = $(this.selector);
             }
@@ -78,6 +77,8 @@
                 if( self.dotNotationString && typeof self.dotNotationString === "string" ) {
                     self.isDotNotation = true;
                 }
+
+                self.dataPendingChanges = [];
 
 
                 self.select2options.initSelection = function(element, callback) {
