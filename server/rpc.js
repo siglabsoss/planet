@@ -51,6 +51,8 @@ Meteor.startup(function () {
             var shakeFunction;
             shakeFunction = function() {
 
+                var changedDevices = [];
+
 
                 for (var i=1; i<testDeviceCount; i++){
 
@@ -86,7 +88,13 @@ Meteor.startup(function () {
 
                     // run either query
                     Devices.update(device._id, query);
+
+                    // add to list
+                    changedDevices.push(device._id);
                 }
+
+                // update in/out of fences
+                asyncProcessFences(changedDevices);
 
                 if( devicesShaking )
                 {
@@ -152,6 +160,7 @@ Meteor.startup(function () {
 
         },
 
+        // this sends a test sms message to a number, this is used on the contacts page
         testContactSMS: function(contactId) {
             testContactSMS(contactId);
         }
