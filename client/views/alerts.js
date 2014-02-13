@@ -175,6 +175,7 @@ function bindAlertEditInPlaceAndShow(data) {
         PopEditField.MultiInput( '#alertFormGroupInput_'+data._id, {
             editingCollection:Alerts,
             searchedCollection:Groups,
+            searchedCollectionANDQuery:{name:{$ne:ungroupedMagicGroup().name}},
             data:data,
             fieldName:"groups"
         })

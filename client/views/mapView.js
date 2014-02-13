@@ -1155,9 +1155,11 @@ Template.mapBottomPanel.rendered = function() {
             'groups':''
         };
 
+        // show groups, filter out [Ungrouped] entry
         bottomPanelGroupInput = PopEditField.SingleInput('#mapBottomPanelAssignGroups', {
             editingCollection:null,
             searchedCollection:Groups,
+            searchedCollectionANDQuery:{name:{$ne:ungroupedMagicGroup().name}},
             data:fakeData,
             fieldName:"groups"
         });

@@ -64,7 +64,10 @@
             ,finalizeOptions:function(child) {
                 child.select2options.multiple = true;
                 if( !child.searchedCollectionOptions ) {
-                    searchedCollectionOptions = {};
+                    child.searchedCollectionOptions = {};
+                }
+                if( !child.searchedCollectionANDQuery ) {
+                    child.searchedCollectionANDQuery = {};
                 }
             }
             ,init:function(selector, child) {
@@ -110,10 +113,17 @@
 
                     // build regex to find text anywhere in field
                     var expression = ".*"+query.term+".*";
-                    var rx = RegExp(expression,'i');
+                    var rx = new RegExp(expression,'i');
 
                     // search mongo
-                    var documents = self.searchedCollection.find({name:rx}, self.searchedCollectionOptions).fetch();
+                    var mongoQuery;
+                    if( self.searchedCollectionANDQuery && typeof self.searchedCollectionANDQuery === "object") {
+                        mongoQuery = {$and:[{name:rx},self.searchedCollectionANDQuery]};
+                    } else {
+                        mongoQuery = {name:rx};
+                    }
+
+                    var documents = self.searchedCollection.find(mongoQuery, self.searchedCollectionOptions).fetch();
 
                     // callback is expecting a results member
                     var data = {
@@ -250,7 +260,10 @@
             finalizeOptions:function(child) {
                 child.select2options.multiple = false;
                 if( !child.searchedCollectionOptions ) {
-                    searchedCollectionOptions = {};
+                    child.searchedCollectionOptions = {};
+                }
+                if( !child.searchedCollectionANDQuery ) {
+                    child.searchedCollectionANDQuery = {};
                 }
             }
             ,init:function(selector, child) {
@@ -276,7 +289,10 @@
             }
             ,finalizeOptions:function(child){
                 if( !child.searchedCollectionOptions ) {
-                    searchedCollectionOptions = {};
+                    child.searchedCollectionOptions = {};
+                }
+                if( !child.searchedCollectionANDQuery ) {
+                    child.searchedCollectionANDQuery = {};
                 }
             }
             ,init:function(selector, child) {
