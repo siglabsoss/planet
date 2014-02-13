@@ -45,7 +45,8 @@ function getPlainText(string) {
         var result = "";
 
         this[fieldName].each(function(linkedId){
-            var object = collection.findOne(linkedId);
+            // passing fields prevents page from re-rendering when something besides the name changes on this collection
+            var object = collection.findOne(linkedId, {fields:{'name':true}});
             if( object && object.name ) {
                 result = result + object.name +  ', ';
             }
