@@ -180,17 +180,34 @@ checkRuleViolation = function(deviceDocument, fenceDocument, deviceInside) {
     }
 }
 
+
+
+var throttleNotifyContacts = [];
+
 notifyContacts = function(ruleDocument, deviceDocument, fenceDocument) {
-    var message = "violation of " + ruleDocument.rule.type + " fence " + fenceDocument.name + " by device " + deviceDocument.serial;
+    var message = "Violation of " + ruleDocument.rule.type + " fence '" + fenceDocument.name + "' by device: " + deviceDocument.serial;
 
     var contacts = Contacts.find({_id: {$in: ruleDocument.contacts}}).fetch();
 
-    console.log(ruleDocument);
+//    console.log(ruleDocument);
 
-    contacts.each(function(c){
-        sendSMS(c.sms, message);
-    });
+//    console.log(message + " " + deviceDocument._id);
 
+    var throttleRate = 30000;
+    var throttleKey = ruleDocument._id + '_' + deviceDocument._id;
+
+    console.log("KEY " + throttleKey);
+
+    if( !throttleNotifyContacts[throttleKey] ) {
+        throttleNotifyContacts[throttleKey] = (function(con, msg) {
+            con.each(function(c){
+                sendSMS(c.sms, msg);
+            });
+        }).throttle(throttleRate);
+    }
+
+    // call
+    throttleNotifyContacts[throttleKey](contacts, message);
 }
 
 
