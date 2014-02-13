@@ -63,6 +63,9 @@
             // this should not call parent
             ,finalizeOptions:function(child) {
                 child.select2options.multiple = true;
+                if( !child.searchedCollectionOptions ) {
+                    searchedCollectionOptions = {};
+                }
             }
             ,init:function(selector, child) {
                 this.parent.init(selector, child);
@@ -89,13 +92,13 @@
                     var fetchedValue = DDot.match(self.dotNotationString).fetch(self.data);
 
                     if( self.isDotNotation && self.data && fetchedValue ) {
-                        initialSelection = self.searchedCollection.find({name: fetchedValue}).fetch();
+                        initialSelection = self.searchedCollection.find({name: fetchedValue}, self.searchedCollectionOptions).fetch();
 
                         // callback is just expecting an array
                         callback(convertDocumentsSelect2(initialSelection).first());
                     } else {
                         if( self.data && self.data[self.fieldName] && Array.isArray(self.data[self.fieldName]) ) {
-                            initialSelection = self.searchedCollection.find({_id: {$in: self.data[self.fieldName]}}).fetch();
+                            initialSelection = self.searchedCollection.find({_id: {$in: self.data[self.fieldName]}}, self.searchedCollectionOptions).fetch();
 
                             // callback is just expecting an array
                             callback(convertDocumentsSelect2(initialSelection));
@@ -110,7 +113,7 @@
                     var rx = RegExp(expression,'i');
 
                     // search mongo
-                    var documents = self.searchedCollection.find({name:rx}).fetch();
+                    var documents = self.searchedCollection.find({name:rx}, self.searchedCollectionOptions).fetch();
 
                     // callback is expecting a results member
                     var data = {
@@ -153,7 +156,7 @@
                             self.dataPendingChanges.push(function(){
 
 
-                                var value = self.searchedCollection.findOne(e.added.id);
+                                var value = self.searchedCollection.findOne(e.added.id, self.searchedCollectionOptions);
 
                                 if( value && value.name ) {
 
@@ -246,6 +249,9 @@
             // this should not call parent
             finalizeOptions:function(child) {
                 child.select2options.multiple = false;
+                if( !child.searchedCollectionOptions ) {
+                    searchedCollectionOptions = {};
+                }
             }
             ,init:function(selector, child) {
                 this.parent.init(selector, child);
@@ -269,6 +275,9 @@
                 title: 'Enter value' // default placeholder
             }
             ,finalizeOptions:function(child){
+                if( !child.searchedCollectionOptions ) {
+                    searchedCollectionOptions = {};
+                }
             }
             ,init:function(selector, child) {
                 this.parent.init(selector, child);
