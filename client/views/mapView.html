@@ -15,6 +15,7 @@
                 </div>
                 {{/constant}}
                 {{>mapBottomPanel}}
+                {{>confirmEditingFenceShape}}
             </div>
         </div>
     </div>
@@ -100,7 +101,7 @@
                     Options <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a href="#" class="iron-ignore">Edit Fence</a></li>
+                    <li><a href="#" class="editFenceLink iron-ignore">Edit Fence</a></li>
                     <li class="divider"></li>
                     <li><a href="#" class="deleteFenceLink iron-ignore" data-id="{{_id}}">Delete Fence&nbsp;&nbsp;<i class="fa fa-trash-o"></i></a></li>
                 </ul>
@@ -234,4 +235,11 @@
         </ol>
     </div>
     {{dependenciesString}}
+</template>
+
+<template name="confirmEditingFenceShape">
+    <div class="confirmEditingFence hidden">
+        <button type="button" class="btn btn-primary btn-xs saveFenceShape">Save</button>
+        <button type="button" class="btn btn-primary btn-xs cancelEditingFenceShape">Cancel</button>
+    </div>
 </template>

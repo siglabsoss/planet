@@ -263,7 +263,13 @@ function buildLeafletLayerFromDoc(document)
     return o;
 }
 
+function updateLayerStyleBounds(newDocument) {
+    var layer = drawnItemsLayerGroup.getLayer(clientFences[newDocument._id]._leaflet_id);
 
+    applyLayerStylePropertiesFromDoc(layer, newDocument);
+
+    applyLayerBoundsFromDoc(layer, newDocument);
+}
 
 // this array has "file scope" because it is var
 var clientFences = [];
@@ -280,7 +286,7 @@ function installMapViewAutorun()
             if( queryObserve )
                 return;
 
-            var query = Fences.find({});
+            var query = Fences.find({},{fields:{'devices': false}});
 
             queryObserve = query.observe({
                 added: function(document) {
@@ -293,11 +299,7 @@ function installMapViewAutorun()
                     drawnItemsLayerGroup.addLayer(clientFences[document._id]);
                 },
                 changed: function(newDocument, oldDocument){
-                    var layer = drawnItemsLayerGroup.getLayer(clientFences[newDocument._id]._leaflet_id);
-
-                    applyLayerStylePropertiesFromDoc(layer, newDocument);
-
-                    applyLayerBoundsFromDoc(layer, newDocument);
+                    updateLayerStyleBounds(newDocument);
                 },
                 removed: function(oldDocument) {
                     // remove the layer from the map
@@ -774,6 +776,8 @@ function bindDevicePopupElements(document)
 
 // file scope
 var FenceNameEdit = [];
+var FenceShapeEdit;
+var SavedFences = [];
 
 // Called to bind stuff in the fence popup.  First param is the document, second is the leaflet popup object
 function bindFencePopupElements(data, popupObject)
@@ -790,6 +794,14 @@ function bindFencePopupElements(data, popupObject)
         }
     });
 
+    $('.editFenceLink').off('click').on('click', function(e){
+        clientFences[data._id].editing.enable();
+        FenceShapeEdit = data._id;
+        SavedFences[data._id] = data;
+        $('.leaflet-popup').hide();
+        $('.confirmEditingFence').removeClass('hidden');
+    });
+
     $('#chooseFenceColor_' + data._id).off('click').on('click', function(e){
         console.log('here');
         //Fences.update(data._id, {$set:{'layer.options.color':'#000'}});
@@ -801,6 +813,13 @@ function bindFencePopupElements(data, popupObject)
     $('#edit-fence-popup-data_' + data._id).off('click').on('click', function(e){
 
         // re-fetch the document because it may have changed since we bound the popup to the fences
+
+//        console.log(drawnItemsLayerGroup.getLayer(data._id).options.editable);
+
+
+//        var leafletId = clientFences[data._id]._leaflet_id;
+//        clientFences[data._id].editing.enable();
+//        clientFences[data._id].editing.disable();
 
         FenceNameEdit = [];
         FenceNameEdit.push(
@@ -1207,3 +1226,23 @@ Template.mapBottomPanel.selectedGroups = function() {
 Template.mapBottomPanel.selectedDeviceCount = function() {
     return Devices.find({clientSelected:true}).count();
 }
+
+Template.confirmEditingFenceShape.events({
+    'click .saveFenceShape':function(e) {
+        clientFences[FenceShapeEdit].editing.disable();
+        if(Fences.findOne(FenceShapeEdit).layerType === "circle") {
+            Fences.update({_id: FenceShapeEdit},{$set: {"layer._mRadius": clientFences[FenceShapeEdit]._mRadius, "layer._latlng.lat": clientFences[FenceShapeEdit]._latlng.lat, "layer._latlng.lng": clientFences[FenceShapeEdit]._latlng.lng}});
+        }
+        else {
+            Fences.update({_id: FenceShapeEdit},{$set: {"layer._latlngs": clientFences[FenceShapeEdit]._latlngs}});
+        }
+        $('.leaflet-popup').show();
+        $('.confirmEditingFence').addClass('hidden');
+    },
+    'click .cancelEditingFenceShape':function(e) {
+        updateLayerStyleBounds(Fences.findOne(FenceShapeEdit));
+        clientFences[FenceShapeEdit].editing.disable();
+        $('.leaflet-popup').show();
+        $('.confirmEditingFence').addClass('hidden');
+    }
+});
