@@ -40,11 +40,14 @@ var selectedIcon = L.icon({
 //    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
 });
 
+var defaultIconOffset = [13, 39];
+var defaultIconPopupOffsetOffset = [0, -31];
+
 // default icon (file scope)
 var defaultIcon = L.icon({
     iconUrl: 'packages/leaflet/images/marker-icon.png',
     shadowUrl: 'packages/leaflet/images/marker-shadow.png',
-    iconAnchor:   [12, 39]
+    iconAnchor:   defaultIconOffset
 });
 
 function buildLeafletMarkerFromDoc(document)
@@ -74,7 +77,7 @@ function buildLeafletMarkerFromDoc(document)
     };
 
     // normal popup binding
-    marker.bindPopup(popup);
+    marker.bindPopup(popup, {offset:defaultIconPopupOffsetOffset});
 
     // remove default click added by bindPopup
     marker.off('click');
@@ -426,7 +429,7 @@ function mainMapRunOnce(templateInstance)
     L.Icon.Default.imagePath = 'packages/leaflet/images';
     window.mapObject = L.map('map', {
         doubleClickZoom: false
-    }).setView([37.471075, -121.600932], 10);
+    }).setView([37.75605845785265, -122.46030807495116 ], 13);
     L.tileLayer("http://{s}.tile.cloudmade.com/" + key + "/" + mapStyle + "/256/{z}/{x}/{y}.png", {
         attribution: ''
     }).addTo(window.mapObject);
@@ -562,10 +565,6 @@ function mainMapRunOnce(templateInstance)
     window.mapObject.on('draw:created', function (e) {
         var type = e.layerType,
             layer = e.layer;
-
-        if (type === 'marker') {
-            layer.bindPopup('A popup!');
-        }
 
         insertFenceFromLeafletEvent(e);
 
