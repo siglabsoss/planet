@@ -11,6 +11,9 @@
     "sugar": {},
     "jquery-ui": {},
     "font-awesome": {},
-    "twilio": {}
+    "twilio": {
+"git": "git@github.com:cultofmetatron/twilio-meteor.git",
+            "ref": "ca454cabac4b074b4a6a61dfe8c9d118d0934b3a"
+}
   }
 }
