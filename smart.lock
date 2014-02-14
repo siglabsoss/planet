@@ -13,7 +13,8 @@
       "sugar": {},
       "jquery-ui": {},
       "font-awesome": {},
-      "twilio": {}
+      "twilio": {},
+      "npm": {}
     },
     "packages": {
       "leaflet": {
@@ -45,6 +46,11 @@
         "git": "https://github.com/cultofmetatron/twilio-meteor.git",
         "tag": "v1.1.0",
         "commit": "ca454cabac4b074b4a6a61dfe8c9d118d0934b3a"
+      },
+      "npm": {
+        "git": "https://github.com/arunoda/meteor-npm.git",
+        "tag": "v0.2.6",
+        "commit": "177ab6118de5bf8cffb19481343d5762ff7a2aaf"
       }
     }
   }

@@ -11,6 +11,7 @@
     "sugar": {},
     "jquery-ui": {},
     "font-awesome": {},
-    "twilio": {}
+    "twilio": {},
+    "npm": {}
   }
 }
