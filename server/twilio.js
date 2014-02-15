@@ -6,7 +6,7 @@ function setupClient() {
         return;
     }
 
-    client = Npm.require('twilio')(Meteor.settings.TWILIO_SID, Meteor.settings.TWILIO_TOKEN);
+    client = Meteor.require('twilio')(Meteor.settings.TWILIO_SID, Meteor.settings.TWILIO_TOKEN);
 }
 
 sendSMS = function(to, messageText) {
