@@ -376,6 +376,8 @@ markDevicesSelected = function(selectedDevices) {
 
 // file scope
 var resizeMap;
+// global scope
+//clusterMarkers
 
 function mainMapRunOnce(templateInstance)
 {
@@ -423,6 +425,8 @@ function mainMapRunOnce(templateInstance)
 
     // size it once now
     resizeMap();
+
+
 
     // and resize with window
     $(window).resize(function() {
@@ -609,7 +613,7 @@ function mainMapRunOnce(templateInstance)
 
 //    var marker = L.marker([32, -122]).addTo(window.map);
 
-
+    clusterMarkers  = L.markerClusterGroup({ animateAddingMarkers : true, polygonOptions: {color: '#424242', opacity: 0.1}});
 
     query = Devices.find({});
     query.observe({
@@ -620,8 +624,7 @@ function mainMapRunOnce(templateInstance)
 
             // update global array
             clientMapMarkers[document._id] = markerObject;
-
-            drawnMarkersLayerGroup.addLayer(clientMapMarkers[document._id]);
+            clusterMarkers.addLayer(markerObject);
         },
         changed: function(newDocument, oldDocument){
             updateClientMapMarker(newDocument);
@@ -635,6 +638,7 @@ function mainMapRunOnce(templateInstance)
         }
     });
 
+    drawnMarkersLayerGroup.addLayer(clusterMarkers);
 
     // This autorun requires that the map objects have already been created
     installMapViewAutorun();
