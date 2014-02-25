@@ -6,7 +6,7 @@ hookRouteAction = function () {
 //              console.log(JSON.stringify(this.params));
 //    console.log(this.request.body);
 
-//    simpleLog(JSON.stringify(this.request.body));
+    console.log(JSON.stringify(this.request.body));
 
     parseHook(this.request.body);
 
@@ -22,6 +22,11 @@ function parseHook(object)
     if( object && object.updates )
     {
         object.updates.each(function(row) {
+
+            if( !(row && row.lat != "undefined" && row.lng != "undefined" && row.serial != "undefined"))
+            {
+                return; // next in .each() parlance
+            }
 //            var record = {};
 //            record.lat = row.lat;
 //            record.lon = row.lon;
@@ -39,7 +44,7 @@ function parseHook(object)
                     // Modifier
                     $set: {
                         lat: row.lat,
-                        lng: row.lon, // NOTE CONVERSION to LNG here
+                        lng: row.lng,
                         serial: row.serial
                     }
                 }
