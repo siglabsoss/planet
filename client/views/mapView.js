@@ -378,9 +378,7 @@ var resizeMap;
 function mainMapRunOnce(templateInstance)
 {
     var query;
-    key = "d4b5ecf084be4fd5b333f2bc34c1df12";
-    mapStyle = "67367"; // dark blue
-    mapStyle = "2172"; //lighter gmaps clone
+    mapId = "popwi.i42nfaoe"; // Map style is now applied by logging in to mapbox.com
 
     var mapDom = templateInstance.find('#map'); // this is DOM element I think
     var containerDom = templateInstance.find('#main_map_container');
@@ -430,7 +428,7 @@ function mainMapRunOnce(templateInstance)
     window.mapObject = L.map('map', {
         doubleClickZoom: false
     }).setView([37.75605845785265, -122.46030807495116 ], 13);
-    L.tileLayer("http://{s}.tile.cloudmade.com/" + key + "/" + mapStyle + "/256/{z}/{x}/{y}.png", {
+    L.tileLayer("http://{s}.tiles.mapbox.com/v3/" + mapId + "/{z}/{x}/{y}.png", {
         attribution: ''
     }).addTo(window.mapObject);
     window.mapObject.on('dblclick', function(e) {
